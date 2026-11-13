@@ -148,20 +148,22 @@ async function sendInvite(req, env, cfg, json, emailOn) {
   return r.ok ? json({ ok: true }) : json({ error: 'email service error ' + r.status }, 502);
 }
 
-/* Invite handshake: "someone accepted invite r, their DriveChat outbox is o". Only folder IDs, kept 30 days. */
+/* Invite handshake: "these DriveChat folders want to connect with ID r". One small key per ID,
+   read with get() (100k/day free) — never list() (only 1k/day free). Folder IDs only, kept 30 days. */
 async function handshake(req, env, json, okOrigin) {
   if (!env.HS) return json({ error: 'kv not configured' }, 501);
   if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
   const ID = /^[\w-]{16,64}$/;
   if (req.method === 'GET') {
-    const rs = (new URL(req.url).searchParams.get('r') || '').split(',').filter(r => ID.test(r)).slice(0, 10);
+    const rs = [...new Set((new URL(req.url).searchParams.get('r') || '').split(',').filter(r => ID.test(r)))].slice(0, 10);
     const out = new Set();
-    for (const r of rs) { const l = await env.HS.list({ prefix: `hs:${r}:`, limit: 100 }); for (const k of l.keys) out.add(k.name.split(':')[2]); }
+    await Promise.all(rs.map(async r => { const v = await env.HS.get('h:' + r, { type: 'json', cacheTtl: 60 }); for (const o of v || []) out.add(o); }));
     return json({ o: [...out] });
   }
   if (limited('hs:' + (req.headers.get('CF-Connecting-IP') || 'x'), 60)) return json({ error: 'slow down' }, 429);
   let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
   if (!ID.test(p.r || '') || !/^[\w-]{10,64}$/.test(p.o || '')) return json({ error: 'bad ids' }, 400);
-  await env.HS.put(`hs:${p.r}:${p.o}`, '1', { expirationTtl: 30 * 86400 });
+  const cur = (await env.HS.get('h:' + p.r, { type: 'json' })) || [];
+  if (!cur.includes(p.o)) await env.HS.put('h:' + p.r, JSON.stringify([...cur.slice(-199), p.o]), { expirationTtl: 30 * 86400 });   // write only when new
   return json({ ok: true });
 }
