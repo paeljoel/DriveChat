@@ -526,7 +526,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '15';
+const APP_VERSION = '16';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -3047,16 +3047,23 @@ async function addPeopleModal(note = '') {
   const WA = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg>';
   const TG = '<svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>';
   const VB = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M11.4 2C9.3 2 5 2.4 3.3 4c-1.3 1.2-1.7 3.1-1.8 5.4-.1 2.3-.1 6.6 4.1 7.8v1.8s0 .7.5.9c.6.2.9-.4 1.5-1l1.1-1.3c3 .3 5.3-.3 5.6-.4.6-.2 4.1-.6 4.7-5.3.6-4.9-.3-8-1.9-9.4C16.6 2.2 14.5 2 11.4 2zm.4 2.4c3.3 0 4.9.5 5.6 1.1 1.2 1.1 1.8 3.6 1.4 7.6-.5 3.9-3.3 4.1-3.8 4.3-.2.1-2.2.6-4.8.4l-2.3 2.6v-2.8c-3.4-.9-3.3-4.4-3.2-6.3.1-1.9.4-3.4 1.4-4.4 1.2-1.1 4-1.5 5.7-1.5zm.2 2c-.2 0-.2.3 0 .3 1.1 0 2 .4 2.7 1.1.7.7 1 1.7 1 2.9 0 .2.3.2.3 0 0-1.3-.4-2.4-1.2-3.2-.8-.7-1.8-1.1-2.8-1.1zm-2.5.5c-.3 0-.5.1-.8.4-.4.4-.8.9-.6 1.6.4 1 1 2 1.9 3 .9.9 2 1.6 3.2 2 .7.2 1.2-.2 1.6-.6.4-.4.4-.8 0-1.1l-1.3-.9c-.4-.3-.8-.1-1 .1l-.4.5c-.2.2-.5.2-.5.2-1.6-.4-2.2-2-2.2-2s0-.3.2-.5l.5-.4c.2-.2.4-.6.1-1l-.9-1.2a.7.7 0 0 0-.8-.1zm2.7.6c-.2 0-.2.3 0 .3.8.1 1.3.6 1.4 1.4 0 .2.3.2.3 0-.1-1-.7-1.6-1.7-1.7zm.2 1c-.2 0-.2.3 0 .3.3 0 .5.2.5.5 0 .2.3.2.3 0 0-.5-.4-.8-.8-.8z"/></svg>';
+  const SMS = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3C6.5 3 2 6.6 2 11.1c0 2.4 1.3 4.6 3.4 6.1-.2 1.3-.8 2.6-1.8 3.5 2 0 3.8-.7 5.1-1.8 1 .3 2.1.4 3.3.4 5.5 0 10-3.6 10-8.2S17.5 3 12 3z"/></svg>';
   const o = modal('Invite friends', `${note ? `<div class="note warn">${iconSm('link', 18)}<span>${note}</span></div>` : ''}
     <p class="small muted" style="margin-top:0">Send your personal link. When a friend opens it and signs in with Google, you're connected.</p>
     <div class="linkcard"><div class="linkcard-ic">${I.link}</div><div class="linkcard-t"><b>Your invite link</b><span id="my-link-t">Creating your link…</span></div><button class="btn" id="cp-link" disabled>Copy</button></div>
     <input type="hidden" id="my-link">
     <div class="stiles">
       ${navigator.share ? tile('share', 'linear-gradient(135deg,#6a55ee,#9a6cf5)', I.share.replace('class="icon"', 'class="icon" style="color:#fff"'), 'Share') : ''}
+      ${mobile ? tile('sms', '#34C759', SMS, 'Text') : ''}
       ${tile('wa', '#25D366', WA, 'WhatsApp')}
       ${mobile ? tile('vb', '#7360f2', VB, 'Viber') : ''}
       ${tile('tg', '#2AABEE', TG, 'Telegram')}
       ${tile('mail', '#ea4335', I.send.replace('class="icon"', 'class="icon" style="color:#fff"'), 'Email')}
+    </div>
+    <div id="sms-row" class="hidden">
+      <label class="lbl">Friend's phone number</label>
+      <div class="row-inline"><input class="field" id="inv-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+63 912 345 6789">${'contacts' in navigator && 'ContactsManager' in window ? `<button class="btn ghost" id="inv-pick" title="Pick from contacts">${iconSm('userplus', 17)}</button>` : ''}<button class="btn" id="inv-text">Text</button></div>
+      <p class="tiny muted">Opens your Messages app with the invite ready to send. They tap the link and sign in with Google, nothing to install.</p>
     </div>
     <div id="mail-row" class="hidden">
       <label class="lbl">Friend's email</label>
@@ -3078,8 +3085,16 @@ async function addPeopleModal(note = '') {
     else if (k === 'wa') open('https://wa.me/?text=' + encodeURIComponent(t.short + ' ' + link));
     else if (k === 'tg') open('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(t.short));
     else if (k === 'vb') location.href = 'viber://forward?text=' + encodeURIComponent(t.short + ' ' + link);
-    else if (k === 'mail') { $('#mail-row', o).classList.remove('hidden'); $('#inv-email', o).focus(); }
+    else if (k === 'mail') { $('#sms-row', o).classList.add('hidden'); $('#mail-row', o).classList.remove('hidden'); $('#inv-email', o).focus(); }
+    else if (k === 'sms') { $('#mail-row', o).classList.add('hidden'); $('#sms-row', o).classList.remove('hidden'); $('#inv-phone', o).focus(); }
   };
+  const textIt = () => {
+    const ph = $('#inv-phone', o).value.replace(/[^\d+]/g, '');
+    if (ph.replace('+', '').length < 6) return toast('Enter a phone number', true);
+    location.href = 'sms:' + ph + '?&body=' + encodeURIComponent(t.short + ' ' + link);   // ?&body works on both iPhone and Android
+  };
+  $('#inv-text', o).onclick = textIt; $('#inv-phone', o).onkeydown = e => { if (e.key === 'Enter') textIt(); };
+  const pk = $('#inv-pick', o); if (pk) pk.onclick = async () => { try { const [c] = await navigator.contacts.select(['tel'], { multiple: false }); if (c?.tel?.[0]) { $('#inv-phone', o).value = c.tel[0]; textIt(); } } catch {} };
   const send = async () => {
     const em = $('#inv-email', o).value.trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast('Enter a valid email address', true);
