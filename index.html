@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7360f2">
+<title>DriveChat</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237360f2'/%3E%3Cpath d='M16 20h32a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H30l-9 8v-8h-5a4 4 0 0 1-4-4V24a4 4 0 0 1 4-4z' fill='white'/%3E%3C/svg%3E">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --accent:#7360f2;--accent-2:#5b48e0;--accent-soft:#ece9ff;
+  --bg:#ffffff;--bg-2:#f4f4f8;--bg-3:#ebebf1;--line:#e3e3ea;
+  --text:#16161d;--text-2:#5d5d6c;--text-3:#9494a3;
+  --me:#7360f2;--me-text:#fff;--them:#f0f0f5;--them-text:#16161d;
+  --danger:#e5484d;--ok:#22a06b;--shadow:0 8px 30px rgba(20,20,40,.14);
+  --radius:18px;--sidebar:340px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#17171c;--bg-2:#1f1f26;--bg-3:#2a2a33;--line:#2e2e38;
+  --text:#ececf1;--text-2:#a9a9b8;--text-3:#70707f;
+  --them:#2a2a33;--them-text:#ececf1;--accent-soft:#2c2650;--shadow:0 8px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body{overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea,select{font:inherit;color:var(--text)}
+a{color:var(--accent)}
+.hidden{display:none!important}
+.icon{width:22px;height:22px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ibtn{width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--text-2);transition:background .15s}
+.ibtn:hover{background:var(--bg-3);color:var(--text)}
+.ibtn.accent{color:var(--accent)}
+.btn{padding:10px 18px;border-radius:12px;background:var(--accent);color:#fff;font-weight:600;transition:background .15s,opacity .15s}
+.btn:hover{background:var(--accent-2)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:var(--bg-3);color:var(--text)}
+.btn.ghost:hover{background:var(--line)}
+.btn.danger{background:var(--danger)}
+.btn.block{width:100%}
+.field{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg-2);outline:none}
+.field:focus{border-color:var(--accent)}
+label.lbl{display:block;font-size:13px;color:var(--text-2);margin:14px 0 6px;font-weight:600}
+.muted{color:var(--text-2)}.small{font-size:13px}.tiny{font-size:12px}
+/* ---------- screens ---------- */
+.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#7360f2 0%,#9a6cf5 50%,#c56ff0 100%);overflow:auto}
+.card{background:var(--bg);border-radius:24px;box-shadow:var(--shadow);padding:32px;width:100%;max-width:460px;max-height:calc(100vh - 40px);overflow:auto}
+.card h1{margin:0 0 6px;font-size:26px}
+.logo{width:56px;height:56px;border-radius:16px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.logo svg{width:32px;height:32px}
+.steps{font-size:13.5px;color:var(--text-2);padding-left:20px;line-height:1.6}
+.steps code{background:var(--bg-3);padding:1px 6px;border-radius:6px;font-size:12.5px;word-break:break-all}
+.ws-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--bg-2);margin-bottom:8px;width:100%;text-align:left}
+.ws-item:hover{background:var(--bg-3)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--text-3);font-size:12px;margin:18px 0}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--line)}
+.row-inline{display:flex;gap:8px}
+/* ---------- main layout ---------- */
+.main{position:fixed;inset:0;display:flex}
+.sidebar{width:var(--sidebar);border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--bg);min-width:0}
+.sb-head{display:flex;align-items:center;gap:10px;padding:14px 14px 8px}
+.sb-title{flex:1;min-width:0}
+.sb-title b{display:block;font-size:20px}
+.sb-title span{display:block;font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{margin:4px 14px 8px;position:relative}
+.search input{width:100%;padding:10px 14px 10px 38px;border-radius:20px;border:0;background:var(--bg-2);outline:none}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-3)}
+.tabs{display:flex;gap:6px;padding:0 14px 8px}
+.tab{padding:6px 14px;border-radius:16px;font-size:14px;font-weight:600;color:var(--text-2)}
+.tab.on{background:var(--accent-soft);color:var(--accent)}
+.list{flex:1;overflow-y:auto;padding:0 8px 12px}
+.item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer;width:100%;text-align:left}
+.item:hover{background:var(--bg-2)}
+.item.on{background:var(--accent-soft)}
+.item .meta{flex:1;min-width:0}
+.item .top{display:flex;align-items:baseline;gap:8px}
+.item .name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .time{font-size:12px;color:var(--text-3);flex-shrink:0}
+.item .bottom{display:flex;align-items:center;gap:8px;margin-top:2px}
+.item .preview{flex:1;font-size:13.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.unread .preview{color:var(--text);font-weight:600}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.badge.muted-b{background:var(--text-3)}
+.empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:14px}
+/* avatar */
+.av{position:relative;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;overflow:visible;user-select:none}
+.av>img,.av>.ini{width:100%;height:100%;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center}
+.av .dot{position:absolute;right:0;bottom:0;width:28%;height:28%;min-width:10px;min-height:10px;border-radius:50%;background:var(--ok);border:2px solid var(--bg)}
+.av.grp .ini{font-size:.9em}
+/* chat */
+.chat{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg);position:relative}
+.chat-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);min-height:64px}
+.chat-head .who{flex:1;min-width:0;cursor:pointer}
+.chat-head .who b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-head .who span{font-size:12.5px;color:var(--text-3)}
+.chat-head .who span.typing{color:var(--accent)}
+.back{display:none}
+.msgs{flex:1;overflow-y:auto;padding:16px 18px 8px;display:flex;flex-direction:column}
+.load-more{align-self:center;margin:6px 0 14px;font-size:13px;color:var(--text-3)}
+.day{align-self:center;font-size:12px;color:var(--text-3);background:var(--bg-2);padding:4px 12px;border-radius:12px;margin:14px 0 10px}
+.sys{align-self:center;font-size:12.5px;color:var(--text-3);margin:6px 0;text-align:center;max-width:80%}
+.mrow{display:flex;align-items:flex-end;gap:8px;margin-top:2px;position:relative;max-width:100%}
+.mrow.first{margin-top:10px}
+.mrow.me{flex-direction:row-reverse}
+.mrow .avs{width:30px;flex-shrink:0}
+.mwrap{display:flex;flex-direction:column;max-width:min(560px,72%);min-width:0}
+.mrow.me .mwrap{align-items:flex-end}
+.sender{font-size:12px;color:var(--text-3);margin:0 0 3px 12px;font-weight:600}
+.bubble{padding:8px 12px;border-radius:var(--radius);background:var(--them);color:var(--them-text);word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.38;font-size:15px;position:relative}
+.mrow.me .bubble{background:var(--me);color:var(--me-text)}
+.mrow.them:not(.last) .bubble{border-bottom-left-radius:6px}
+.mrow.them:not(.first) .bubble{border-top-left-radius:6px}
+.mrow.me:not(.last) .bubble{border-bottom-right-radius:6px}
+.mrow.me:not(.first) .bubble{border-top-right-radius:6px}
+.bubble.big{background:none!important;font-size:42px;padding:0 2px;line-height:1.15}
+.bubble.deleted{font-style:italic;opacity:.65}
+.bubble.media{padding:4px;overflow:hidden}
+.bubble a{color:inherit;text-decoration:underline}
+.mrow.me .bubble.pending{opacity:.6}
+.mrow.me .bubble.failed{background:var(--danger)}
+.mtime{font-size:11px;opacity:.7;margin-left:8px;float:right;margin-top:6px;white-space:nowrap}
+.bubble.media .mtime{position:absolute;right:10px;bottom:8px;background:rgba(0,0,0,.45);color:#fff;padding:1px 7px;border-radius:9px;opacity:1}
+.quote{border-left:3px solid currentColor;padding:2px 8px;margin:2px 0 6px;font-size:13px;opacity:.8;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;max-width:320px}
+.quote b{display:block;font-size:12px}
+.att-img{display:block;max-width:300px;max-height:320px;min-width:120px;min-height:80px;border-radius:14px;cursor:zoom-in;object-fit:cover;background:var(--bg-3)}
+.att-file{display:flex;align-items:center;gap:10px;padding:6px 4px;min-width:200px;cursor:pointer}
+.att-file .fi{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mrow.them .att-file .fi{background:var(--bg-3)}
+.att-file .fn{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.att-audio{display:flex;align-items:center;gap:10px;min-width:220px;padding:2px 0}
+.att-audio .play{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mrow.them .att-audio .play{background:var(--accent);color:#fff}
+.att-audio .bar{flex:1;height:4px;border-radius:2px;background:rgba(127,127,127,.35);position:relative;cursor:pointer}
+.att-audio .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:currentColor;width:0}
+.att-audio .dur{font-size:12px;opacity:.8;min-width:34px}
+.att-video{display:block;max-width:320px;max-height:320px;border-radius:14px;background:#000}
+.reacts{display:flex;gap:4px;margin-top:-6px;z-index:1;flex-wrap:wrap}
+.mrow.me .reacts{justify-content:flex-end}
+.react{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:1px 7px;font-size:13px;display:inline-flex;gap:4px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.react.mine{border-color:var(--accent);background:var(--accent-soft)}
+.mact{display:flex;align-items:center;gap:2px;opacity:0;transition:opacity .12s;align-self:center}
+.mrow:hover .mact,.mrow.touch .mact{opacity:1}
+.mact .ibtn{width:30px;height:30px}.mact .icon{width:18px;height:18px}
+.seen{font-size:11.5px;color:var(--text-3);align-self:flex-end;margin:3px 4px 0}
+.typing-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.dots{background:var(--them);border-radius:var(--radius);padding:12px 14px;display:flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:blink 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.flash .bubble{animation:flash 1.2s}
+@keyframes flash{0%,40%{box-shadow:0 0 0 4px var(--accent)}100%{box-shadow:none}}
+/* composer */
+.bar-top{display:flex;align-items:center;gap:10px;padding:8px 16px;border-top:1px solid var(--line);background:var(--bg-2);font-size:13px}
+.bar-top .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-top b{color:var(--accent)}
+.composer{display:flex;align-items:flex-end;gap:4px;padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.composer .inp{flex:1;background:var(--bg-2);border-radius:22px;display:flex;align-items:flex-end;padding:0 6px 0 16px;min-height:42px}
+.composer textarea{flex:1;border:0;outline:none;background:none;resize:none;padding:11px 0;max-height:160px;line-height:1.35;font-size:15px}
+.send{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.send:hover{background:var(--accent-2)}
+.rec{display:flex;align-items:center;gap:12px;flex:1;padding:0 12px;height:42px}
+.rec .rdot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:blink 1s infinite}
+.uploads{padding:0 16px}
+.up{display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 0}
+.up .pb{flex:1;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.up .pb i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-3);text-align:center;padding:30px}
+.welcome .logo{width:80px;height:80px;border-radius:24px}
+.welcome .logo svg{width:44px;height:44px}
+.drop{position:absolute;inset:0;background:rgba(115,96,242,.12);border:3px dashed var(--accent);border-radius:16px;margin:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:18px;pointer-events:none;z-index:5}
+/* info panel */
+.info{width:320px;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow-y:auto;background:var(--bg)}
+.info-hero{display:flex;flex-direction:column;align-items:center;padding:28px 20px 16px;text-align:center;gap:8px}
+.info-hero b{font-size:18px}
+.sect{padding:10px 16px;border-top:1px solid var(--line)}
+.sect h4{margin:6px 0 8px;font-size:13px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em}
+.mline{display:flex;align-items:center;gap:10px;padding:7px 4px;border-radius:10px}
+.mline .n{flex:1;min-width:0;font-size:14px}
+.mline .n small{display:block;color:var(--text-3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act{display:flex;align-items:center;gap:12px;padding:10px 6px;border-radius:10px;width:100%;text-align:left;font-size:14.5px}
+.act:hover{background:var(--bg-2)}
+.act.red{color:var(--danger)}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.media-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;background:var(--bg-3)}
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(10,10,20,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;animation:fade .15s}
+@keyframes fade{from{opacity:0}}
+.modal{background:var(--bg);border-radius:22px;box-shadow:var(--shadow);width:100%;max-width:440px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;animation:pop .18s}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+.modal-h{display:flex;align-items:center;padding:16px 16px 8px 22px}
+.modal-h h3{flex:1;margin:0;font-size:18px}
+.modal-b{padding:4px 22px 16px;overflow-y:auto}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;padding:12px 22px 18px}
+.pick{display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;cursor:pointer;width:100%;text-align:left}
+.pick:hover{background:var(--bg-2)}
+.pick .chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);margin-left:auto;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pick.sel .chk{background:var(--accent);border-color:var(--accent);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{background:var(--accent-soft);color:var(--accent);padding:4px 10px;border-radius:14px;font-size:13px;font-weight:600}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:3px solid transparent}
+.sw.on{border-color:var(--text)}
+.seg{display:flex;background:var(--bg-2);border-radius:12px;padding:3px}
+.seg button{flex:1;padding:7px;border-radius:10px;font-size:14px;color:var(--text-2)}
+.seg button.on{background:var(--bg);color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.popover{position:fixed;z-index:60;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:6px;min-width:180px;border:1px solid var(--line);animation:pop .12s}
+.popover .pi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;width:100%;text-align:left;font-size:14.5px}
+.popover .pi:hover{background:var(--bg-2)}
+.popover .pi.red{color:var(--danger)}
+.qr{display:flex;gap:2px;padding:4px}
+.qr button{font-size:24px;width:40px;height:40px;border-radius:50%;transition:transform .1s}
+.qr button:hover{transform:scale(1.2);background:var(--bg-2)}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:240px;overflow-y:auto;width:320px;padding:4px}
+.emoji-grid button{font-size:22px;height:38px;border-radius:8px}
+.emoji-grid button:hover{background:var(--bg-2)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:70;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.lightbox img{max-width:94vw;max-height:84vh;object-fit:contain}
+.lightbox .lb-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:flex-end;padding:12px;gap:8px}
+.lightbox .ibtn{color:#fff}.lightbox .ibtn:hover{background:rgba(255,255,255,.15)}
+.toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#222230;color:#fff;padding:10px 18px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);animation:pop .2s;max-width:90vw}
+.toast.err{background:var(--danger)}
+.banner{position:fixed;top:0;left:0;right:0;z-index:80;background:#ffb020;color:#222;display:flex;align-items:center;justify-content:center;gap:14px;padding:8px;font-size:14px;font-weight:600}
+.banner button{background:#222;color:#fff;padding:5px 12px;border-radius:8px}
+.spinner{width:28px;height:28px;border:3px solid var(--bg-3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-full{position:fixed;inset:0;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:var(--bg);z-index:40;color:var(--text-2)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+/* responsive */
+@media (max-width:1100px){.info{position:absolute;right:0;top:0;bottom:0;z-index:20;box-shadow:var(--shadow)}}
+@media (max-width:760px){
+  :root{--sidebar:100vw}
+  .sidebar{position:absolute;inset:0;z-index:2;border-right:0}
+  .main.in-chat .sidebar{display:none}
+  .main:not(.in-chat) .chat{display:none}
+  .back{display:inline-flex}
+  .info{position:fixed;inset:0;width:100%;z-index:30}
+  .mwrap{max-width:82%}
+  .mact{display:none}
+  .mrow.touch .mact{display:flex}
+}
+
+/* ---------- v2 additions ---------- */
+.lock-ic{width:56px;height:56px;border-radius:16px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.e2e{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-3)}
+.e2e svg{width:12px;height:12px}
+.note{background:var(--accent-soft);color:var(--text);border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+.note.warn{background:#fff4d6;color:#5a4300}
+[data-theme="dark"] .note.warn{background:#3d3214;color:#ffe6a3}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;letter-spacing:.06em;line-height:1.7;background:var(--bg-2);padding:10px 12px;border-radius:10px;text-align:center;word-spacing:.4em}
+.calllog{align-self:center;display:flex;align-items:center;gap:8px;background:var(--bg-2);padding:7px 14px;border-radius:16px;font-size:13px;margin:8px 0;color:var(--text-2)}
+.calllog.missed{color:var(--danger)}
+.calllog svg{width:16px;height:16px}
+/* call screen */
+.callui{position:fixed;inset:0;z-index:85;background:radial-gradient(circle at 50% 30%,#3b2f8f 0%,#14121f 70%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.callui video.rv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.callui video.lv{position:absolute;right:16px;top:16px;width:min(28vw,200px);aspect-ratio:3/4;object-fit:cover;border-radius:14px;background:#222;box-shadow:0 6px 24px rgba(0,0,0,.5);z-index:2;transform:scaleX(-1)}
+.callui .cinfo{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:20px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.callui .cinfo b{font-size:26px}
+.callui .cinfo span{opacity:.85}
+.callui.has-video .cinfo{position:absolute;top:24px;left:24px;align-items:flex-start;padding:0}
+.callui.has-video .cinfo .av{display:none}
+.callui .cbtns{position:absolute;bottom:max(36px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;gap:22px;z-index:3}
+.cbtn{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:transform .1s,background .15s}
+.cbtn:hover{transform:scale(1.06);background:rgba(255,255,255,.28)}
+.cbtn.off{background:#fff;color:#222}
+.cbtn.red{background:#e5484d}.cbtn.green{background:#22a06b}
+.cbtn svg{width:26px;height:26px}
+.cbtn-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;opacity:.95}
+.pulse{animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.45)}70%{box-shadow:0 0 0 26px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.waiting{margin:8px 16px 0;padding:10px 12px;border-radius:12px;background:var(--bg-2);font-size:13px;display:flex;gap:10px;align-items:center}
+.waiting .t{flex:1}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toasts" id="toasts"></div>
+<script>
+'use strict';
+/* =============================================================================
+   DriveChat v2 — serverless, end-to-end encrypted chat + calls on Google Drive.
+
+   ONE-TIME OWNER SETUP (whoever hosts this file, ~5 min) — paste below:
+     clientId : OAuth 2.0 Web Client ID   (scope used: drive.file — no Google review needed)
+     apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
+   After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
+   ============================================================================= */
+const CONFIG = {
+  clientId: '',
+  apiKey: '',
+  // STUN finds a direct path for calls. Optionally add a TURN server for strict networks:
+  // { urls: 'turn:turn.example.com:3478', username: 'user', credential: 'pass' }
+  iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }]
+};
+
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const API = 'https://www.googleapis.com/drive/v3';
+const UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+const FOLDER = 'application/vnd.google-apps.folder';
+const REC_FIELDS = 'id,name,description,createdTime,modifiedTime,trashed';
+const PAGE = 30, MAX_TEXT = 1500, INLINE_MAX = 3000, MAX_UPLOAD = 50 * 1024 * 1024;
+const ONLINE_MS = 120000, HEARTBEAT_MS = 45000;
+const COLORS = ['#7360f2','#0084ff','#e8505b','#f59e0b','#10b981','#ec4899','#14b8a6','#8b5cf6','#f97316','#64748b'];
+const QUICK = ['👍','❤️','😂','😮','😢','🙏'];
+const EMOJI = '😀 😃 😄 😁 😆 😅 🤣 😂 🙂 😉 😊 😇 🥰 😍 🤩 😘 😋 😛 😜 🤪 🤗 🤭 🤫 🤔 🤐 😐 😑 😶 😏 😒 🙄 😬 😌 😔 😪 😴 😷 🤒 🥵 🥶 😵 🤯 🤠 🥳 😎 🤓 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 💀 💩 🤡 👻 👽 🤖 👋 🤚 ✋ 👌 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 👍 👎 ✊ 👊 👏 🙌 🤝 🙏 💪 ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 💔 💯 💥 💫 💬 🔥 ✨ 🎉 🎂 🎁 ☕ 🍕 🍔 🍺 ⚽ 🏀 🎮 🎵 📷 💻 📱 ⏰ ✅ ❌ ⚠️ ❓ ❗'.split(' ');
+
+/* ---------------------------- utilities ---------------------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const qv = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const parseJ = (s, d = {}) => { try { return s ? JSON.parse(s) : d; } catch { return d; } };
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('dc_' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('dc_' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('dc_' + k); } catch {} }
+};
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const hashColor = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return COLORS[Math.abs(h) % COLORS.length]; };
+const initials = n => (String(n || '?').trim().split(/\s+/).map(w => [...w][0]).slice(0, 2).join('') || '?').toUpperCase();
+const fmtSize = b => { b = +b || 0; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(0) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; };
+const fmtDur = s => { s = Math.max(0, Math.round(s || 0)); const h = Math.floor(s / 3600); return (h ? h + ':' + String(Math.floor(s / 60) % 60).padStart(2, '0') : Math.floor(s / 60)) + ':' + String(s % 60).padStart(2, '0'); };
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+const iso = ms => new Date(ms).toISOString();
+function fmtTime(t) { return new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+function fmtListTime(t) {
+  if (!t) return '';
+  const d = new Date(t), now = new Date();
+  if (sameDay(d, now)) return fmtTime(t);
+  if ((now - d) / 86400000 < 6) return d.toLocaleDateString([], { weekday: 'short' });
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+function fmtDay(t) {
+  const d = new Date(t), now = new Date(), y = new Date(now); y.setDate(now.getDate() - 1);
+  if (sameDay(d, now)) return 'Today';
+  if (sameDay(d, y)) return 'Yesterday';
+  return d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+}
+function ago(ms) {
+  if (!ms) return 'a while ago';
+  const s = (Date.now() - ms) / 1000;
+  if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago'; return Math.floor(s / 86400) + 'd ago';
+}
+function linkify(text) { return esc(text).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`); }
+const isEmojiOnly = t => { const s = (t || '').trim(); if (!s || s.length > 24) return false; try { return /^(\p{Extended_Pictographic}|\p{Emoji_Component}|‍|️|\s)+$/u.test(s) && !/^[\d#*\s]+$/.test(s); } catch { return false; } };
+
+const I = {
+  send: '<svg class="icon" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>',
+  mic: '<svg class="icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4"/></svg>',
+  micoff: '<svg class="icon" viewBox="0 0 24 24"><path d="m1 1 22 22M9 9v2a3 3 0 0 0 5.1 2.1M15 9.3V5a3 3 0 0 0-5.9-.6"/><path d="M17 16.9A7 7 0 0 1 5 11v-1m14 0v1a7 7 0 0 1-.1 1.2M12 18v4"/></svg>',
+  clip: '<svg class="icon" viewBox="0 0 24 24"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>',
+  smile: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>',
+  edit: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  plus: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  gear: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  search: '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+  back: '<svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>',
+  info: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+  x: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  reply: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 17 4 12l5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>',
+  more: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>',
+  trash: '<svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+  copy: '<svg class="icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  dl: '<svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+  file: '<svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  play: '<svg class="icon" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M7 4v16l13-8z"/></svg>',
+  pause: '<svg class="icon" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+  users: '<svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
+  userplus: '<svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>',
+  out: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+  bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  belloff: '<svg class="icon" viewBox="0 0 24 24"><path d="M13.7 21a2 2 0 0 1-3.4 0M18.6 13A17.9 17.9 0 0 1 18 8M6.3 6.3A5.9 5.9 0 0 0 6 8c0 7-3 9-3 9h14M18 8a6 6 0 0 0-9.3-5M1 1l22 22"/></svg>',
+  link: '<svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
+  check: '<svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;stroke-width:3"><path d="M20 6 9 17l-5-5"/></svg>',
+  lock: '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  shield: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+  phone: '<svg class="icon" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+  phoneoff: '<svg class="icon" viewBox="0 0 24 24" style="transform:rotate(135deg)"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+  video: '<svg class="icon" viewBox="0 0 24 24"><path d="m23 7-7 5 7 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+  videooff: '<svg class="icon" viewBox="0 0 24 24"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.7 0H14a2 2 0 0 1 2 2v3.3l1 1L23 7v10M1 1l22 22"/></svg>',
+  share: '<svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>'
+};
+const iconSm = (k, px = 15) => I[k].replace('class="icon"', `class="icon" style="width:${px}px;height:${px}px"`);
+
+/* ---------------------------- toasts / banner ---------------------------- */
+function toast(msg, err = false, ms = 3200) {
+  const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.textContent = msg;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), ms);
+}
+let bannerEl = null;
+function showBanner(text, btn, onClick) {
+  hideBanner(); bannerEl = document.createElement('div'); bannerEl.className = 'banner';
+  bannerEl.innerHTML = `<span>${esc(text)}</span><button>${esc(btn)}</button>`;
+  bannerEl.querySelector('button').onclick = onClick; document.body.appendChild(bannerEl);
+}
+function hideBanner() { bannerEl?.remove(); bannerEl = null; }
+
+/* ============================ CRYPTO (WebCrypto) ============================ */
+const tenc = new TextEncoder(), tdec = new TextDecoder();
+const b64 = buf => { const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+const ECDH = { name: 'ECDH', namedCurve: 'P-256' };
+const Crypto = {
+  genIdentity: () => crypto.subtle.generateKey(ECDH, true, ['deriveBits']),
+  pubOnly: j => ({ kty: j.kty, crv: j.crv, x: j.x, y: j.y }),
+  importPub: jwk => crypto.subtle.importKey('jwk', Crypto.pubOnly(jwk), ECDH, true, []),
+  importPriv: (jwk, extractable = false) => crypto.subtle.importKey('jwk', jwk, ECDH, extractable, ['deriveBits']),
+  async derive(priv, pubJwk, salt, info) {
+    const bits = await crypto.subtle.deriveBits({ name: 'ECDH', public: await Crypto.importPub(pubJwk) }, priv, 256);
+    const hk = await crypto.subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt: tenc.encode(salt), info: tenc.encode(info) }, hk, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  },
+  randRaw: () => b64(crypto.getRandomValues(new Uint8Array(32))),
+  importRaw: s => crypto.subtle.importKey('raw', unb64(s), { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']),
+  async sealBytes(key, data) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data));
+    const out = new Uint8Array(12 + ct.length); out.set(iv); out.set(ct, 12); return out;
+  },
+  async openBytes(key, data) { const b = new Uint8Array(data); return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.subarray(0, 12) }, key, b.subarray(12))); },
+  async seal(key, obj) { return b64(await Crypto.sealBytes(key, tenc.encode(JSON.stringify(obj)))); },
+  async open(key, s) { return JSON.parse(tdec.decode(await Crypto.openBytes(key, unb64(s)))); },
+  async passKey(pass, salt) {
+    const base = await crypto.subtle.importKey('raw', tenc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  },
+  async sha(s) { return hex(await crypto.subtle.digest('SHA-256', tenc.encode(s))); },
+  async safetyCode(a, b) {
+    const parts = [a, b].map(j => j.x + j.y).sort().join('|');
+    const h = new Uint8Array(await crypto.subtle.digest('SHA-256', tenc.encode(parts)));
+    let out = []; for (let i = 0; i < 12; i++) out.push(String(((h[i * 2] << 8) | h[i * 2 + 1]) % 100000).padStart(5, '0'));
+    return out.join(' ');
+  }
+};
+/* tiny IndexedDB key store (keeps the private key non-extractable on this device) */
+const IDB = {
+  db: null,
+  open() { return this.db || (this.db = new Promise((res, rej) => { const r = indexedDB.open('drivechat', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); })); },
+  async get(k) { const db = await this.open(); return new Promise((res, rej) => { const r = db.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  async set(k, v) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
+  async del(k) { const db = await this.open(); return new Promise(res => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = res; t.onerror = res; }); }
+};
+
+/* ============================ AUTH ============================ */
+const cfg = () => ({ clientId: CONFIG.clientId || LS.get('clientId', ''), apiKey: CONFIG.apiKey || LS.get('apiKey', '') });
+let tokenClient = null, accessToken = null, tokenExp = 0, tokenPending = null, reconnectP = null;
+function gisReady() {
+  return new Promise((res, rej) => { const t0 = Date.now(); (function chk() { if (window.google?.accounts?.oauth2) return res(); if (Date.now() - t0 > 15000) return rej(new Error('Could not load Google sign-in. Check your connection or ad-blocker.')); setTimeout(chk, 100); })(); });
+}
+async function initAuth() {
+  await gisReady();
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: cfg().clientId, scope: SCOPES,
+    callback: r => {
+      const p = tokenPending; tokenPending = null;
+      if (r.error) return p?.rej(new Error(r.error_description || r.error));
+      if (!google.accounts.oauth2.hasGrantedAllScopes(r, SCOPES)) return p?.rej(new Error('Please tick the Google Drive box — DriveChat only touches files it creates itself.'));
+      accessToken = r.access_token; tokenExp = Date.now() + (+r.expires_in || 3600) * 1000;
+      try { sessionStorage.setItem('dc_tok', JSON.stringify({ t: accessToken, e: tokenExp })); } catch {}
+      p?.res(accessToken);
+    },
+    error_callback: e => {
+      const p = tokenPending; tokenPending = null;
+      p?.rej(new Error(e?.type === 'popup_closed' ? 'Sign-in window was closed.' : e?.type === 'popup_failed_to_open' ? 'Pop-up blocked. Allow pop-ups for this site.' : (e?.message || 'Sign-in failed')));
+    }
+  });
+  const s = parseJ(sessionStorage.getItem('dc_tok'), null);
+  if (s && s.e > Date.now() + 120000) { accessToken = s.t; tokenExp = s.e; }
+}
+function requestToken(prompt = '') {
+  if (tokenPending) return tokenPending.promise;
+  let res, rej; const promise = new Promise((a, b) => { res = a; rej = b; });
+  tokenPending = { res, rej, promise };
+  const c = { prompt }; const hint = LS.get('lastEmail', ''); if (hint) c.login_hint = hint;
+  try { tokenClient.requestAccessToken(c); } catch (e) { tokenPending = null; rej(e); }
+  return promise;
+}
+async function ensureToken() {
+  if (accessToken && Date.now() < tokenExp - 60000) return accessToken;
+  try { return await Promise.race([requestToken(''), sleep(25000).then(() => { throw new Error('timeout'); })]); }
+  catch { tokenPending = null; return needReconnect(); }
+}
+function needReconnect() {
+  if (!reconnectP) reconnectP = new Promise(res => {
+    showBanner('Your Google session expired.', 'Reconnect', async () => {
+      try { await requestToken(''); hideBanner(); reconnectP = null; res(accessToken); } catch (e) { toast(e.message, true); }
+    });
+  });
+  return reconnectP;
+}
+
+/* ============================ DRIVE API ============================ */
+async function isRateErr(r) { try { const j = await r.json(); return /rate|quota|limit/i.test(JSON.stringify(j.error || '')); } catch { return false; } }
+async function httpErr(r) { let m = r.status + ' ' + r.statusText; try { const j = await r.json(); m = j.error?.message || m; } catch {} const e = new Error(m); e.status = r.status; return e; }
+/* authenticated (my own files) */
+async function api(path, opt = {}) {
+  const { method = 'GET', query = {}, body, raw = false, headers = {} } = opt;
+  for (let attempt = 0; ; attempt++) {
+    const tok = await ensureToken();
+    const url = new URL(path.startsWith('http') ? path : API + path);
+    for (const [k, v] of Object.entries(query)) if (v !== undefined && v !== null) url.searchParams.set(k, v);
+    const init = { method, headers: { Authorization: 'Bearer ' + tok, ...headers } };
+    if (body !== undefined) {
+      if (body instanceof Blob || body instanceof FormData || typeof body === 'string' || body instanceof Uint8Array) init.body = body;
+      else { init.body = JSON.stringify(body); init.headers['Content-Type'] = 'application/json'; }
+    }
+    let r;
+    try { r = await fetch(url, init); } catch { if (attempt < 3) { await sleep(800 * 2 ** attempt); continue; } throw new Error('Network error — are you offline?'); }
+    if (r.status === 401 && attempt < 2) { accessToken = null; continue; }
+    if ((r.status === 429 || r.status >= 500 || (r.status === 403 && await isRateErr(r.clone()))) && attempt < 5) { await sleep(Math.min(16000, 700 * 2 ** attempt) + Math.random() * 500); continue; }
+    if (!r.ok) throw await httpErr(r);
+    if (raw) return r;
+    if (r.status === 204) return null;
+    const txt = await r.text(); return txt ? JSON.parse(txt) : null;
+  }
+}
+/* public read with API key (friends' encrypted outboxes) */
+async function pub(path, query = {}, raw = false) {
+  for (let attempt = 0; ; attempt++) {
+    const url = new URL(API + path); url.searchParams.set('key', cfg().apiKey);
+    for (const [k, v] of Object.entries(query)) if (v !== undefined && v !== null) url.searchParams.set(k, v);
+    let r;
+    try { r = await fetch(url); } catch { if (attempt < 2) { await sleep(1000 * 2 ** attempt); continue; } throw new Error('Network error'); }
+    if ((r.status === 429 || r.status >= 500 || (r.status === 403 && await isRateErr(r.clone()))) && attempt < 4) { await sleep(Math.min(16000, 900 * 2 ** attempt) + Math.random() * 500); continue; }
+    if (!r.ok) throw await httpErr(r);
+    return raw ? r : r.json();
+  }
+}
+const mine = o => o === S.outbox;
+function listIn(outbox, q, { orderBy, pageSize = 200, pageToken } = {}) {
+  const query = { q, fields: `nextPageToken,files(${REC_FIELDS})`, orderBy, pageSize, pageToken, spaces: 'drive' };
+  return mine(outbox) ? api('/files', { query }) : pub('/files', query);
+}
+async function fetchBytes(fileId, outbox) {
+  const r = mine(outbox) ? await api('/files/' + fileId, { query: { alt: 'media' }, raw: true }) : await pub('/files/' + fileId, { alt: 'media' }, true);
+  return new Uint8Array(await r.arrayBuffer());
+}
+const createMeta = (body, fields = REC_FIELDS) => api('/files', { method: 'POST', query: { fields }, body });
+const patchMeta = (id, body, fields = REC_FIELDS) => api('/files/' + id, { method: 'PATCH', query: { fields }, body });
+async function findOne(q, fields = 'id,name,description,modifiedTime') {
+  const r = await api('/files', { query: { q, fields: `files(${fields})`, pageSize: 10, spaces: 'drive' } });
+  return r.files?.[0] || null;
+}
+function shareWith(fileId, email, message) {
+  return api(`/files/${fileId}/permissions`, { method: 'POST', query: { sendNotificationEmail: true, emailMessage: message, fields: 'id' }, body: { type: 'user', role: 'reader', emailAddress: email } });
+}
+/* upload blob with progress (resumable → multipart fallback) */
+async function uploadBlob(blob, meta, onProgress, fields = REC_FIELDS) {
+  const tok = await ensureToken(); let location = null;
+  const type = meta.mimeType || 'application/octet-stream';
+  try {
+    const r = await fetch(`${UPLOAD}?uploadType=resumable&fields=${encodeURIComponent(fields)}`, { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': type, 'X-Upload-Content-Length': String(blob.size) }, body: JSON.stringify(meta) });
+    if (r.ok) location = r.headers.get('Location');
+  } catch {}
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    if (location) { xhr.open('PUT', location); xhr.setRequestHeader('Content-Type', type); xhr.send(blob); }
+    else {
+      const fd = new FormData();
+      fd.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+      fd.append('file', blob);
+      xhr.open('POST', `${UPLOAD}?uploadType=multipart&fields=${encodeURIComponent(fields)}`);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + tok); xhr.send(fd);
+    }
+    xhr.upload.onprogress = e => e.lengthComputable && onProgress?.(e.loaded / e.total);
+    xhr.onload = () => xhr.status < 300 ? resolve(parseJ(xhr.responseText, null)) : reject(new Error('Upload failed: ' + (parseJ(xhr.responseText).error?.message || xhr.status)));
+    xhr.onerror = () => reject(new Error('Upload failed (network)'));
+  });
+}
+const putContent = (id, blob) => api(`${UPLOAD}/${id}`, { method: 'PATCH', query: { uploadType: 'media', fields: REC_FIELDS }, body: blob, headers: { 'Content-Type': blob.type || 'application/octet-stream' } });
+
+/* ============================ STATE ============================ */
+const S = {
+  me: null, outbox: null, root: null, files: {}, priv: null, pubJwk: null, selfKey: null,
+  st: { contacts: {}, groups: {}, pending: [], left: [] },
+  people: new Map(), convos: new Map(), seen: new Map(), since: new Map(), nextPoll: new Map(), inflight: new Set(), backoff: new Map(), peerInit: new Set(),
+  prof: { n: '', c: '', st: '' }, myRd: {}, myTy: null,
+  startedAt: 0, running: false, gen: 0,
+  active: null, tab: 'chats', filter: '', showInfo: false, replyTo: null, editing: null,
+  muted: new Set(LS.get('muted', [])), notify: LS.get('notify', true), sound: LS.get('sound', true), theme: LS.get('theme', 'system'),
+  keyCache: new Map()
+};
+function personOf(o) {
+  return S.people.get(o) || { o, n: 'Unknown', e: '', p: '', c: hashColor(o), st: '', pub: null, mt: 0, rd: {}, ty: null, ghost: true };
+}
+const isOnline = p => p && !p.ghost && Date.now() - (p.mt || 0) < ONLINE_MS;
+const myPerson = () => S.people.get(S.outbox);
+function convoTitle(c) {
+  if (c.kind === 'dm') return personOf(c.peer).n;
+  return c.name || c.members.filter(m => m !== S.outbox).map(m => personOf(m).n.split(' ')[0]).join(', ') || 'Group';
+}
+const convoMembers = c => c.kind === 'dm' ? [S.outbox, c.peer] : c.members;
+const sortedMsgs = c => [...c.msgs.values()].sort((a, b) => a.ct < b.ct ? -1 : a.ct > b.ct ? 1 : 0);
+function lastMsg(c) { let l = null; for (const m of c.msgs.values()) if (!m.hidden && (!l || m.ct > l.ct)) l = m; return l; }
+function unreadCount(c) { const rd = S.myRd[c.id] || ''; let n = 0; for (const m of c.msgs.values()) if (m.from !== S.outbox && !m.sys && !m.hidden && !m.tmp && m.ct > rd) n++; return n; }
+const convoSortKey = c => lastMsg(c)?.ct || c.created || '';
+
+let stateTimer = null, stateSaving = false, stateDirty = false;
+function saveState(now = false) {
+  stateDirty = true;
+  if (!now) { clearTimeout(stateTimer); stateTimer = setTimeout(() => saveState(true), 1500); return; }
+  clearTimeout(stateTimer);
+  if (stateSaving) return; stateSaving = true; stateDirty = false;
+  (async () => {
+    try {
+      const sealed = await Crypto.seal(S.selfKey, S.st);
+      const blob = new Blob([sealed], { type: 'text/plain' });
+      if (S.files.state) await putContent(S.files.state, blob);
+      else { const f = await uploadBlob(blob, { name: 'state (encrypted)', parents: [S.root], mimeType: 'text/plain', appProperties: { dc: 'state' } }); S.files.state = f.id; }
+    } catch (e) { console.warn('state save', e); stateDirty = true; }
+    finally { stateSaving = false; if (stateDirty) saveState(); }
+  })();
+}
+
+/* ============================ HOME / IDENTITY ============================ */
+async function ensureHome() {
+  let root = await findOne(`appProperties has { key='dc' and value='root' } and trashed=false`);
+  if (!root) root = await createMeta({ name: 'DriveChat', mimeType: FOLDER, appProperties: { dc: 'root' }, description: 'DriveChat data. Everything here is end-to-end encrypted. Please do not edit.' }, 'id');
+  let out = await findOne(`appProperties has { key='dc' and value='outbox' } and trashed=false`);
+  if (!out) out = await createMeta({ name: 'DriveChat outbox (encrypted)', mimeType: FOLDER, parents: [root.id], appProperties: { dc: 'outbox' } }, 'id');
+  S.root = root.id; S.outbox = out.id;
+  if (!LS.get('pub:' + out.id)) {
+    try { await api(`/files/${out.id}/permissions`, { method: 'POST', query: { fields: 'id' }, body: { type: 'anyone', role: 'reader' } }); LS.set('pub:' + out.id, 1); }
+    catch (e) { throw new Error(`Google wouldn't let DriveChat turn on link sharing for its folder (${e.message}). Work or school accounts often block this — try a personal Gmail account.`); }
+  }
+  const [idf, stf, prof, stat] = await Promise.all([
+    findOne(`appProperties has { key='dc' and value='id' } and trashed=false`),
+    findOne(`appProperties has { key='dc' and value='state' } and trashed=false`, 'id'),
+    findOne(`'${out.id}' in parents and name='profile' and trashed=false`),
+    findOne(`'${out.id}' in parents and name='status' and trashed=false`)
+  ]);
+  S.files = { id: idf?.id, idDesc: idf?.description, state: stf?.id, profile: prof?.id, profileDesc: prof?.description, status: stat?.id };
+}
+async function loadKeys() {
+  const d = parseJ(S.files.idDesc, null);
+  const stored = await IDB.get('id:' + S.me.email).catch(() => null);
+  if (d && stored && stored.pub.x === d.pub.x && stored.pub.y === d.pub.y && stored.outbox === S.outbox) { S.priv = stored.priv; S.pubJwk = d.pub; return 'ok'; }
+  return d ? 'unlock' : 'create';
+}
+async function storeKeys(privJwk, pubJwk) {
+  const priv = await Crypto.importPriv(privJwk, false);
+  await IDB.set('id:' + S.me.email, { priv, pub: Crypto.pubOnly(pubJwk), outbox: S.outbox }).catch(() => {});
+  S.priv = priv; S.pubJwk = Crypto.pubOnly(pubJwk);
+}
+async function createIdentity(pass) {
+  const kp = await Crypto.genIdentity();
+  const privJwk = await crypto.subtle.exportKey('jwk', kp.privateKey);
+  const pubJwk = Crypto.pubOnly(await crypto.subtle.exportKey('jwk', kp.publicKey));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const wrapped = await Crypto.seal(await Crypto.passKey(pass, salt), privJwk);
+  const desc = JSON.stringify({ v: 1, pub: pubJwk, salt: b64(salt), wrapped });
+  if (S.files.id) await patchMeta(S.files.id, { description: desc });
+  else S.files.id = (await createMeta({ name: 'identity (password-protected)', mimeType: 'text/plain', parents: [S.root], appProperties: { dc: 'id' }, description: desc })).id;
+  S.files.idDesc = desc;
+  await storeKeys(privJwk, pubJwk);
+}
+async function unlockIdentity(pass) {
+  const d = parseJ(S.files.idDesc);
+  let privJwk;
+  try { privJwk = await Crypto.open(await Crypto.passKey(pass, unb64(d.salt)), d.wrapped); }
+  catch { throw new Error('Wrong password.'); }
+  await storeKeys(privJwk, d.pub);
+}
+async function loadState() {
+  S.selfKey = await Crypto.derive(S.priv, S.pubJwk, 'self|' + S.outbox, 'dc-state');
+  if (S.files.state) {
+    try {
+      const bytes = await fetchBytes(S.files.state, S.outbox);
+      S.st = { contacts: {}, groups: {}, pending: [], left: [], ...(await Crypto.open(S.selfKey, tdec.decode(bytes))) };
+    } catch (e) { console.warn('state unreadable (keys reset?)', e); S.st = { contacts: {}, groups: {}, pending: [], left: [] }; }
+  }
+}
+async function publishProfile() {
+  const d = { v: 2, n: S.prof.n, e: S.me.email, p: S.me.photo, c: S.prof.c, st: S.prof.st, pub: S.pubJwk };
+  const desc = JSON.stringify(d);
+  if (S.files.profile) await patchMeta(S.files.profile, { description: desc });
+  else S.files.profile = (await createMeta({ name: 'profile', mimeType: 'text/plain', parents: [S.outbox], description: desc })).id;
+  ingestProfile(S.outbox, { description: desc, modifiedTime: iso(Date.now()) });
+}
+
+/* ============================ CONVERSATIONS / KEYS ============================ */
+async function dmId(o) { return 'd' + (await Crypto.sha([S.outbox, o].sort().join('|'))).slice(0, 24); }
+function ensureConvo(id, base) {
+  let c = S.convos.get(id);
+  if (!c) { c = { id, msgs: new Map(), reacts: new Map(), tokens: {}, hasMore: true, loaded: false, loading: false, created: base.created || '', ...base }; S.convos.set(id, c); }
+  else Object.assign(c, base);
+  return c;
+}
+async function buildConvos() {
+  for (const [o, ct] of Object.entries(S.st.contacts)) {
+    upsertPerson(o, ct);
+    if (!ct.cid) ct.cid = await dmId(o);
+    ensureConvo(ct.cid, { kind: 'dm', peer: o, created: ct.added ? iso(ct.added) : '' });
+  }
+  for (const [gid, g] of Object.entries(S.st.groups)) {
+    for (const m of g.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true);
+    ensureConvo(gid, { kind: 'group', name: g.n, members: g.m.map(m => m.o), by: g.by, created: g.created ? iso(g.created) : '' });
+  }
+}
+function upsertPerson(o, d, weak = false) {
+  const p = S.people.get(o);
+  if (p && weak && !p.ghost) return p;
+  const np = { o, n: d.n || p?.n || (d.e || 'Unknown').split('@')[0], e: d.e || p?.e || '', p: d.p ?? p?.p ?? '', c: d.c || p?.c || hashColor(o), st: d.st ?? p?.st ?? '', pub: d.pub || p?.pub || null, mt: p?.mt || 0, rd: p?.rd || {}, ty: p?.ty || null, tyAt: p?.tyAt || 0 };
+  S.people.set(o, np); return np;
+}
+async function convoKey(c) {
+  const ck = c.kind === 'dm' ? 'dm:' + c.peer + ':' + JSON.stringify(personOf(c.peer).pub) : 'g:' + c.id + ':' + S.st.groups[c.id]?.key;
+  if (S.keyCache.has(ck)) return S.keyCache.get(ck);
+  let k;
+  if (c.kind === 'dm') { const pb = personOf(c.peer).pub; if (!pb) throw new Error('no key for contact'); k = Crypto.derive(S.priv, pb, [S.outbox, c.peer].sort().join('|'), 'dc-dm'); }
+  else { const g = S.st.groups[c.id]; if (!g) throw new Error('unknown group'); k = Crypto.importRaw(g.key); }
+  S.keyCache.set(ck, k); k.catch(() => S.keyCache.delete(ck));
+  return k;
+}
+
+/* ============================ RECORDS (encrypted messages in my outbox) ============================ */
+async function writeRecord(c, payload, fileId) {
+  const sealed = await Crypto.seal(await convoKey(c), payload);
+  if (sealed.length <= INLINE_MAX) {
+    return fileId ? patchMeta(fileId, { description: sealed }) : createMeta({ name: c.id, parents: [S.outbox], mimeType: 'text/plain', description: sealed });
+  }
+  const blob = new Blob([sealed], { type: 'text/plain' });
+  if (fileId) { await putContent(fileId, blob); return patchMeta(fileId, { description: '@b' }); }
+  return uploadBlob(blob, { name: c.id, parents: [S.outbox], mimeType: 'text/plain', description: '@b' });
+}
+async function readSealed(f, o) { return f.description === '@b' ? tdec.decode(await fetchBytes(f.id, o)) : f.description; }
+
+async function processFile(f, o, live, known) {
+  if (!f || S.seen.get(f.id) === f.modifiedTime) return;
+  const isNew = !S.seen.has(f.id);
+  S.seen.set(f.id, f.modifiedTime);
+  try {
+    if (f.name === 'profile') return ingestProfile(o, f);
+    if (f.name === 'status') return await ingestStatus(o, f);
+    const c = S.convos.get(f.name);
+    if (!c) { S.seen.delete(f.id); return; }
+    if (!convoMembers(c).includes(o) && !(c.kind === 'group')) return;
+    if (f.trashed) { c.msgs.delete(f.id); scheduleRender(); return; }
+    let p = known;
+    if (!p) { try { p = await Crypto.open(await convoKey(c), await readSealed(f, o)); } catch (e) { p = { k: 'm', bad: 1 }; } }
+    ingestRecord(c, o, f, p, live && isNew);
+  } catch (e) { console.warn('process', f.name, e); S.seen.delete(f.id); }
+}
+function ingestRecord(c, from, f, p, live) {
+  const base = { id: f.id, cid: c.id, from, ct: f.createdTime, mt: f.modifiedTime };
+  switch (p.k) {
+    case 'm': {
+      if (p.cl) for (const [k, v] of c.msgs) if (v.tmp && v.cl === p.cl) c.msgs.delete(k);
+      const m = { ...base, t: p.t || '', rp: p.rp || null, a: p.a || null, ed: !!p.ed, del: !!p.del, bad: !!p.bad, cl: p.cl };
+      c.msgs.set(f.id, m);
+      if (live && from !== S.outbox && !m.del) notifyMsg(c, m);
+      break;
+    }
+    case 'r': {
+      if (!c.reacts.has(p.to)) c.reacts.set(p.to, new Map());
+      c.reacts.get(p.to).set(f.id, { id: f.id, from, em: p.em, del: !!p.del });
+      break;
+    }
+    case 'hello': c.msgs.set(f.id, { ...base, sys: 'connected · messages are end-to-end encrypted', icon: 'lock' }); markConnected(c, from); break;
+    case 'log': c.msgs.set(f.id, { ...base, log: { video: !!p.video, dur: p.dur || 0, missed: !!p.missed, by: from } }); if (live && p.missed && from !== S.outbox) notifyMsg(c, { from, t: 'Missed call', ct: f.createdTime }); break;
+    case 'call': c.msgs.set(f.id, { ...base, hidden: true }); if (live) onCallSignal(c, from, p, f); break;
+    case 'ginv': c.msgs.set(f.id, { ...base, hidden: true }); onGroupInvite(from, p, f); break;
+    case 'gupd': c.msgs.set(f.id, { ...base, sys: p.sys || 'updated the group' }); onGroupUpdate(c, from, p, f); break;
+    case 'gleave': c.msgs.set(f.id, { ...base, sys: 'left the group' }); onGroupLeave(c, from, f); break;
+    default: c.msgs.set(f.id, { ...base, hidden: true });
+  }
+  scheduleRender();
+}
+function markConnected(c, from) {
+  if (c.kind !== 'dm' || from !== c.peer) return;
+  const ct = S.st.contacts[c.peer]; if (ct && !ct.connected) { ct.connected = true; saveState(); }
+}
+function ingestProfile(o, f) {
+  const d = parseJ(f.description, null); if (!d || !d.pub) return;
+  const prev = S.people.get(o);
+  const keyChanged = prev?.pub && (prev.pub.x !== d.pub.x || prev.pub.y !== d.pub.y);
+  upsertPerson(o, d);
+  if (o !== S.outbox) {
+    const ct = S.st.contacts[o];
+    if (ct) { const changed = ct.n !== d.n || ct.p !== d.p || ct.st !== d.st || ct.c !== d.c || keyChanged; Object.assign(ct, { n: d.n, e: d.e, p: d.p, c: d.c, st: d.st, pub: d.pub }); if (changed) saveState(); }
+    for (const g of Object.values(S.st.groups)) for (const m of g.m) if (m.o === o && (m.n !== d.n || keyChanged)) { Object.assign(m, { n: d.n, p: d.p, e: d.e, pub: d.pub }); saveState(); }
+    if (keyChanged) { S.keyCache.clear(); const c = [...S.convos.values()].find(x => x.kind === 'dm' && x.peer === o); if (c) c.msgs.set('kc' + Date.now(), { id: 'kc' + Date.now(), cid: c.id, from: o, ct: iso(Date.now()), sys: 'reinstalled DriveChat — their security code changed', icon: 'shield', local: true }); }
+  }
+  scheduleRender();
+}
+async function ingestStatus(o, f) {
+  const d = parseJ(f.description, {}); const p = S.people.get(o); if (!p) return;
+  p.mt = Date.parse(f.modifiedTime);
+  for (const [cid, sealed] of Object.entries(d.s || {})) {
+    const c = S.convos.get(cid); if (!c) continue;
+    try {
+      const v = await Crypto.open(await convoKey(c), sealed);
+      if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; continue; }
+      if (v.rd) p.rd[cid] = v.rd;
+      if (v.ty && (!p.ty || p.ty.t !== v.ty) && Math.abs(v.ty - p.mt) < 15000) { p.ty = { c: cid, t: v.ty }; p.tyAt = Date.now(); }
+    } catch {}
+  }
+  scheduleRender();
+}
+let statusTimer = null, statusSaving = false, statusDirty = false;
+function saveStatus(now = false) {
+  statusDirty = true;
+  if (!now) { clearTimeout(statusTimer); statusTimer = setTimeout(() => saveStatus(true), 1200); return; }
+  clearTimeout(statusTimer);
+  if (statusSaving) return; statusSaving = true; statusDirty = false;
+  (async () => {
+    try {
+      const s = {};
+      const ids = Object.keys(S.myRd).sort((a, b) => (S.myRd[b] > S.myRd[a] ? 1 : -1)).slice(0, 60);
+      if (S.myTy && !ids.includes(S.myTy.c)) ids.push(S.myTy.c);
+      for (const cid of ids) {
+        const c = S.convos.get(cid); if (!c) continue;
+        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0 }); } catch {}
+      }
+      const desc = JSON.stringify({ ls: Date.now(), s });
+      if (S.files.status) await patchMeta(S.files.status, { description: desc });
+      else S.files.status = (await createMeta({ name: 'status', mimeType: 'text/plain', parents: [S.outbox], description: desc })).id;
+      const me = myPerson(); if (me) me.mt = Date.now();
+    } catch (e) { console.warn('status', e); }
+    finally { statusSaving = false; if (statusDirty) saveStatus(); }
+  })();
+}
+
+/* ============================ POLLING ============================ */
+function pollTargets() {
+  const t = new Map();
+  const add = (o, n) => { if (!o) return; if (!t.has(o)) t.set(o, new Set(['profile', 'status'])); if (n) t.get(o).add(n); };
+  add(S.outbox);
+  for (const c of S.convos.values()) for (const o of convoMembers(c)) add(o, c.id);
+  return t;
+}
+function pollInterval(o) {
+  let ms;
+  if (call && call.peer === o) ms = 1000;
+  else if (o === S.outbox) ms = 10000;
+  else { const c = S.convos.get(S.active); ms = c && convoMembers(c).includes(o) ? 2000 : (S.st.contacts[o] ? 5000 : 8000); }
+  if (document.hidden && !(call && call.peer === o)) ms = Math.max(ms * 4, 20000);
+  return ms + (S.backoff.get(o) || 0);
+}
+async function initPeer(o) {
+  if (S.peerInit.has(o)) return; S.peerInit.add(o);
+  try {
+    const r = await listIn(o, `'${qv(o)}' in parents and trashed=false and (name='profile' or name='status')`, { pageSize: 10 });
+    const files = (r.files || []).sort((a, b) => (a.name === 'profile' ? 0 : 1) - (b.name === 'profile' ? 0 : 1));
+    for (const f of files) await processFile(f, o, false);
+  } catch (e) { S.peerInit.delete(o); throw e; }
+}
+async function pollPeer(o, names, gen) {
+  if (!S.peerInit.has(o)) await initPeer(o);
+  const since = S.since.get(o) ?? (S.startedAt - 120000);
+  const nameQ = [...names].map(n => `name='${qv(n)}'`).join(' or ');
+  let pageToken, maxT = since;
+  do {
+    const r = await listIn(o, `'${qv(o)}' in parents and trashed=false and modifiedTime > '${iso(since - 30000)}' and (${nameQ})`, { orderBy: 'modifiedTime', pageToken });
+    if (gen !== S.gen) return;
+    for (const f of r.files || []) { await processFile(f, o, true); const t = Date.parse(f.modifiedTime); if (t > maxT) maxT = t; }
+    pageToken = r.nextPageToken;
+  } while (pageToken);
+  S.since.set(o, maxT);
+}
+async function pollLoop(gen) {
+  let errCount = 0;
+  while (S.running && gen === S.gen) {
+    const targets = pollTargets(); const now = Date.now();
+    const due = [...targets.keys()].filter(o => !S.inflight.has(o) && (S.nextPoll.get(o) || 0) <= now).sort((a, b) => (S.nextPoll.get(a) || 0) - (S.nextPoll.get(b) || 0)).slice(0, Math.max(0, 4 - S.inflight.size));
+    for (const o of due) {
+      S.inflight.add(o);
+      pollPeer(o, targets.get(o), gen).then(() => { S.backoff.delete(o); if (errCount) { errCount = 0; hideBanner(); } })
+        .catch(e => {
+          console.warn('poll', o, e.message);
+          if (e.status === 404 || e.status === 403) S.backoff.set(o, Math.min(120000, (S.backoff.get(o) || 5000) * 2));
+          else if (++errCount === 3 && !reconnectP) showBanner('Connection problem — retrying…', 'Retry now', () => { S.nextPoll.clear(); });
+        })
+        .finally(() => { S.inflight.delete(o); S.nextPoll.set(o, Date.now() + pollInterval(o)); });
+    }
+    await new Promise(r => { pollLoop.wake = r; setTimeout(r, 400); });
+  }
+}
+function wakePeer(o) { S.nextPoll.set(o, 0); pollLoop.wake?.(); }
+async function pendingLoop(gen) {
+  while (S.running && gen === S.gen) {
+    const pend = (S.st.pending || []).filter(p => Date.now() - p.t < 14 * 86400000);
+    if (pend.length !== (S.st.pending || []).length) { S.st.pending = pend; saveState(); }
+    for (const p of pend) {
+      try {
+        const f = await pub('/files/' + p.r, { fields: 'id,description' });
+        const d = parseJ(f.description); S.st.pending = S.st.pending.filter(x => x.r !== p.r); saveState();
+        if (d.o && !S.st.contacts[d.o] && d.o !== S.outbox) {
+          const prof = await fetchProfile(d.o);
+          if (prof) { await addContact(d.o, prof); toast(`${prof.n} accepted your invite 🎉`); ping(); }
+        }
+      } catch {}
+    }
+    await sleep(document.hidden ? 60000 : 12000);
+  }
+}
+async function heartbeatLoop(gen) { while (S.running && gen === S.gen) { await sleep(HEARTBEAT_MS); if (S.running && gen === S.gen && !document.hidden) saveStatus(true); } }
+
+async function loadHistory(c) {
+  if (c.loading || (c.loaded && !c.hasMore)) return;
+  c.loading = true; scheduleRender();
+  try {
+    const members = convoMembers(c);
+    await Promise.all(members.map(async o => {
+      if (c.tokens[o] === null) return;
+      if (!mine(o) && !S.peerInit.has(o)) await initPeer(o).catch(() => {});
+      try {
+        const r = await listIn(o, `'${qv(o)}' in parents and name='${qv(c.id)}' and trashed=false`, { orderBy: 'createdTime desc', pageSize: PAGE, pageToken: c.tokens[o] || undefined });
+        for (const f of r.files || []) await processFile(f, o, false);
+        c.tokens[o] = r.nextPageToken || null;
+      } catch (e) { console.warn('history', o, e.message); c.tokens[o] = null; }
+    }));
+    c.hasMore = members.some(o => c.tokens[o]);
+    c.loaded = true;
+  } finally { c.loading = false; scheduleRender(); }
+}
+
+/* ============================ CONTACTS / INVITES ============================ */
+function appBase() { const u = new URL(location.href); u.search = ''; u.hash = ''; return u.toString(); }
+function linkFor(reply) { return `${appBase()}#add=${S.outbox}${reply ? '~' + reply : ''}`; }
+async function freshInviteLink() {
+  let r = null;
+  try { r = (await api('/files/generateIds', { query: { count: 1, space: 'drive', type: 'files' } })).ids[0]; S.st.pending.push({ r, t: Date.now() }); saveState(); } catch {}
+  return linkFor(r);
+}
+function parseLink(s) {
+  s = String(s || '').trim();
+  const m = s.match(/add=([\w-]{10,})(?:~([\w-]{10,}))?/) || s.match(/^([\w-]{20,})(?:~([\w-]{10,}))?$/);
+  return m ? { o: m[1], r: m[2] || null } : null;
+}
+async function fetchProfile(o) {
+  const r = await pub('/files', { q: `'${qv(o)}' in parents and name='profile' and trashed=false`, fields: `files(${REC_FIELDS})`, pageSize: 5 });
+  const d = parseJ(r.files?.[0]?.description, null);
+  return d && d.pub ? d : null;
+}
+async function addContact(o, prof) {
+  const cid = await dmId(o);
+  S.st.contacts[o] = { n: prof.n, e: prof.e, p: prof.p, c: prof.c, st: prof.st, pub: Crypto.pubOnly(prof.pub), cid, added: Date.now(), connected: !!S.st.contacts[o]?.connected };
+  upsertPerson(o, S.st.contacts[o]);
+  const c = ensureConvo(cid, { kind: 'dm', peer: o, created: iso(Date.now()) });
+  saveState(true);
+  try { await sendRecord(c, { k: 'hello' }); } catch (e) { console.warn(e); }
+  loadHistory(c); wakePeer(o);
+  return c;
+}
+async function acceptLink(link) {
+  const L = parseLink(link);
+  if (!L) return toast('That link doesn\'t look like a DriveChat invite', true);
+  if (L.o === S.outbox) return toast('That\'s your own link 🙂');
+  if (S.st.contacts[L.o]) { const c = [...S.convos.values()].find(x => x.peer === L.o); if (c) openConvo(c.id); return; }
+  showLoading('Looking up invite…', true);
+  let prof = null; try { prof = await fetchProfile(L.o); } catch {}
+  hideLoading();
+  if (!prof) return toast('Invite not found. Ask your friend to send their link again.', true, 6000);
+  const p = { ...prof, c: prof.c || hashColor(L.o) };
+  const o = modal('Add contact', `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0;text-align:center">${avatarHtml(p, 80)}<b style="font-size:18px">${esc(p.n)}</b><span class="small muted">${esc(p.e || '')}</span>${p.st ? `<span class="small">${esc(p.st)}</span>` : ''}</div>
+    <div class="note">${iconSm('lock', 18)}<span>Your chats with ${esc(p.n.split(' ')[0])} will be end-to-end encrypted and stored in your own Google Drives.</span></div>`,
+    `<button class="btn ghost" id="ac-c">Cancel</button><button class="btn" id="ac-ok">Add &amp; chat</button>`);
+  $('#ac-c', o).onclick = closeModal;
+  $('#ac-ok', o).onclick = async () => {
+    closeModal(); showLoading('Connecting…', true);
+    try {
+      const c = await addContact(L.o, prof);
+      let ok = false;
+      if (L.r) { try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); } }
+      if (!ok && prof.e) { try { await shareWith(S.outbox, prof.e, `${S.prof.n} accepted your DriveChat invite. Open this link to finish connecting: ${linkFor(null)}`); } catch (e) { console.warn(e); } }
+      hideLoading(); openConvo(c.id);
+    } catch (e) { hideLoading(); toast('Could not add contact: ' + e.message, true); }
+  };
+}
+async function removeContact(o) {
+  const ct = S.st.contacts[o]; if (!ct) return;
+  if (!confirm(`Remove ${ct.n} from your contacts? Your chat history stays in your Drive but you'll stop receiving their messages.`)) return;
+  delete S.st.contacts[o]; saveState(true);
+  S.convos.delete(ct.cid); S.active = null; S.showInfo = false; renderMain();
+}
+
+/* ============================ GROUPS ============================ */
+const memberCard = o => { const p = personOf(o); return { o, n: p.n, e: p.e, p: p.p, c: p.c, pub: p.pub }; };
+async function createGroup(name, others) {
+  closeModal(); showLoading('Creating group…', true);
+  try {
+    const gid = 'g' + (await Crypto.sha(uid() + Math.random())).slice(0, 24);
+    const g = { key: Crypto.randRaw(), n: name, m: [S.outbox, ...others].map(memberCard), by: S.outbox, created: Date.now(), metaAt: '' };
+    S.st.groups[gid] = g; saveState(true);
+    const c = ensureConvo(gid, { kind: 'group', name, members: g.m.map(m => m.o), by: S.outbox, created: iso(g.created) });
+    c.loaded = true; c.hasMore = false; for (const m of c.members) c.tokens[m] = null;
+    for (const o of others) await sendGroupInvite(o, gid);
+    await sendRecord(c, { k: 'gupd', n: name, m: g.m, sys: `created the group${name ? ` "${name}"` : ''}` });
+    hideLoading(); openConvo(gid);
+  } catch (e) { hideLoading(); toast('Could not create group: ' + e.message, true); }
+}
+async function sendGroupInvite(o, gid) {
+  const g = S.st.groups[gid]; const dm = [...S.convos.values()].find(c => c.kind === 'dm' && c.peer === o);
+  if (!dm) throw new Error('not a contact');
+  await sendRecord(dm, { k: 'ginv', gid, key: g.key, n: g.n, m: g.m, by: g.by, created: g.created });
+}
+function onGroupInvite(from, p, f) {
+  if (from === S.outbox || !p.gid || S.st.groups[p.gid] || (S.st.left || []).includes(p.gid)) return;
+  if (!p.m?.some(m => m.o === S.outbox)) return;
+  S.st.groups[p.gid] = { key: p.key, n: p.n, m: p.m, by: p.by, created: p.created, metaAt: f.createdTime };
+  saveState();
+  for (const m of p.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true);
+  const c = ensureConvo(p.gid, { kind: 'group', name: p.n, members: p.m.map(m => m.o), by: p.by, created: iso(p.created || Date.now()) });
+  loadHistory(c);
+  if (Date.parse(f.createdTime) > S.startedAt - 60000) toast(`${personOf(from).n} added you to ${p.n || 'a group'}`);
+}
+function onGroupUpdate(c, from, p, f) {
+  const g = S.st.groups[c.id]; if (!g) return;
+  if ((g.metaAt || '') >= f.createdTime) return;
+  g.metaAt = f.createdTime;
+  if (p.n !== undefined) { g.n = p.n; c.name = p.n; }
+  if (p.m) { g.m = p.m; c.members = p.m.map(m => m.o); for (const m of p.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true); }
+  if (!c.members.includes(S.outbox)) { delete S.st.groups[c.id]; S.convos.delete(c.id); if (S.active === c.id) S.active = null; renderMain(); }
+  saveState();
+}
+function onGroupLeave(c, from, f) {
+  const g = S.st.groups[c.id]; if (!g || from === S.outbox) return;
+  if ((g.metaAt || '') >= f.createdTime) return;
+  g.m = g.m.filter(m => m.o !== from); c.members = g.m.map(m => m.o); g.metaAt = f.createdTime; saveState();
+}
+async function renameGroup(c, n) {
+  const g = S.st.groups[c.id]; g.n = n; c.name = n; saveState();
+  await sendRecord(c, { k: 'gupd', n, sys: n ? `renamed the group to "${n}"` : 'removed the group name' });
+}
+async function addToGroup(c, list) {
+  const g = S.st.groups[c.id];
+  list = list.filter(o => !c.members.includes(o)); if (!list.length) return;
+  g.m = [...g.m, ...list.map(memberCard)]; c.members = g.m.map(m => m.o); saveState();
+  for (const o of list) await sendGroupInvite(o, c.id);
+  await sendRecord(c, { k: 'gupd', m: g.m, sys: 'added ' + list.map(o => personOf(o).n).join(', ') });
+  toast('Added');
+}
+async function leaveGroup(c) {
+  if (!confirm(`Leave "${convoTitle(c)}"?`)) return;
+  try { await sendRecord(c, { k: 'gleave' }); } catch {}
+  delete S.st.groups[c.id]; S.st.left = [...(S.st.left || []), c.id]; saveState(true);
+  S.convos.delete(c.id); S.active = null; S.showInfo = false; renderMain();
+}
+
+/* ============================ SENDING ============================ */
+async function sendRecord(c, payload) {
+  const f = await writeRecord(c, payload);
+  await processFile(f, S.outbox, false, payload);
+  return f;
+}
+async function postMessage(c, data) {
+  const cl = uid();
+  const tmp = { id: 'tmp_' + cl, cl, tmp: true, cid: c.id, from: S.outbox, ct: iso(Date.now()), ...data };
+  c.msgs.set(tmp.id, tmp); stickBottom = true; scheduleRender();
+  try {
+    const f = await sendRecord(c, { k: 'm', ...data, cl });
+    S.myRd[c.id] = f.createdTime; saveStatus();
+  } catch (e) { tmp.failed = true; scheduleRender(); toast('Message not sent: ' + e.message, true); }
+}
+async function sendText() {
+  const ta = $('#composer-input'); if (!ta) return;
+  let text = ta.value.trim(); const c = S.convos.get(S.active); if (!text || !c) return;
+  ta.value = ''; autoGrow(ta); S.myTy = null;
+  if (S.editing) {
+    const m = c.msgs.get(S.editing); S.editing = null; renderBars();
+    if (m && m.t !== text) {
+      m.t = text; m.ed = true; scheduleRender();
+      try { const f = await writeRecord(c, { k: 'm', t: text.slice(0, MAX_TEXT * 2), rp: m.rp, a: m.a, ed: 1 }, m.id); S.seen.delete(f.id); await processFile(f, S.outbox, false, { k: 'm', t: text, rp: m.rp, a: m.a, ed: 1 }); }
+      catch (e) { toast('Edit failed: ' + e.message, true); }
+    }
+    return;
+  }
+  const rp = S.replyTo; S.replyTo = null; renderBars();
+  const chunks = []; while (text.length) { chunks.push(text.slice(0, MAX_TEXT)); text = text.slice(MAX_TEXT); }
+  for (let i = 0; i < chunks.length; i++) await postMessage(c, { t: chunks[i], rp: i === 0 ? rp : null });
+}
+async function retryMsg(c, m) { c.msgs.delete(m.id); scheduleRender(); await postMessage(c, { t: m.t, rp: m.rp, a: m.a }); }
+async function deleteMsg(c, m) {
+  if (!confirm('Delete this message for everyone?')) return;
+  m.del = true; m.t = ''; scheduleRender();
+  try {
+    const f = await writeRecord(c, { k: 'm', del: 1 }, m.id); S.seen.delete(f.id); await processFile(f, S.outbox, false, { k: 'm', del: 1 });
+    if (m.a?.id) api('/files/' + m.a.id, { method: 'DELETE' }).catch(() => {});
+  } catch (e) { toast('Delete failed: ' + e.message, true); }
+}
+async function toggleReact(c, m, em) {
+  const map = c.reacts.get(m.id) || new Map(); if (!c.reacts.has(m.id)) c.reacts.set(m.id, map);
+  const minee = [...map.values()].find(r => r.from === S.outbox && !r.del);
+  try {
+    if (minee) {
+      minee.del = true; scheduleRender();
+      const f = await writeRecord(c, { k: 'r', to: m.id, em: minee.em, del: 1 }, minee.id); S.seen.delete(f.id);
+      await processFile(f, S.outbox, false, { k: 'r', to: m.id, em: minee.em, del: 1 });
+      if (minee.em === em) return;
+    }
+    const tmpId = 'tmp_' + uid(); map.set(tmpId, { id: tmpId, from: S.outbox, em, del: false }); scheduleRender();
+    await sendRecord(c, { k: 'r', to: m.id, em }); map.delete(tmpId); scheduleRender();
+  } catch (e) { toast('Reaction failed: ' + e.message, true); }
+}
+const uploads = new Map();
+async function sendFiles(files, extra = {}) {
+  const c = S.convos.get(S.active); if (!c) return;
+  for (const file of files) {
+    if (file.size > MAX_UPLOAD) { toast(`${file.name} is larger than ${fmtSize(MAX_UPLOAD)}`, true); continue; }
+    const key = uid(); uploads.set(key, { name: file.name, p: 0 }); renderUploads();
+    try {
+      const raw = Crypto.randRaw();
+      const sealed = await Crypto.sealBytes(await Crypto.importRaw(raw), new Uint8Array(await file.arrayBuffer()));
+      const f = await uploadBlob(new Blob([sealed], { type: 'application/octet-stream' }), { name: 'a', parents: [S.outbox], mimeType: 'application/octet-stream' }, p => { uploads.get(key).p = p; renderUploads(); }, 'id');
+      uploads.delete(key); renderUploads();
+      const rp = S.replyTo; S.replyTo = null; renderBars();
+      const mime = file.type || 'application/octet-stream';
+      const att = { id: f.id, n: file.name, m: mime, z: file.size, k: raw, o: S.outbox, ...extra };
+      mediaCache.set(f.id, Promise.resolve(URL.createObjectURL(file)));
+      await postMessage(c, { a: att, rp });
+    } catch (e) { uploads.delete(key); renderUploads(); toast(e.message, true); }
+  }
+}
+const mediaCache = new Map();
+function loadMedia(a) {
+  if (!mediaCache.has(a.id)) {
+    const p = (async () => {
+      const bytes = await fetchBytes(a.id, a.o);
+      const plain = await Crypto.openBytes(await Crypto.importRaw(a.k), bytes);
+      return URL.createObjectURL(new Blob([plain], { type: a.m || 'application/octet-stream' }));
+    })();
+    p.catch(() => mediaCache.delete(a.id)); mediaCache.set(a.id, p);
+  }
+  return mediaCache.get(a.id);
+}
+async function downloadAtt(a) {
+  try { const url = await loadMedia(a); const el = document.createElement('a'); el.href = url; el.download = a.n || 'file'; document.body.appendChild(el); el.click(); el.remove(); }
+  catch (e) { toast('Download failed: ' + e.message, true); }
+}
+let lastTypingSent = 0;
+function onTyping() {
+  if (!S.active) return; const now = Date.now();
+  if (S.myTy?.c === S.active && now - lastTypingSent < 4000) return;
+  lastTypingSent = now; S.myTy = { c: S.active, t: now }; saveStatus(true);
+}
+function markRead() {
+  const c = S.convos.get(S.active); if (!c || document.hidden) return;
+  let l = null; for (const m of c.msgs.values()) if (!m.tmp && !m.local && (!l || m.ct > l.ct)) l = m;
+  if (!l || (S.myRd[c.id] || '') >= l.ct) return;
+  S.myRd[c.id] = l.ct; scheduleRender(); saveStatus();
+}
+
+/* ============================ CALLS (WebRTC, signalled through Drive) ============================ */
+let call = null, ringTimer = null;
+function ringtone(on, outgoing) {
+  clearInterval(ringTimer); ringTimer = null; if (!on) return;
+  const beep = () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); [0, .25].forEach(d => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.value = outgoing ? 440 : 660; g.gain.setValueAtTime(.0001, audioCtx.currentTime + d); g.gain.exponentialRampToValueAtTime(.12, audioCtx.currentTime + d + .03); g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + d + .2); o.connect(g).connect(audioCtx.destination); o.start(audioCtx.currentTime + d); o.stop(audioCtx.currentTime + d + .22); }); } catch {} };
+  beep(); ringTimer = setInterval(beep, outgoing ? 3000 : 1500);
+}
+async function getMedia(video) {
+  try { return await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } : false }); }
+  catch (e) { if (video) { toast('Camera unavailable — joining with audio only'); return navigator.mediaDevices.getUserMedia({ audio: true }); } throw e; }
+}
+function iceComplete(pc) {
+  return new Promise(res => {
+    if (pc.iceGatheringState === 'complete') return res();
+    const t = setTimeout(res, 3000);
+    pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); res(); } });
+  });
+}
+function makePC() {
+  const pc = new RTCPeerConnection({ iceServers: CONFIG.iceServers });
+  call.remote = new MediaStream();
+  pc.ontrack = e => { call.remote.addTrack(e.track); renderCall(); };
+  pc.onconnectionstatechange = () => {
+    if (!call) return;
+    if (pc.connectionState === 'connected' && call.state !== 'active') { call.state = 'active'; call.t0 = Date.now(); ringtone(false); renderCall(); }
+    if (pc.connectionState === 'failed') { toast('Call couldn\'t connect — one of your networks blocks direct calls.', true, 6000); endCall(true); }
+    if (pc.connectionState === 'disconnected') setTimeout(() => { if (call && call.pc === pc && pc.connectionState === 'disconnected') endCall(true); }, 8000);
+  };
+  call.local.getTracks().forEach(t => pc.addTrack(t, call.local));
+  call.pc = pc; return pc;
+}
+async function signal(k, op, extra = {}) {
+  const c = S.convos.get(k?.cid); if (!c) return;
+  const f = await writeRecord(c, { k: 'call', op, id: k.id, ...extra });
+  S.seen.set(f.id, f.modifiedTime); c.msgs.set(f.id, { id: f.id, cid: c.id, from: S.outbox, ct: f.createdTime, hidden: true });
+  k.files.push(f.id);
+}
+async function startCall(c, video) {
+  if (call) return toast('You are already in a call');
+  if (c.kind !== 'dm') return toast('Calls work in one-to-one chats');
+  if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) return toast('Calls are not supported in this browser', true);
+  call = { id: uid(), cid: c.id, peer: c.peer, video, dir: 'out', state: 'calling', files: [], muted: false, camOff: false };
+  renderCall(); ringtone(true, true);
+  try {
+    call.local = await getMedia(video); call.video = call.local.getVideoTracks().length > 0; renderCall();
+    const pc = makePC();
+    await pc.setLocalDescription(await pc.createOffer());
+    await iceComplete(pc); if (!call) return;
+    await signal(call, 'offer', { sdp: pc.localDescription.sdp, video: call.video });
+    wakePeer(c.peer);
+    call.noAnswer = setTimeout(() => { if (call && call.state === 'calling') { toast('No answer'); endCall(true, true); } }, 45000);
+  } catch (e) { toast('Could not start call: ' + e.message, true); endCall(false); }
+}
+function onCallSignal(c, from, p, f) {
+  if (from === S.outbox || c.kind !== 'dm') return;
+  if (Date.parse(f.createdTime) < S.startedAt - 5000 && Date.now() - Date.parse(f.createdTime) > 60000) return;
+  if (p.op === 'offer') {
+    if (Date.now() - Date.parse(f.createdTime) > 50000) return;
+    if (call) { if (call.id !== p.id) { const busy = { id: p.id, cid: c.id, files: [] }; signal(busy, 'busy').catch(() => {}); setTimeout(() => busy.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 20000); } return; }
+    call = { id: p.id, cid: c.id, peer: from, video: !!p.video, dir: 'in', state: 'ringing', offer: p.sdp, files: [], muted: false, camOff: false };
+    ringtone(true, false); renderCall();
+    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { try { const n = new Notification(`${personOf(from).n} is calling…`, { body: p.video ? 'Video call' : 'Voice call', tag: 'call' }); n.onclick = () => { window.focus(); n.close(); }; } catch {} }
+    call.ringOut = setTimeout(() => { if (call && call.state === 'ringing') endCall(false); }, 45000);
+    return;
+  }
+  if (!call || call.id !== p.id) return;
+  if (p.op === 'answer' && call.dir === 'out' && call.state === 'calling') {
+    call.state = 'connecting'; ringtone(false); renderCall(); clearTimeout(call.noAnswer);
+    call.pc.setRemoteDescription({ type: 'answer', sdp: p.sdp }).catch(e => { toast('Call failed: ' + e.message, true); endCall(true); });
+  } else if (p.op === 'reject' || p.op === 'busy') { toast(p.op === 'busy' ? `${personOf(from).n} is on another call` : 'Call declined'); endCall(false, call.dir === 'out'); }
+  else if (p.op === 'end') { if (call.state === 'ringing') { endCall(false); } else endCall(false); }
+}
+async function acceptCall(withVideo) {
+  if (!call || call.state !== 'ringing') return;
+  ringtone(false); clearTimeout(call.ringOut);
+  call.state = 'connecting'; renderCall();
+  try {
+    call.local = await getMedia(withVideo); call.video = call.local.getVideoTracks().length > 0;
+    const pc = makePC();
+    await pc.setRemoteDescription({ type: 'offer', sdp: call.offer });
+    await pc.setLocalDescription(await pc.createAnswer());
+    await iceComplete(pc); if (!call) return;
+    await signal(call, 'answer', { sdp: pc.localDescription.sdp }); renderCall();
+    call.connectTimeout = setTimeout(() => { if (call && call.state === 'connecting') { toast('Call couldn\'t connect — a network is blocking direct calls.', true, 6000); endCall(true); } }, 30000);
+  } catch (e) { toast('Could not answer: ' + e.message, true); endCall(true); }
+}
+async function declineCall() { if (!call) return; ringtone(false); try { await signal(call, 'reject'); } catch {} endCall(false); }
+async function endCall(notify = true, missed = false) {
+  if (!call) return;
+  const k = call; call = null; ringtone(false);
+  [k.noAnswer, k.ringOut, k.connectTimeout, k.tick].forEach(t => { clearTimeout(t); clearInterval(t); });
+  k.local?.getTracks().forEach(t => t.stop()); try { k.pc?.close(); } catch {}
+  $('#callui')?.remove();
+  const c = S.convos.get(k.cid);
+  if (c && notify) { try { await signal(k, 'end'); } catch {} }
+  if (c && k.dir === 'out') { try { await sendRecord(c, { k: 'log', video: k.video, dur: k.t0 ? Math.round((Date.now() - k.t0) / 1000) : 0, missed: !k.t0 && (missed || k.state === 'calling') }); } catch {} }
+  setTimeout(() => k.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 15000);
+}
+function renderCall() {
+  if (!call) { $('#callui')?.remove(); return; }
+  let el = $('#callui');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'callui'; el.className = 'callui';
+    el.innerHTML = `<video class="rv" id="rv" autoplay playsinline></video><video class="lv" id="lv" autoplay playsinline muted></video><div class="cinfo" id="cinfo"></div><div class="cbtns" id="cbtns"></div>`;
+    document.body.appendChild(el);
+    el.onclick = e => {
+      const b = e.target.closest('[data-c]'); if (!b || !call) return;
+      const a = b.dataset.c;
+      if (a === 'accept-a') acceptCall(false); else if (a === 'accept-v') acceptCall(true);
+      else if (a === 'decline') declineCall(); else if (a === 'end') endCall(true);
+      else if (a === 'mute') { call.muted = !call.muted; call.local?.getAudioTracks().forEach(t => t.enabled = !call.muted); renderCall(); }
+      else if (a === 'cam') { call.camOff = !call.camOff; call.local?.getVideoTracks().forEach(t => t.enabled = !call.camOff); renderCall(); }
+    };
+  }
+  const p = personOf(call.peer);
+  const rv = $('#rv', el), lv = $('#lv', el);
+  if (call.remote && rv.srcObject !== call.remote) rv.srcObject = call.remote;
+  if (call.local && lv.srcObject !== call.local) lv.srcObject = call.local;
+  const remoteVideo = call.remote?.getVideoTracks().some(t => t.readyState === 'live');
+  rv.style.display = remoteVideo ? '' : 'none';
+  lv.style.display = call.local?.getVideoTracks().length && !call.camOff ? '' : 'none';
+  el.classList.toggle('has-video', !!remoteVideo);
+  const status = { calling: 'Calling…', ringing: call.video ? 'Incoming video call' : 'Incoming voice call', connecting: 'Connecting…', active: fmtDur((Date.now() - (call.t0 || Date.now())) / 1000) }[call.state];
+  $('#cinfo', el).innerHTML = `<div class="${call.state === 'ringing' || call.state === 'calling' ? 'pulse' : ''}" style="border-radius:50%">${avatarHtml(p, 120)}</div><b>${esc(p.n)}</b><span id="cstat">${esc(status)}</span><span class="e2e" style="color:#fff;opacity:.7">${iconSm('lock', 12)} End-to-end encrypted</span>`;
+  const btn = (c, ic, label, cls = '') => `<div class="cbtn-wrap"><button class="cbtn ${cls}" data-c="${c}">${I[ic]}</button>${label}</div>`;
+  $('#cbtns', el).innerHTML = call.state === 'ringing'
+    ? btn('decline', 'phoneoff', 'Decline', 'red') + btn('accept-a', 'phone', 'Voice', 'green') + (call.video ? btn('accept-v', 'video', 'Video', 'green') : '')
+    : btn('mute', call.muted ? 'micoff' : 'mic', call.muted ? 'Unmute' : 'Mute', call.muted ? 'off' : '') + (call.local?.getVideoTracks().length ? btn('cam', call.camOff ? 'videooff' : 'video', call.camOff ? 'Camera on' : 'Camera off', call.camOff ? 'off' : '') : '') + btn('end', 'phoneoff', 'End', 'red');
+  if (call.state === 'active' && !call.tick) call.tick = setInterval(() => { const s = $('#cstat'); if (s && call?.t0) s.textContent = fmtDur((Date.now() - call.t0) / 1000); }, 1000);
+}
+
+/* ============================ NOTIFICATIONS ============================ */
+let audioCtx = null;
+function ping() {
+  if (!S.sound) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(880, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + .08);
+    g.gain.setValueAtTime(.0001, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.15, audioCtx.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + .3);
+    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + .32);
+  } catch {}
+}
+function preview(m) {
+  if (m.del) return 'Message deleted';
+  if (m.bad) return '🔒 Message could not be decrypted';
+  if (m.sys) return `${m.from === S.outbox ? 'You' : personOf(m.from).n} ${m.sys}`;
+  if (m.log) return m.log.missed ? `Missed ${m.log.video ? 'video' : 'voice'} call` : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`;
+  if (m.a) return m.a.v ? '🎤 Voice message' : (m.a.m || '').startsWith('image/') ? '📷 Photo' : (m.a.m || '').startsWith('video/') ? '🎬 Video' : '📎 ' + m.a.n;
+  return m.t;
+}
+function notifyMsg(c, m) {
+  if (Date.parse(m.ct) < S.startedAt - 5000) return;
+  if (S.muted.has(c.id)) return;
+  if (S.active === c.id && !document.hidden && document.hasFocus()) { markRead(); return; }
+  ping();
+  if (S.notify && 'Notification' in window && Notification.permission === 'granted' && (document.hidden || !document.hasFocus())) {
+    const u = personOf(m.from);
+    try { const n = new Notification(c.kind === 'dm' ? u.n : `${u.n} · ${convoTitle(c)}`, { body: preview(m), tag: c.id, icon: u.p || undefined }); n.onclick = () => { window.focus(); openConvo(c.id); n.close(); }; } catch {}
+  }
+}
+function updateTitle() { let n = 0; for (const c of S.convos.values()) if (!S.muted.has(c.id)) n += unreadCount(c); document.title = n ? `(${n}) DriveChat` : 'DriveChat'; }
+
+/* ============================ SCREENS ============================ */
+const root = () => $('#root');
+function applyTheme() { document.documentElement.dataset.theme = S.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : S.theme; }
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
+const logoHtml = () => `<div class="logo">${I.chat}</div>`;
+function showLoading(text, overlay = false) {
+  if (overlay) { hideLoading(); const d = document.createElement('div'); d.className = 'loading-full'; d.id = 'loading'; d.style.background = 'rgba(0,0,0,.25)'; d.innerHTML = `<div class="card" style="max-width:260px;text-align:center"><div class="spinner"></div><p class="muted">${esc(text)}</p></div>`; document.body.appendChild(d); return; }
+  root().innerHTML = `<div class="loading-full"><div class="spinner"></div><div>${esc(text)}</div></div>`;
+}
+function hideLoading() { $('#loading')?.remove(); }
+
+function showSetup(err) {
+  const c = cfg();
+  root().innerHTML = `<div class="screen"><div class="card">
+    ${logoHtml()}<h1>Owner setup (one time)</h1>
+    <p class="muted small">Only the person hosting this app does this, once. Afterwards anyone with a Google account can sign in. Best: paste both values into <code>CONFIG</code> at the top of <code>index.html</code> so nobody ever sees this screen.</p>
+    <ol class="steps">
+      <li>In <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a> create a project and enable the <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener">Google Drive API</a>.</li>
+      <li><b>Google Auth Platform → Branding/Audience</b>: External, then press <b>Publish app</b> (In production). DriveChat only uses the non-sensitive <code>drive.file</code> permission, so Google doesn't require a review.</li>
+      <li><b>Clients → Create → Web application</b>. Authorized JavaScript origin: <code>${esc(location.origin)}</code></li>
+      <li><b>Credentials → Create API key</b>, restrict it to the Google Drive API (and optionally to your website).</li>
+    </ol>
+    <label class="lbl">OAuth Client ID</label><input class="field" id="cid" placeholder="…apps.googleusercontent.com" value="${esc(c.clientId)}">
+    <label class="lbl">API key</label><input class="field" id="akey" placeholder="AIza…" value="${esc(c.apiKey)}">
+    ${err ? `<p class="small" style="color:var(--danger)">${esc(err)}</p>` : ''}
+    <div style="height:14px"></div><button class="btn block" id="save-cid">Continue</button></div></div>`;
+  $('#save-cid').onclick = () => {
+    const v = $('#cid').value.trim(), k = $('#akey').value.trim();
+    if (!/\.apps\.googleusercontent\.com$/.test(v)) return showSetup('The Client ID should end in .apps.googleusercontent.com');
+    if (!/^AIza[\w-]{20,}$/.test(k)) return showSetup('The API key should start with AIza');
+    LS.set('clientId', v); LS.set('apiKey', k); location.reload();
+  };
+}
+function showSignIn(err) {
+  root().innerHTML = `<div class="screen"><div class="card" style="text-align:center">
+    <div style="display:flex;justify-content:center">${logoHtml()}</div>
+    <h1>DriveChat</h1>
+    <p class="muted">Private, end-to-end encrypted messaging and calls. Your messages live in <b>your own Google Drive</b> — no company servers in between.</p>
+    <div style="height:10px"></div>
+    <button class="btn block" id="signin" style="display:flex;align-items:center;justify-content:center;gap:10px">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google</button>
+    ${err ? `<p class="small" style="color:var(--danger)">${esc(err)}</p>` : ''}
+    <p class="tiny muted" style="margin-top:18px">DriveChat can only see the files it creates — never the rest of your Drive.</p>
+    ${CONFIG.clientId ? '' : `<button class="tiny muted" id="reset-cid" style="text-decoration:underline">Owner setup</button>`}
+  </div></div>`;
+  $('#signin').onclick = async () => { try { await requestToken(LS.get('lastEmail') ? '' : 'select_account'); await afterSignIn(); } catch (e) { showSignIn(e.message); } };
+  const r = $('#reset-cid'); if (r) r.onclick = () => showSetup();
+}
+async function afterSignIn() {
+  showLoading('Signing in…');
+  const a = await api('/about', { query: { fields: 'user(displayName,emailAddress,photoLink)' } });
+  S.me = { email: a.user.emailAddress, name: a.user.displayName || a.user.emailAddress.split('@')[0], photo: a.user.photoLink || '' };
+  LS.set('lastEmail', S.me.email);
+  showLoading('Opening your encrypted inbox…');
+  try { await ensureHome(); } catch (e) { return showSignIn(e.message); }
+  const k = await loadKeys();
+  if (k === 'create') return showPassword('create');
+  if (k === 'unlock') return showPassword('unlock');
+  await startApp();
+}
+function showPassword(mode, err) {
+  const create = mode === 'create';
+  root().innerHTML = `<div class="screen"><div class="card">
+    <div class="lock-ic">${I.lock}</div>
+    <h1>${create ? 'Protect your messages' : 'Unlock your messages'}</h1>
+    <p class="muted small">${create
+      ? 'Create a backup password. It encrypts your secret key so you can read your chats on a new phone or computer. Nobody — not Google, not us — can reset it for you.'
+      : `Enter your DriveChat backup password for <b>${esc(S.me.email)}</b>. You only need it once per device.`}</p>
+    <label class="lbl">Backup password</label><input class="field" id="pw1" type="password" autocomplete="${create ? 'new-password' : 'current-password'}" minlength="8">
+    ${create ? '<label class="lbl">Repeat password</label><input class="field" id="pw2" type="password" autocomplete="new-password">' : ''}
+    ${err ? `<p class="small" style="color:var(--danger)">${esc(err)}</p>` : ''}
+    <div style="height:16px"></div><button class="btn block" id="pw-go">${create ? 'Create & continue' : 'Unlock'}</button>
+    ${create ? '' : '<div style="text-align:center;margin-top:16px"><button class="small muted" id="pw-reset" style="text-decoration:underline">Forgot it? Start over with new keys</button></div>'}
+    <div style="text-align:center;margin-top:10px"><button class="tiny muted" id="pw-out">Use a different Google account</button></div>
+  </div></div>`;
+  const go = async () => {
+    const p1 = $('#pw1').value;
+    if (create) { if (p1.length < 8) return showPassword(mode, 'Use at least 8 characters.'); if (p1 !== $('#pw2').value) return showPassword(mode, 'Passwords don\'t match.'); }
+    $('#pw-go').disabled = true; $('#pw-go').textContent = 'Working…';
+    try { create ? await createIdentity(p1) : await unlockIdentity(p1); await startApp(); }
+    catch (e) { showPassword(mode, e.message); }
+  };
+  $('#pw-go').onclick = go;
+  $$('.field').forEach(f => f.onkeydown = e => e.key === 'Enter' && go());
+  $('#pw1').focus();
+  const r = $('#pw-reset'); if (r) r.onclick = () => { if (confirm('Create new keys? Messages sent to you before now will no longer be readable, and your contacts will see that your security code changed.')) showPassword('create'); };
+  $('#pw-out').onclick = signOut;
+}
+function signOut() {
+  try { if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {}); } catch {}
+  accessToken = null; tokenExp = 0; sessionStorage.removeItem('dc_tok'); LS.del('lastEmail');
+  stopApp(); showSignIn();
+}
+function stopApp() { S.running = false; S.gen++; if (call) endCall(true); }
+
+async function startApp() {
+  showLoading('Decrypting…');
+  stopApp(); const gen = ++S.gen;
+  await loadState();
+  S.prof = { n: S.st.me?.n || S.me.name, c: S.st.me?.c || hashColor(S.outbox), st: S.st.me?.st || '' };
+  S.people.clear(); S.convos.clear(); S.seen.clear(); S.since.clear(); S.nextPoll.clear(); S.peerInit.clear(); S.keyCache.clear();
+  S.startedAt = Date.now();
+  await publishProfile();
+  await buildConvos();
+  try { const st = await findOne(`'${S.outbox}' in parents and name='status' and trashed=false`, REC_FIELDS); if (st) { S.files.status = st.id; await processFile(st, S.outbox, false); } } catch {}
+  renderMain();
+  S.running = true;
+  pollLoop(gen); heartbeatLoop(gen); pendingLoop(gen); saveStatus(true);
+  const all = [...S.convos.values()]; let i = 0;
+  Promise.all(Array.from({ length: 3 }, async () => { while (i < all.length && gen === S.gen) await loadHistory(all[i++]).catch(() => {}); }));
+  const pendingLink = LS.get('pendingAdd'); LS.del('pendingAdd');
+  if (pendingLink) acceptLink(pendingLink);
+  else { const want = LS.get('lastConvo'); if (want && S.convos.has(want) && innerWidth > 760) openConvo(want); }
+  if ('Notification' in window && Notification.permission === 'default' && S.notify) { try { Notification.requestPermission(); } catch {} }
+}
+
+/* ============================ RENDERING ============================ */
+function avatarHtml(u, size = 40, online = false, group = false) {
+  const name = u.n ?? u.name, color = u.c || u.color || hashColor(name), photo = u.p ?? u.photo;
+  const ini = (hide) => `<div class="ini" style="background:${esc(color)}${hide ? ';display:none' : ''}">${esc(initials(name))}</div>`;
+  const inner = photo ? `<img src="${esc(photo)}" referrerpolicy="no-referrer" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">${ini(true)}` : ini(false);
+  return `<div class="av${group ? ' grp' : ''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px">${inner}${online ? '<i class="dot"></i>' : ''}</div>`;
+}
+function convoAvatar(c, size) {
+  if (c.kind === 'dm') { const p = personOf(c.peer); return avatarHtml(p, size, isOnline(p)); }
+  return avatarHtml({ n: convoTitle(c), c: hashColor(c.id) }, size, c.members.some(m => m !== S.outbox && isOnline(S.people.get(m))), true);
+}
+let stickBottom = true, renderQueued = false;
+function scheduleRender() {
+  if (renderQueued) return; renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; if (!$('.main')) return; renderSidebarList(); renderHeader(); renderMessages(); renderInfo(); renderWaiting(); updateTitle(); });
+}
+function renderMain() {
+  if (!S.outbox) return;
+  const c = S.convos.get(S.active);
+  root().innerHTML = `<div class="main${c ? ' in-chat' : ''}">
+    <aside class="sidebar">
+      <div class="sb-head">
+        <button id="me-btn" title="Settings">${avatarHtml({ n: S.prof.n, c: S.prof.c, p: S.me.photo }, 40)}</button>
+        <div class="sb-title"><b>Chats</b><span class="e2e">${iconSm('lock', 11)} End-to-end encrypted</span></div>
+        <button class="ibtn" id="add-btn" title="Add people">${I.userplus}</button>
+        <button class="ibtn" id="new-btn" title="New chat or group">${I.edit}</button>
+      </div>
+      <div class="search">${I.search}<input id="filter" placeholder="Search" value="${esc(S.filter)}"></div>
+      <div class="tabs"><button class="tab${S.tab === 'chats' ? ' on' : ''}" data-tab="chats">Chats</button><button class="tab${S.tab === 'people' ? ' on' : ''}" data-tab="people">Contacts</button></div>
+      <div class="list" id="list"></div>
+    </aside>
+    <section class="chat" id="chat">${c ? chatShell() : `<div class="welcome">${logoHtml()}<h2 style="color:var(--text)">Hi, ${esc(S.prof.n.split(' ')[0])}</h2><p>Share your invite link with friends to start chatting.<br>Messages and calls are end-to-end encrypted.</p><div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="w-inv">Add people</button><button class="btn ghost" id="w-new">New chat</button></div></div>`}</section>
+    ${S.showInfo && c ? '<aside class="info" id="info"></aside>' : ''}
+  </div>`;
+  $('#new-btn').onclick = () => newChatModal();
+  $('#add-btn').onclick = () => addPeopleModal();
+  $('#me-btn').onclick = () => settingsModal();
+  $('#filter').oninput = e => { S.filter = e.target.value; renderSidebarList(); };
+  $$('.tab').forEach(t => t.onclick = () => { S.tab = t.dataset.tab; $$('.tab').forEach(x => x.classList.toggle('on', x === t)); renderSidebarList(); });
+  if ($('#w-new')) { $('#w-new').onclick = () => newChatModal(); $('#w-inv').onclick = () => addPeopleModal(); }
+  if (c) bindChat();
+  renderSidebarList(); renderHeader(); renderMessages(true); renderInfo(); renderBars(); renderUploads(); renderWaiting(); updateTitle();
+}
+function typingIn(c) { return convoMembers(c).filter(o => o !== S.outbox).map(o => S.people.get(o)).filter(p => p?.ty?.c === c.id && Date.now() - p.tyAt < 6500); }
+function renderSidebarList() {
+  const el = $('#list'); if (!el) return;
+  const f = S.filter.trim().toLowerCase();
+  if (S.tab === 'people') {
+    const people = Object.keys(S.st.contacts).map(o => personOf(o)).filter(p => !f || p.n.toLowerCase().includes(f) || p.e.toLowerCase().includes(f)).sort((a, b) => (isOnline(b) - isOnline(a)) || a.n.localeCompare(b.n));
+    el.innerHTML = `<button class="item" id="inv-item"><div class="av" style="width:48px;height:48px"><div class="ini" style="background:var(--accent-soft);color:var(--accent)">${I.userplus}</div></div><div class="meta"><span class="name">Add people</span><div class="preview">Share your invite link</div></div></button>`
+      + people.map(p => `<button class="item" data-o="${esc(p.o)}">${avatarHtml(p, 48, isOnline(p))}<div class="meta"><div class="top"><span class="name">${esc(p.n)}</span></div><div class="bottom"><span class="preview">${isOnline(p) ? 'Active now' : esc(p.st || (p.mt ? 'Active ' + ago(p.mt) : p.e))}</span></div></div></button>`).join('')
+      + (people.length ? '' : '<div class="empty">No contacts yet.<br>Send your invite link to a friend — when they open it, you\'re connected.</div>');
+    $$('.item[data-o]', el).forEach(b => b.onclick = () => { const c = [...S.convos.values()].find(x => x.kind === 'dm' && x.peer === b.dataset.o); if (c) openConvo(c.id); });
+    $('#inv-item').onclick = () => addPeopleModal();
+    return;
+  }
+  const convos = [...S.convos.values()].filter(c => !f || convoTitle(c).toLowerCase().includes(f)).sort((a, b) => convoSortKey(b) < convoSortKey(a) ? -1 : 1);
+  if (!convos.length) { el.innerHTML = `<div class="empty">${f ? 'No matches.' : 'No conversations yet.<br><br><button class="btn" id="e-new">Add people</button>'}</div>`; const b = $('#e-new'); if (b) b.onclick = () => addPeopleModal(); return; }
+  el.innerHTML = convos.map(c => {
+    const l = lastMsg(c), un = unreadCount(c), muted = S.muted.has(c.id), typers = typingIn(c);
+    let pv = typers.length ? `<span style="color:var(--accent)">${c.kind === 'dm' ? 'typing…' : esc(typers.map(p => p.n.split(' ')[0]).join(', ')) + ' typing…'}</span>` : '';
+    if (!pv && l) { const who = l.sys || l.log ? '' : l.from === S.outbox ? 'You: ' : c.kind === 'group' ? personOf(l.from).n.split(' ')[0] + ': ' : ''; pv = esc(who + preview(l)); }
+    if (!pv) pv = c.loading || !c.loaded ? '…' : 'No messages yet';
+    return `<button class="item${S.active === c.id ? ' on' : ''}${un ? ' unread' : ''}" data-id="${esc(c.id)}">${convoAvatar(c, 52)}<div class="meta"><div class="top"><span class="name">${esc(convoTitle(c))}</span><span class="time">${esc(fmtListTime(l?.ct || c.created))}</span></div><div class="bottom"><span class="preview">${pv}</span>${muted ? `<span style="color:var(--text-3)">${iconSm('belloff')}</span>` : ''}${un ? `<span class="badge${muted ? ' muted-b' : ''}">${un}</span>` : ''}</div></div></button>`;
+  }).join('');
+  $$('.item', el).forEach(b => b.onclick = () => openConvo(b.dataset.id));
+}
+setInterval(() => { if (S.running) { renderHeader(); renderTyping(); renderSidebarList(); } }, 3000);
+function chatShell() {
+  return `<div class="chat-head" id="chat-head"></div><div id="waiting"></div>
+    <div class="msgs" id="msgs"></div>
+    <div id="bars"></div><div class="uploads" id="uploads"></div>
+    <div class="composer" id="composer">
+      <button class="ibtn accent" id="att-btn" title="Attach files">${I.clip}</button>
+      <input type="file" id="file-in" multiple hidden>
+      <div class="inp"><textarea id="composer-input" rows="1" placeholder="Message" maxlength="20000"></textarea><button class="ibtn" id="emo-btn" title="Emoji">${I.smile}</button></div>
+      <button class="send" id="send-btn" title="Send">${I.mic}</button>
+    </div>`;
+}
+function renderHeader() {
+  const el = $('#chat-head'); const c = S.convos.get(S.active); if (!el || !c) return;
+  const typers = typingIn(c); let sub;
+  if (typers.length) sub = `<span class="typing">${c.kind === 'dm' ? 'typing…' : esc(typers.map(p => p.n.split(' ')[0]).join(', ')) + ' typing…'}</span>`;
+  else if (c.kind === 'dm') { const p = personOf(c.peer); sub = `<span>${isOnline(p) ? 'Active now' : p.mt ? 'Active ' + ago(p.mt) : `${iconSm('lock', 11)} End-to-end encrypted`}</span>`; }
+  else { const on = c.members.filter(m => m !== S.outbox && isOnline(S.people.get(m))).length; sub = `<span>${c.members.length} members${on ? ` · ${on} online` : ''}</span>`; }
+  el.innerHTML = `<button class="ibtn back" id="back-btn">${I.back}</button>${convoAvatar(c, 42)}<div class="who" id="who"><b>${esc(convoTitle(c))}</b>${sub}</div>
+    ${c.kind === 'dm' ? `<button class="ibtn accent" id="call-a" title="Voice call">${I.phone}</button><button class="ibtn accent" id="call-v" title="Video call">${I.video}</button>` : ''}
+    <button class="ibtn accent" id="info-btn" title="Conversation info">${I.info}</button>`;
+  $('#back-btn').onclick = () => { S.active = null; S.showInfo = false; renderMain(); };
+  $('#info-btn').onclick = $('#who').onclick = () => { S.showInfo = !S.showInfo; renderMain(); };
+  if (c.kind === 'dm') { $('#call-a').onclick = () => startCall(c, false); $('#call-v').onclick = () => startCall(c, true); }
+}
+function renderWaiting() {
+  const el = $('#waiting'); const c = S.convos.get(S.active); if (!el) return;
+  if (!c || c.kind !== 'dm' || S.st.contacts[c.peer]?.connected) { el.innerHTML = ''; return; }
+  const p = personOf(c.peer);
+  if (el.dataset.peer === c.peer && el.innerHTML) return; el.dataset.peer = c.peer;
+  el.innerHTML = `<div class="waiting">${iconSm('link', 18)}<div class="t">Waiting for <b>${esc(p.n.split(' ')[0])}</b> to connect back. If they haven't got your link yet, send it to them.</div><button class="btn ghost" id="wait-copy" style="padding:6px 12px">Copy my link</button></div>`;
+  $('#wait-copy').onclick = async () => { const l = await freshInviteLink(); navigator.clipboard?.writeText(l).then(() => toast('Link copied — send it to ' + p.n.split(' ')[0])); };
+}
+function renderBars() {
+  const el = $('#bars'); if (!el) return; const c = S.convos.get(S.active);
+  if (S.editing) el.innerHTML = `<div class="bar-top">${I.edit}<div class="t"><b>Editing message</b></div><button class="ibtn" id="bar-x">${I.x}</button></div>`;
+  else if (S.replyTo && c) { const m = c.msgs.get(S.replyTo); el.innerHTML = m ? `<div class="bar-top">${I.reply}<div class="t">Replying to <b>${esc(m.from === S.outbox ? 'yourself' : personOf(m.from).n)}</b><br><span class="muted">${esc(preview(m))}</span></div><button class="ibtn" id="bar-x">${I.x}</button></div>` : ''; }
+  else el.innerHTML = '';
+  const x = $('#bar-x'); if (x) x.onclick = () => { if (S.editing) $('#composer-input').value = ''; S.editing = null; S.replyTo = null; renderBars(); updateSendBtn(); };
+}
+function renderUploads() {
+  const el = $('#uploads'); if (!el) return;
+  el.innerHTML = [...uploads.values()].map(u => `<div class="up">${I.lock}<span style="max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.name)}</span><div class="pb"><i style="width:${Math.round(u.p * 100)}%"></i></div><span class="tiny muted">${Math.round(u.p * 100)}%</span></div>`).join('');
+}
+function renderTyping() {
+  const box = $('#msgs'); const c = S.convos.get(S.active); if (!box || !c) return;
+  const typers = typingIn(c); let el = $('#typing-row');
+  if (!typers.length) { el?.remove(); return; }
+  if (!el) { el = document.createElement('div'); el.id = 'typing-row'; el.className = 'typing-row'; const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80; box.appendChild(el); if (near) box.scrollTop = box.scrollHeight; }
+  el.innerHTML = `<div class="avs">${avatarHtml(typers[0], 30)}</div><div class="dots"><i></i><i></i><i></i></div>`;
+}
+function attHtml(m) {
+  const a = m.a, mime = a.m || '';
+  if (a.v || mime.startsWith('audio/')) return `<div class="att-audio" data-fid="${esc(a.id)}"><button class="play" data-act="play">${I.play}</button><div class="bar" data-act="seek"><i></i></div><span class="dur">${fmtDur(a.v || 0)}</span></div>`;
+  if (mime.startsWith('image/')) return `<img class="att-img lazy" data-fid="${esc(a.id)}" data-act="zoom" alt="${esc(a.n)}">`;
+  if (mime.startsWith('video/')) return `<video class="att-video lazy" data-fid="${esc(a.id)}" controls preload="metadata"></video>`;
+  return `<div class="att-file" data-act="dl"><div class="fi">${I.file}</div><div style="min-width:0"><div class="fn">${esc(a.n)}</div><div class="tiny" style="opacity:.75">${fmtSize(a.z)} · Download</div></div></div>`;
+}
+function renderMessages(force = false) {
+  const box = $('#msgs'); const c = S.convos.get(S.active); if (!box || !c) return;
+  const msgs = sortedMsgs(c).filter(m => !m.hidden);
+  const sig = msgs.map(m => m.id + m.mt + (m.failed ? 'f' : '') + (m.del ? 'd' : '') + (m.t || '').length).join('|') + '#' + [...c.reacts.values()].map(mp => [...mp.values()].map(r => r.id + r.del).join()).join() + '#' + convoMembers(c).map(o => (personOf(o).rd[c.id] || '') + personOf(o).n + personOf(o).p).join() + c.hasMore + c.loading + c.loaded;
+  if (!force && box.dataset.sig === sig && box.dataset.cid === c.id) return;
+  const nearBottom = stickBottom || box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+  const prevH = box.scrollHeight, prevTop = box.scrollTop, firstBefore = box.dataset.first;
+  box.dataset.sig = sig; box.dataset.cid = c.id;
+  let html = '';
+  if (c.hasMore && c.loaded) html += `<button class="load-more" id="load-more">${c.loading ? 'Loading…' : 'Load earlier messages'}</button>`;
+  if (!c.loaded) html += '<div class="spinner" style="margin:30px auto"></div>';
+  if (c.loaded && !c.hasMore) html += `<div class="sys" style="margin:20px auto 10px">${convoAvatar(c, 72)}<div style="margin-top:10px;font-weight:700;color:var(--text);font-size:16px">${esc(convoTitle(c))}</div><div class="note" style="text-align:left;margin-top:10px">${iconSm('lock', 16)}<span>Messages and calls are end-to-end encrypted. They're stored in each sender's own Google Drive, and only people in this chat can read them.</span></div></div>`;
+  let lastMine = null; for (const m of msgs) if (m.from === S.outbox && !m.sys && !m.log && !m.tmp) lastMine = m;
+  let prev = null;
+  msgs.forEach((m, i) => {
+    const d = new Date(m.ct);
+    if (!prev || !sameDay(new Date(prev.ct), d)) html += `<div class="day">${esc(fmtDay(m.ct))}</div>`;
+    if (m.sys) { html += `<div class="sys">${m.icon ? iconSm(m.icon, 12) + ' ' : ''}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n)}</b> ${esc(m.sys)}</div>`; prev = m; return; }
+    if (m.log) { const out = m.log.by === S.outbox; html += `<div class="calllog${m.log.missed ? ' missed' : ''}">${I[m.log.video ? 'video' : 'phone']}${m.log.missed ? (out ? `${personOf(c.peer).n.split(' ')[0]} missed your call` : `Missed ${m.log.video ? 'video' : 'voice'} call`) : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`} · ${esc(fmtTime(m.ct))}${c.kind === 'dm' ? `<button class="small" style="color:var(--accent);font-weight:600;margin-left:6px" data-callback="${m.log.video ? 'v' : 'a'}">Call back</button>` : ''}</div>`; prev = m; return; }
+    const next = msgs[i + 1];
+    const plain = x => x && !x.sys && !x.log;
+    const grpWithPrev = plain(prev) && prev.from === m.from && sameDay(new Date(prev.ct), d) && d - new Date(prev.ct) < 300000;
+    const grpWithNext = plain(next) && next.from === m.from && sameDay(new Date(next.ct), d) && new Date(next.ct) - d < 300000;
+    const minee = m.from === S.outbox; const u = personOf(m.from);
+    const cls = ['mrow', minee ? 'me' : 'them', grpWithPrev ? '' : 'first', grpWithNext ? '' : 'last'].join(' ');
+    let inner = '', bcls = 'bubble';
+    if (m.rp && !m.del) { const q = c.msgs.get(m.rp); inner += `<div class="quote" data-act="jump" data-to="${esc(m.rp)}"><b>${esc(q ? (q.from === S.outbox ? 'You' : personOf(q.from).n) : 'Message')}</b>${esc(q ? preview(q) : 'Original message not loaded')}</div>`; }
+    if (m.del) { bcls += ' deleted'; inner = 'This message was deleted'; }
+    else if (m.bad) { bcls += ' deleted'; inner = '🔒 This message couldn\'t be decrypted'; }
+    else {
+      if (m.a) { inner += attHtml(m); if (/^(image|video)\//.test(m.a.m || '') && !m.t) bcls += ' media'; }
+      if (m.t) { if (isEmojiOnly(m.t) && !m.a && !m.rp) bcls += ' big'; inner += (m.a ? '<div style="padding:4px 6px 0">' : '') + linkify(m.t) + (m.a ? '</div>' : ''); }
+    }
+    if (m.tmp) bcls += m.failed ? ' failed' : ' pending';
+    const status = m.tmp ? (m.failed ? ' · Failed — tap to retry' : ' · Sending…') : '';
+    const timeHtml = bcls.includes('big') ? '' : `<span class="mtime">${m.ed && !m.del ? 'edited · ' : ''}${esc(fmtTime(m.ct))}${status}</span>`;
+    const rmap = c.reacts.get(m.id); let reactsHtml = '';
+    if (rmap) {
+      const counts = new Map(); for (const r of rmap.values()) if (!r.del) { const e = counts.get(r.em) || { n: 0, mine: false, who: [] }; e.n++; e.who.push(personOf(r.from).n); if (r.from === S.outbox) e.mine = true; counts.set(r.em, e); }
+      if (counts.size) reactsHtml = `<div class="reacts">${[...counts].map(([em, e]) => `<button class="react${e.mine ? ' mine' : ''}" data-act="react" data-em="${esc(em)}" title="${esc(e.who.join(', '))}">${esc(em)}${e.n > 1 ? `<span class="tiny">${e.n}</span>` : ''}</button>`).join('')}</div>`;
+    }
+    let seenHtml = '';
+    if (m === lastMine) {
+      const seers = convoMembers(c).filter(o => o !== S.outbox && (personOf(o).rd[c.id] || '') >= m.ct);
+      seenHtml = `<div class="seen">${seers.length ? (c.kind === 'dm' ? 'Seen' : 'Seen by ' + esc(seers.map(o => personOf(o).n.split(' ')[0]).join(', '))) : 'Sent'}</div>`;
+    }
+    html += `<div class="${cls}" data-id="${esc(m.id)}">
+      ${minee ? '' : `<div class="avs">${grpWithNext ? '' : avatarHtml(u, 30)}</div>`}
+      <div class="mwrap">${!minee && c.kind === 'group' && !grpWithPrev ? `<div class="sender" style="color:${esc(u.c)}">${esc(u.n)}</div>` : ''}
+        <div class="${bcls}" data-act="${m.failed ? 'retry' : 'bubble'}">${inner}${timeHtml}</div>${reactsHtml}${seenHtml}</div>
+      ${m.del || m.tmp || m.bad ? '' : `<div class="mact"><button class="ibtn" data-act="qreact" title="React">${I.smile}</button><button class="ibtn" data-act="reply" title="Reply">${I.reply}</button><button class="ibtn" data-act="menu" title="More">${I.more}</button></div>`}
+    </div>`;
+    prev = m;
+  });
+  box.innerHTML = html; box.dataset.first = msgs[0]?.id || '';
+  const lm = $('#load-more'); if (lm) lm.onclick = () => loadHistory(c);
+  hydrateMedia(box); renderTyping();
+  if (nearBottom) { box.scrollTop = box.scrollHeight; stickBottom = false; }
+  else if (firstBefore && firstBefore !== box.dataset.first) box.scrollTop = prevTop + (box.scrollHeight - prevH);
+  else box.scrollTop = prevTop;
+  markRead();
+}
+let mediaObserver = null;
+function attOf(fid) { const c = S.convos.get(S.active); for (const m of c?.msgs.values() || []) if (m.a?.id === fid) return m.a; return null; }
+function hydrateMedia(box) {
+  mediaObserver?.disconnect();
+  mediaObserver = new IntersectionObserver(entries => entries.forEach(en => {
+    if (!en.isIntersecting) return; const el = en.target; mediaObserver.unobserve(el);
+    const a = attOf(el.dataset.fid); if (!a) return;
+    loadMedia(a).then(url => {
+      const keep = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+      el.src = url; el.classList.remove('lazy');
+      el.addEventListener(el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load', () => { if (keep) box.scrollTop = box.scrollHeight; }, { once: true });
+    }).catch(() => { el.alt = 'Could not load'; });
+  }), { root: box, rootMargin: '300px' });
+  $$('.lazy', box).forEach(el => mediaObserver.observe(el));
+}
+let curAudio = null;
+async function playAudio(wrap) {
+  const fid = wrap.dataset.fid;
+  if (curAudio && curAudio.fid === fid) { curAudio.el.paused ? curAudio.el.play() : curAudio.el.pause(); return; }
+  curAudio?.el.pause();
+  const btn = wrap.querySelector('.play'); btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div>';
+  try {
+    const url = await loadMedia(attOf(fid)); const el = new Audio(url); curAudio = { fid, el };
+    const sync = () => {
+      const w = document.querySelector(`.att-audio[data-fid="${CSS.escape(fid)}"]`); if (!w) return;
+      w.querySelector('.play').innerHTML = el.paused ? I.play : I.pause;
+      const dur = isFinite(el.duration) ? el.duration : 0;
+      w.querySelector('.bar i').style.width = dur ? (el.currentTime / dur * 100) + '%' : '0';
+      w.querySelector('.dur').textContent = fmtDur(el.paused && el.currentTime === 0 ? dur : el.currentTime);
+    };
+    ['play', 'pause', 'timeupdate', 'ended', 'loadedmetadata'].forEach(ev => el.addEventListener(ev, sync));
+    el.addEventListener('ended', () => { el.currentTime = 0; sync(); });
+    await el.play();
+  } catch { btn.innerHTML = I.play; toast('Could not play audio', true); }
+}
+let rec = null;
+async function startRecording() {
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return toast('Voice messages are not supported in this browser', true);
+  let stream; try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone permission denied', true); }
+  const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported?.(t)) || '';
+  const mr = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const chunks = []; mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec = { mr, stream, chunks, t0: Date.now(), cancel: false };
+  mr.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    const r = rec; rec = null; clearInterval(r.timer); restoreComposer();
+    if (r.cancel || !chunks.length) return;
+    const dur = (Date.now() - r.t0) / 1000; if (dur < 0.7) return toast('That was too short');
+    const type = mr.mimeType || 'audio/webm'; const ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
+    sendFiles([new File([new Blob(chunks, { type })], `voice-${Date.now()}.${ext}`, { type })], { v: Math.round(dur) });
+  };
+  mr.start(250);
+  $('#composer').innerHTML = `<button class="ibtn" id="rec-cancel" title="Cancel">${I.trash}</button><div class="rec"><span class="rdot"></span><span id="rec-t">0:00</span><span class="muted small">Recording…</span></div><button class="send" id="rec-send" title="Send">${I.send}</button>`;
+  rec.timer = setInterval(() => { const t = $('#rec-t'); if (t) t.textContent = fmtDur((Date.now() - rec.t0) / 1000); if (Date.now() - rec.t0 > 300000) rec.mr.stop(); }, 250);
+  $('#rec-cancel').onclick = () => { rec.cancel = true; rec.mr.stop(); };
+  $('#rec-send').onclick = () => rec.mr.stop();
+}
+function restoreComposer() { const comp = $('#composer'); if (!comp) return; const tmp = document.createElement('div'); tmp.innerHTML = chatShell(); comp.replaceWith(tmp.querySelector('#composer')); bindComposer(); }
+function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(160, ta.scrollHeight) + 'px'; }
+function updateSendBtn() { const b = $('#send-btn'), ta = $('#composer-input'); if (!b || !ta) return; const has = ta.value.trim().length > 0 || S.editing; b.innerHTML = has ? (S.editing ? I.check.replace('width:14px;height:14px', 'width:22px;height:22px') : I.send) : I.mic; b.title = has ? 'Send' : 'Record voice message'; }
+function bindComposer() {
+  const ta = $('#composer-input'); if (!ta) return;
+  const dk = 'draft:' + S.active;
+  if (!S.editing) ta.value = sessionStorage.getItem(dk) || '';
+  autoGrow(ta); updateSendBtn();
+  ta.oninput = () => { autoGrow(ta); updateSendBtn(); onTyping(); try { sessionStorage.setItem(dk, ta.value); } catch {} };
+  ta.onkeydown = e => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer:coarse)').matches) { e.preventDefault(); sessionStorage.removeItem(dk); sendText().then(updateSendBtn); }
+    else if (e.key === 'Escape') { S.editing = null; S.replyTo = null; renderBars(); }
+    else if (e.key === 'ArrowUp' && !ta.value) { const c = S.convos.get(S.active); const m = sortedMsgs(c).filter(m => m.from === S.outbox && m.t && !m.del && !m.tmp).pop(); if (m) { e.preventDefault(); startEdit(m); } }
+  };
+  ta.onpaste = e => { const files = [...(e.clipboardData?.files || [])]; if (files.length) { e.preventDefault(); sendFiles(files); } };
+  $('#send-btn').onclick = () => { if (ta.value.trim() || S.editing) { sessionStorage.removeItem(dk); sendText().then(updateSendBtn); } else startRecording(); };
+  $('#att-btn').onclick = () => $('#file-in').click();
+  $('#file-in').onchange = e => { sendFiles([...e.target.files]); e.target.value = ''; };
+  $('#emo-btn').onclick = e => emojiPicker(e.currentTarget, em => { const s = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, s) + em + ta.value.slice(ta.selectionEnd ?? s); ta.focus(); ta.selectionStart = ta.selectionEnd = s + em.length; ta.oninput(); }, false);
+}
+function startEdit(m) { S.editing = m.id; S.replyTo = null; const ta = $('#composer-input'); ta.value = m.t; autoGrow(ta); ta.focus(); renderBars(); updateSendBtn(); }
+function openConvo(id) {
+  S.active = id; S.tab = 'chats'; S.replyTo = null; S.editing = null; S.showInfo = S.showInfo && innerWidth > 1100;
+  LS.set('lastConvo', id);
+  const c = S.convos.get(id); if (c && !c.loaded) loadHistory(c);
+  for (const o of convoMembers(c || { kind: 'group', members: [] })) wakePeer(o);
+  renderMain(); stickBottom = true; renderMessages(true);
+  setTimeout(() => $('#composer-input')?.focus(), 50); markRead();
+}
+function bindChat() {
+  bindComposer();
+  const box = $('#msgs'), chat = $('#chat');
+  box.onscroll = () => { if (box.scrollTop < 60) { const c = S.convos.get(S.active); if (c?.hasMore && c.loaded && !c.loading) loadHistory(c); } };
+  box.onclick = e => {
+    const cb = e.target.closest('[data-callback]'); if (cb) { const c = S.convos.get(S.active); return startCall(c, cb.dataset.callback === 'v'); }
+    const t = e.target.closest('[data-act]'); const row = e.target.closest('.mrow');
+    if (!t) { if (row && matchMedia('(pointer:coarse)').matches) { $$('.mrow.touch').forEach(r => r !== row && r.classList.remove('touch')); row.classList.toggle('touch'); } return; }
+    const c = S.convos.get(S.active); const m = row ? c.msgs.get(row.dataset.id) : null; const act = t.dataset.act;
+    if (act === 'zoom') lightbox(t.src, m.a);
+    else if (act === 'dl') downloadAtt(m.a);
+    else if (act === 'play') playAudio(t.closest('.att-audio'));
+    else if (act === 'seek') { if (curAudio?.fid === t.closest('.att-audio').dataset.fid && isFinite(curAudio.el.duration)) { const r = t.getBoundingClientRect(); curAudio.el.currentTime = (e.clientX - r.left) / r.width * curAudio.el.duration; } }
+    else if (act === 'reply') { S.replyTo = m.id; S.editing = null; renderBars(); $('#composer-input').focus(); }
+    else if (act === 'react') toggleReact(c, m, t.dataset.em);
+    else if (act === 'qreact') quickReact(t, c, m);
+    else if (act === 'menu') msgMenu(t, c, m);
+    else if (act === 'retry') retryMsg(c, m);
+    else if (act === 'jump') { const el = box.querySelector(`.mrow[data-id="${CSS.escape(t.dataset.to)}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300); } else toast('That message is further up — load earlier messages'); }
+  };
+  box.ondblclick = e => { const row = e.target.closest('.mrow'); if (!row || e.target.closest('[data-act="zoom"],a,audio,video')) return; const c = S.convos.get(S.active); const m = c.msgs.get(row.dataset.id); if (m && !m.del && !m.tmp && !m.bad) toggleReact(c, m, '❤️'); };
+  let dragN = 0;
+  chat.ondragenter = e => { if (![...e.dataTransfer.types].includes('Files')) return; e.preventDefault(); if (dragN++ === 0) { const d = document.createElement('div'); d.className = 'drop'; d.id = 'drop'; d.textContent = 'Drop files to send (encrypted)'; chat.appendChild(d); } };
+  chat.ondragover = e => { if ([...e.dataTransfer.types].includes('Files')) e.preventDefault(); };
+  chat.ondragleave = () => { if (--dragN <= 0) { dragN = 0; $('#drop')?.remove(); } };
+  chat.ondrop = e => { e.preventDefault(); dragN = 0; $('#drop')?.remove(); const files = [...e.dataTransfer.files]; if (files.length) sendFiles(files); };
+}
+let popEl = null;
+function closePop() { popEl?.remove(); popEl = null; }
+function popover(anchor, html) {
+  closePop(); popEl = document.createElement('div'); popEl.className = 'popover'; popEl.innerHTML = html; document.body.appendChild(popEl);
+  const r = anchor.getBoundingClientRect(), pr = popEl.getBoundingClientRect();
+  let top = r.top - pr.height - 6; if (top < 8) top = r.bottom + 6;
+  let left = Math.max(8, Math.min(r.left + r.width / 2 - pr.width / 2, innerWidth - pr.width - 8)); top = Math.min(top, innerHeight - pr.height - 8);
+  popEl.style.top = top + 'px'; popEl.style.left = left + 'px';
+  setTimeout(() => document.addEventListener('mousedown', outside, true), 0);
+  function outside(e) { if (popEl && !popEl.contains(e.target)) { closePop(); document.removeEventListener('mousedown', outside, true); } }
+  return popEl;
+}
+function quickReact(anchor, c, m) {
+  const p = popover(anchor, `<div class="qr">${QUICK.map(e => `<button data-e="${e}">${e}</button>`).join('')}<button data-more title="More">${I.plus}</button></div>`);
+  p.onclick = e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.more !== undefined) return emojiPicker(anchor, em => toggleReact(c, m, em)); closePop(); toggleReact(c, m, b.dataset.e); };
+}
+function emojiPicker(anchor, onPick, closeOnPick = true) {
+  const p = popover(anchor, `<div class="emoji-grid">${EMOJI.map(e => `<button data-e="${e}">${e}</button>`).join('')}</div>`);
+  p.onclick = e => { const b = e.target.closest('button'); if (!b) return; onPick(b.dataset.e); if (closeOnPick) closePop(); };
+}
+function msgMenu(anchor, c, m) {
+  const minee = m.from === S.outbox; const items = [['reply', I.reply, 'Reply']];
+  if (m.t) items.push(['copy', I.copy, 'Copy text']);
+  if (m.a) items.push(['dl', I.dl, 'Download']);
+  if (minee && m.t && !m.a?.v) items.push(['edit', I.edit, 'Edit']);
+  if (minee) items.push(['del', I.trash, 'Delete for everyone', 'red']);
+  const p = popover(anchor, `<div class="qr" style="border-bottom:1px solid var(--line);margin-bottom:4px">${QUICK.map(e => `<button data-e="${e}">${e}</button>`).join('')}</div>` + items.map(([k, ic, l, cls]) => `<button class="pi ${cls || ''}" data-k="${k}">${ic}${l}</button>`).join('') + `<div class="tiny muted" style="padding:6px 12px">${esc(new Date(m.ct).toLocaleString())}</div>`);
+  p.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return; closePop();
+    if (b.dataset.e) return toggleReact(c, m, b.dataset.e);
+    ({ reply: () => { S.replyTo = m.id; renderBars(); $('#composer-input').focus(); }, copy: () => navigator.clipboard?.writeText(m.t).then(() => toast('Copied')), dl: () => downloadAtt(m.a), edit: () => startEdit(m), del: () => deleteMsg(c, m) })[b.dataset.k]?.();
+  };
+}
+function lightbox(src, a) {
+  const d = document.createElement('div'); d.className = 'lightbox';
+  d.innerHTML = `<div class="lb-bar"><button class="ibtn" data-k="dl" title="Download">${I.dl}</button><button class="ibtn" data-k="x" title="Close">${I.x}</button></div><img src="${esc(src)}" alt="">`;
+  d.onclick = e => { const k = e.target.closest('[data-k]')?.dataset.k; if (k === 'dl') return downloadAtt(a); if (e.target.tagName !== 'IMG') d.remove(); };
+  const key = e => { if (e.key === 'Escape') { d.remove(); removeEventListener('keydown', key); } }; addEventListener('keydown', key);
+  document.body.appendChild(d);
+}
+async function renderInfo() {
+  const el = $('#info'); const c = S.convos.get(S.active); if (!el || !c) return;
+  const sig = c.id + convoMembers(c).join() + c.name + c.msgs.size + convoMembers(c).map(o => isOnline(S.people.get(o)) ? 1 : 0).join('') + S.muted.has(c.id);
+  if (el.dataset.sig === sig) return; el.dataset.sig = sig;
+  const all = sortedMsgs(c);
+  const imgs = all.filter(m => !m.del && (m.a?.m || '').startsWith('image/')).reverse().slice(0, 12);
+  const files = all.filter(m => !m.del && m.a && !(m.a.m || '').startsWith('image/') && !m.a.v).reverse().slice(0, 8);
+  const muted = S.muted.has(c.id), p = c.kind === 'dm' ? personOf(c.peer) : null;
+  el.innerHTML = `<div style="display:flex;justify-content:flex-end;padding:8px"><button class="ibtn" id="info-x">${I.x}</button></div>
+    <div class="info-hero">${convoAvatar(c, 84)}<b>${esc(convoTitle(c))}</b><span class="small muted">${p ? esc(p.e) : c.members.length + ' members'}</span>${p?.st ? `<span class="small">${esc(p.st)}</span>` : ''}
+      ${p ? `<div style="display:flex;gap:10px;margin-top:6px"><button class="btn ghost" data-k="ca">${iconSm('phone', 18)}</button><button class="btn ghost" data-k="cv">${iconSm('video', 18)}</button></div>` : ''}</div>
+    <div class="sect">
+      ${c.kind === 'group' ? `<button class="act" data-k="rename">${I.edit}Rename group</button><button class="act" data-k="add">${I.userplus}Add people</button>` : ''}
+      <button class="act" data-k="mute">${muted ? I.bell + 'Unmute notifications' : I.belloff + 'Mute notifications'}</button>
+    </div>
+    ${p ? `<div class="sect"><h4>${iconSm('shield', 13)} Security code</h4><div class="code" id="sc">…</div><p class="tiny muted">Compare this code with ${esc(p.n.split(' ')[0])} (in person or on a call). If it matches, nobody is intercepting your chat.</p></div>` : ''}
+    ${c.kind === 'group' ? `<div class="sect"><h4>Members</h4>${c.members.map(o => { const u = personOf(o); return `<div class="mline">${avatarHtml(u, 36, isOnline(u))}<div class="n">${esc(u.n)}${o === S.outbox ? ' (you)' : ''}<small>${o === c.by ? 'Creator · ' : ''}${esc(u.e)}</small></div></div>`; }).join('')}</div>` : ''}
+    ${imgs.length ? `<div class="sect"><h4>Photos</h4><div class="media-grid">${imgs.map(m => `<img class="lazy-i" data-id="${esc(m.id)}" alt="">`).join('')}</div></div>` : ''}
+    ${files.length ? `<div class="sect"><h4>Files</h4>${files.map(m => `<button class="act" data-file="${esc(m.id)}">${I.file}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.a.n)}</span><span class="tiny muted">${fmtSize(m.a.z)}</span></button>`).join('')}</div>` : ''}
+    <div class="sect"><button class="act red" data-k="leave">${I.out}${c.kind === 'group' ? 'Leave group' : 'Remove contact'}</button></div>`;
+  $('#info-x').onclick = () => { S.showInfo = false; renderMain(); };
+  if (p?.pub) Crypto.safetyCode(S.pubJwk, p.pub).then(code => { const s = $('#sc'); if (s) s.textContent = code; });
+  $$('.lazy-i', el).forEach(img => { const m = c.msgs.get(img.dataset.id); loadMedia(m.a).then(u => img.src = u).catch(() => {}); });
+  el.onclick = e => {
+    const img = e.target.closest('.lazy-i'); if (img) return lightbox(img.src, c.msgs.get(img.dataset.id).a);
+    const fb = e.target.closest('[data-file]'); if (fb) return downloadAtt(c.msgs.get(fb.dataset.file).a);
+    const k = e.target.closest('[data-k]')?.dataset.k;
+    if (k === 'ca') startCall(c, false); else if (k === 'cv') startCall(c, true);
+    else if (k === 'rename') renameModal(c);
+    else if (k === 'add') pickPeopleModal('Add people', c.members, async sel => { closeModal(); showLoading('Adding…', true); try { await addToGroup(c, sel); } catch (er) { toast(er.message, true); } hideLoading(); });
+    else if (k === 'mute') { muted ? S.muted.delete(c.id) : S.muted.add(c.id); LS.set('muted', [...S.muted]); el.dataset.sig = ''; renderInfo(); renderSidebarList(); }
+    else if (k === 'leave') c.kind === 'group' ? leaveGroup(c) : removeContact(c.peer);
+  };
+}
+
+/* ============================ MODALS ============================ */
+function modal(title, body, footer = '') {
+  closeModal();
+  const o = document.createElement('div'); o.className = 'overlay'; o.id = 'overlay';
+  o.innerHTML = `<div class="modal"><div class="modal-h"><h3>${esc(title)}</h3><button class="ibtn" id="m-x">${I.x}</button></div><div class="modal-b">${body}</div>${footer ? `<div class="modal-f">${footer}</div>` : ''}</div>`;
+  o.onmousedown = e => { if (e.target === o) closeModal(); };
+  document.body.appendChild(o); $('#m-x').onclick = closeModal; return o;
+}
+function closeModal() { $('#overlay')?.remove(); }
+addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); closeModal(); } });
+async function addPeopleModal() {
+  const o = modal('Add people', `
+    <p class="small muted">Send your personal link to a friend (WhatsApp, SMS, email…). When they open it and sign in with Google, you're connected.</p>
+    <label class="lbl">Your invite link</label>
+    <div class="row-inline"><input class="field" readonly id="my-link" value="Generating…"><button class="btn ghost" id="cp-link" title="Copy">${I.copy}</button>${navigator.share ? `<button class="btn ghost" id="sh-link" title="Share">${I.share}</button>` : ''}</div>
+    <label class="lbl">Or invite by email</label>
+    <div class="row-inline"><input class="field" id="inv-email" type="email" placeholder="friend@gmail.com"><button class="btn" id="inv-send">Send</button></div>
+    <p class="tiny muted">Google sends them an email from your account with your link.</p>
+    <label class="lbl">Got a friend's link? Paste it here</label>
+    <div class="row-inline"><input class="field" id="paste-link" placeholder="https://…#add=…"><button class="btn ghost" id="paste-go">Add</button></div>`);
+  const link = await freshInviteLink();
+  const inp = $('#my-link', o); if (!inp) return; inp.value = link;
+  $('#cp-link', o).onclick = () => navigator.clipboard?.writeText(link).then(() => toast('Link copied'));
+  const sh = $('#sh-link', o); if (sh) sh.onclick = () => navigator.share({ title: 'Chat with me on DriveChat', text: `${S.prof.n} wants to chat with you privately on DriveChat:`, url: link }).catch(() => {});
+  $('#inv-send', o).onclick = async () => {
+    const em = $('#inv-email', o).value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast('Enter a valid email', true);
+    $('#inv-send', o).disabled = true;
+    try { await shareWith(S.outbox, em, `${S.prof.n} invited you to chat privately on DriveChat (end-to-end encrypted). Open this link to connect: ${link}`); toast('Invite sent to ' + em); closeModal(); }
+    catch (e) { toast('Could not send: ' + e.message, true); $('#inv-send', o).disabled = false; }
+  };
+  $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); acceptLink(v); };
+}
+function pickPeopleModal(title, exclude, onDone, { group = false } = {}) {
+  const people = Object.keys(S.st.contacts).filter(o => !exclude.includes(o)).map(personOf).sort((a, b) => a.n.localeCompare(b.n));
+  const sel = new Set();
+  const o = modal(title, `
+    ${group ? `<label class="lbl">Group name</label><input class="field" id="g-name" maxlength="80" placeholder="e.g. Weekend trip">` : ''}
+    <input class="field" id="p-q" placeholder="Search contacts" style="margin:12px 0 4px"><div class="chips" id="chips"></div><div id="p-list"></div>
+    ${people.length ? '' : `<div class="empty">No contacts to add yet.<br><br><button class="btn" id="p-inv">Add people</button></div>`}`,
+    `<button class="btn ghost" id="p-cancel">Cancel</button><button class="btn" id="p-ok" disabled>${group ? 'Create' : 'Add'}</button>`);
+  const draw = () => {
+    const q = $('#p-q', o).value.toLowerCase();
+    $('#p-list', o).innerHTML = people.filter(u => !q || u.n.toLowerCase().includes(q) || u.e.toLowerCase().includes(q)).map(u => `<button class="pick${sel.has(u.o) ? ' sel' : ''}" data-o="${esc(u.o)}">${avatarHtml(u, 40, isOnline(u))}<div style="min-width:0"><b>${esc(u.n)}</b><div class="tiny muted">${esc(u.e)}</div></div><span class="chk">${sel.has(u.o) ? I.check : ''}</span></button>`).join('');
+    $('#chips', o).innerHTML = [...sel].map(x => `<span class="chip">${esc(personOf(x).n)}</span>`).join('');
+    $('#p-ok', o).disabled = !sel.size;
+  };
+  draw();
+  $('#p-q', o).oninput = draw;
+  $('#p-list', o).onclick = e => { const b = e.target.closest('.pick'); if (!b) return; sel.has(b.dataset.o) ? sel.delete(b.dataset.o) : sel.add(b.dataset.o); draw(); };
+  $('#p-cancel', o).onclick = closeModal;
+  $('#p-ok', o).onclick = () => onDone([...sel], group ? $('#g-name', o).value.trim() : '');
+  const inv = $('#p-inv', o); if (inv) inv.onclick = () => addPeopleModal();
+}
+function newChatModal() {
+  const people = Object.keys(S.st.contacts).map(personOf).sort((a, b) => (isOnline(b) - isOnline(a)) || a.n.localeCompare(b.n));
+  const o = modal('New conversation', `
+    <button class="pick" id="nc-group"><div class="av" style="width:40px;height:40px"><div class="ini" style="background:var(--accent-soft);color:var(--accent)">${I.users}</div></div><b>New group</b></button>
+    <button class="pick" id="nc-inv"><div class="av" style="width:40px;height:40px"><div class="ini" style="background:var(--accent-soft);color:var(--accent)">${I.userplus}</div></div><b>Add people</b></button>
+    <div class="divider">CONTACTS</div>
+    ${people.map(u => `<button class="pick" data-o="${esc(u.o)}">${avatarHtml(u, 40, isOnline(u))}<div style="min-width:0"><b>${esc(u.n)}</b><div class="tiny muted">${esc(u.st || u.e)}</div></div></button>`).join('') || '<div class="empty" style="padding:10px">No contacts yet — add people first.</div>'}`);
+  $('#nc-group', o).onclick = () => pickPeopleModal('New group', [], (sel, name) => createGroup(name, sel), { group: true });
+  $('#nc-inv', o).onclick = () => addPeopleModal();
+  $$('.pick[data-o]', o).forEach(b => b.onclick = () => { closeModal(); const c = [...S.convos.values()].find(x => x.kind === 'dm' && x.peer === b.dataset.o); if (c) openConvo(c.id); });
+}
+function renameModal(c) {
+  const o = modal('Rename group', `<input class="field" id="rn" maxlength="80" value="${esc(c.name)}">`, `<button class="btn ghost" id="rn-c">Cancel</button><button class="btn" id="rn-ok">Save</button>`);
+  const inp = $('#rn', o); inp.focus(); inp.select();
+  inp.onkeydown = e => e.key === 'Enter' && $('#rn-ok', o).click();
+  $('#rn-c', o).onclick = closeModal;
+  $('#rn-ok', o).onclick = async () => { const n = inp.value.trim(); closeModal(); if (n !== c.name) try { await renameGroup(c, n); } catch (e) { toast(e.message, true); } };
+}
+function settingsModal() {
+  const o = modal('Settings', `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">${avatarHtml({ n: S.prof.n, c: S.prof.c, p: S.me.photo }, 60)}<div style="min-width:0"><b>${esc(S.prof.n)}</b><div class="small muted" style="overflow:hidden;text-overflow:ellipsis">${esc(S.me.email)}</div></div></div>
+    <label class="lbl">Display name</label><input class="field" id="s-name" maxlength="60" value="${esc(S.prof.n)}">
+    <label class="lbl">Status</label><input class="field" id="s-st" maxlength="120" placeholder="What's on your mind?" value="${esc(S.prof.st)}">
+    <label class="lbl">Color</label><div class="swatches" id="s-col">${COLORS.map(c => `<button class="sw${c === S.prof.c ? ' on' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>
+    <label class="lbl">Theme</label><div class="seg" id="s-theme">${['system', 'light', 'dark'].map(t => `<button data-t="${t}" class="${S.theme === t ? 'on' : ''}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
+    <label class="lbl">Notifications</label>
+    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-notif" ${S.notify ? 'checked' : ''}> Desktop notifications</label>
+    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-sound" ${S.sound ? 'checked' : ''}> Sounds</label>
+    <div class="divider">PRIVACY</div>
+    <div class="note">${iconSm('lock', 18)}<span>Messages, files, calls, read receipts and typing are end-to-end encrypted. Your data is in the <b>DriveChat</b> folder of your Google Drive.</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-inv">${I.userplus} Add people</button><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/${esc(S.root)}">Open in Drive</a></div>
+    <div class="divider">ACCOUNT</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-lock">${I.lock} Forget keys on this device</button><button class="btn ghost" id="s-out">${I.out} Sign out</button></div>`,
+    `<button class="btn ghost" id="s-c">Cancel</button><button class="btn" id="s-save">Save</button>`);
+  let color = S.prof.c, theme = S.theme;
+  $('#s-col', o).onclick = e => { const b = e.target.closest('.sw'); if (!b) return; color = b.dataset.c; $$('.sw', o).forEach(x => x.classList.toggle('on', x === b)); };
+  $('#s-theme', o).onclick = e => { const b = e.target.closest('button'); if (!b) return; theme = b.dataset.t; $$('#s-theme button', o).forEach(x => x.classList.toggle('on', x === b)); S.theme = theme; applyTheme(); };
+  $('#s-c', o).onclick = () => { S.theme = LS.get('theme', 'system'); applyTheme(); closeModal(); };
+  $('#s-inv', o).onclick = () => addPeopleModal();
+  $('#s-out', o).onclick = () => { closeModal(); signOut(); };
+  $('#s-lock', o).onclick = async () => { if (!confirm('Remove your decryption key from this browser? You\'ll need your backup password next time.')) return; await IDB.del('id:' + S.me.email); closeModal(); signOut(); };
+  $('#s-save', o).onclick = async () => {
+    S.prof.n = $('#s-name', o).value.trim() || S.me.name; S.prof.st = $('#s-st', o).value.trim(); S.prof.c = color;
+    S.st.me = { ...S.prof }; saveState();
+    S.theme = theme; LS.set('theme', theme); applyTheme();
+    S.notify = $('#s-notif', o).checked; LS.set('notify', S.notify); S.sound = $('#s-sound', o).checked; LS.set('sound', S.sound);
+    if (S.notify && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    closeModal(); renderMain(); toast('Saved');
+    try { await publishProfile(); } catch (e) { toast(e.message, true); }
+  };
+}
+
+/* ============================ BOOT ============================ */
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.running) { S.nextPoll.clear(); markRead(); saveStatus(); } });
+addEventListener('focus', () => S.running && markRead());
+addEventListener('online', () => S.running && S.nextPoll.clear());
+addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '~' + L.r : '')); } });
+addEventListener('beforeunload', e => { if (call) { e.preventDefault(); e.returnValue = ''; } });
+
+async function boot() {
+  applyTheme();
+  const L = parseLink(location.hash);
+  if (L) { LS.set('pendingAdd', L.o + (L.r ? '~' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
+  if (location.protocol === 'file:') { root().innerHTML = `<div class="screen"><div class="card"><h1>Serve over http(s)</h1><p class="muted">Google sign-in doesn't work from <code>file://</code>. Run <code>python3 -m http.server 8080</code> here and open <code>http://localhost:8080</code>, or deploy to GitHub Pages / Netlify.</p></div></div>`; return; }
+  if (!cfg().clientId || !cfg().apiKey) return showSetup();
+  showLoading('Loading…');
+  try { await initAuth(); } catch (e) { return showSignIn(e.message); }
+  if (accessToken && LS.get('lastEmail')) { try { await afterSignIn(); return; } catch (e) { console.warn(e); } }
+  showSignIn(L ? 'Sign in to accept the invite.' : '');
+}
+boot();
+
+</script>
+</body>
+</html>
