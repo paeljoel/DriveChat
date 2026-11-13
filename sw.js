@@ -1,6 +1,6 @@
 /* DriveChat service worker: makes the app installable, loads it instantly,
    shows a friendly offline page, and delivers notifications on Android. */
-const VERSION = 'dc-v13';
+const VERSION = 'dc-v14';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'privacy.html', 'terms.html'];
 
 self.addEventListener('install', e => {
@@ -51,7 +51,8 @@ self.addEventListener('notificationclick', e => {
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
     const apps = list.filter(w => !/\/(privacy|terms)\.html$/.test(new URL(w.url).pathname));
     const c = apps.find(w => w.visibilityState === 'visible') || apps[0];
-    if (c) { c.postMessage({ type: 'open', cid }); c.postMessage({ type: 'poll' }); return c.focus(); }
-    return self.clients.openWindow('./' + (cid ? '#open=' + cid : ''));
+    const answer = e.notification.data?.call && e.action !== 'open';   // tapping a call (iPhone shows no buttons) = answer
+    if (c) { c.postMessage({ type: answer ? 'answer' : 'open', cid }); c.postMessage({ type: 'poll' }); return c.focus(); }
+    return self.clients.openWindow('./' + (cid ? (answer ? '#answer=' : '#open=') + cid : ''));
   }));
 });

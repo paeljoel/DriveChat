@@ -500,7 +500,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '13';
+const APP_VERSION = '14';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -1602,6 +1602,7 @@ function onCallSignal(c, from, p, f) {
     ringtone(true, false); renderCall();
     if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { showNote(`${personOf(from).n} is calling…`, { body: p.video ? 'Video call' : 'Voice call', tag: 'call', icon: personOf(from).p || 'icon-192.png', requireInteraction: true }, c.id); }
     call.ringOut = setTimeout(() => { if (call && call.state === 'ringing') endCall(false); }, 45000);
+    if (S.autoAnswer && S.autoAnswer.cid === c.id && Date.now() < S.autoAnswer.until) autoAccept();
     return;
   }
   if (!call || call.id !== p.id) return;
@@ -1610,6 +1611,19 @@ function onCallSignal(c, from, p, f) {
     call.pc.setRemoteDescription({ type: 'answer', sdp: p.sdp }).catch(e => { toast('Call failed: ' + e.message, true); endCall(true); });
   } else if (p.op === 'reject' || p.op === 'busy') { toast(p.op === 'busy' ? `${personOf(from).n} is on another call` : 'Call declined'); endCall(false, call.dir === 'out'); }
   else if (p.op === 'end') { if (call.state === 'ringing') { endCall(false); } else endCall(false); }
+}
+/* Answer straight from a notification: the call screen opens already connecting. */
+function wantAnswer(cid) {
+  S.autoAnswer = { cid, until: Date.now() + 60000 };
+  if (call && call.cid === cid && call.state === 'ringing') autoAccept();
+  else if (S.running) { S.nextPoll?.clear?.(); pollLoop.wake?.(); }
+}
+async function autoAccept() {
+  S.autoAnswer = null;
+  if (!call || call.state !== 'ringing') return;
+  try { const m = await getMedia(call.video); m.getTracks().forEach(t => t.stop()); }   // check mic/camera first; if iOS wants a tap, keep ringing
+  catch { toast('Tap Answer to join the call'); return; }
+  acceptCall(call.video);
 }
 async function acceptCall(withVideo) {
   if (!call || call.state !== 'ringing') return;
@@ -3144,8 +3158,9 @@ async function boot() {
   applyTheme();
   if ('serviceWorker' in navigator && location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     navigator.serviceWorker?.register('sw.js').catch(e => console.warn('sw', e));
-    navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'poll' && S.running) { S.nextPoll.clear(); pollLoop.wake?.(); } if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } });
+    navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'poll' && S.running) { S.nextPoll.clear(); pollLoop.wake?.(); } if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } if (e.data?.type === 'answer') { window.focus(); if (S.convos.has(e.data.cid)) openConvo(e.data.cid); wantAnswer(e.data.cid); } });
   }
+  const am = location.hash.match(/answer=([\w-]+)/); if (am) { LS.set('lastConvo', am[1]); S.autoAnswer = { cid: am[1], until: Date.now() + 60000 }; history.replaceState(null, '', location.pathname + location.search); }
   const om = location.hash.match(/open=([\w-]+)/); if (om) { LS.set('lastConvo', om[1]); history.replaceState(null, '', location.pathname + location.search); }
   const L = parseLink(location.hash), JL = parseJoin(location.hash);
   if (JL) { LS.set('pendingJoin', location.hash); history.replaceState(null, '', location.pathname + location.search); }
