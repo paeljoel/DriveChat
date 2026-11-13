@@ -30,6 +30,18 @@ End-to-end encrypted messages, photos, voice notes and voice/video calls, with n
 <img src="docs/landing-mobile.png" alt="Mobile invite" width="190">
 </div>
 
+## Install it like an app
+
+DriveChat installs straight from the website. No app store is needed, and it gets its own icon and window.
+
+| Device | How |
+|---|---|
+| **Android** (Chrome) | Open the site, then tap **Install** in the app, or go to ⋮ → **Install app**. |
+| **iPhone / iPad** (Safari) | Tap **Share** → **Add to Home Screen** → **Add**. |
+| **Windows / Mac / Linux** (Chrome, Edge) | Click the install icon in the address bar, or **Install app** in DriveChat's settings. |
+
+The installed app opens full-screen, shows notifications, and loads instantly.
+
 ## How to use it
 
 1. Open the app and **sign in with Google**.
@@ -65,7 +77,7 @@ Want your own copy? Follow these steps:
 |---|---|
 | `index.html` | The whole app |
 | `privacy.html`, `terms.html` | Privacy policy and terms of service |
-| `manifest.webmanifest`, `icon-*.png` | Lets people install the app on their home screen |
+| `manifest.webmanifest`, `sw.js`, `icon-*.png`, `apple-touch-icon.png`, `favicon*` | Make the app installable on PC, Android and iPhone, with fast loading and notifications |
 | `og.png` | The preview image shown when the link is shared |
 
 ## Good to know

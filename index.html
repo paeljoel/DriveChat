@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#7360f2">
 <title>DriveChat</title>
 <meta name="description" content="Private, end-to-end encrypted messaging and calls. Your chats live in your own Google Drive.">
@@ -13,10 +13,14 @@
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="application-name" content="DriveChat">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DriveChat">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237360f2'/%3E%3Cpath d='M16 20h32a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H30l-9 8v-8h-5a4 4 0 0 1-4-4V24a4 4 0 0 1 4-4z' fill='white'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
@@ -112,7 +116,7 @@ label.lbl{display:block;font-size:13px;color:var(--text-2);margin:14px 0 6px;fon
 .load-more{align-self:center;margin:6px 0 14px;font-size:13px;color:var(--text-3)}
 .day{align-self:center;font-size:12px;color:var(--text-3);background:var(--bg-2);padding:4px 12px;border-radius:12px;margin:14px 0 10px}
 .sys{align-self:center;font-size:12.5px;color:var(--text-3);margin:6px 0;text-align:center;max-width:80%}
-.mrow{display:flex;align-items:flex-end;gap:8px;margin-top:2px;position:relative;max-width:100%}
+.mrow{-webkit-touch-callout:none;display:flex;align-items:flex-end;gap:8px;margin-top:2px;position:relative;max-width:100%}
 .mrow.first{margin-top:10px}
 .mrow.me{flex-direction:row-reverse}
 .mrow .avs{width:30px;flex-shrink:0}
@@ -310,6 +314,48 @@ label.lbl{display:block;font-size:13px;color:var(--text-2);margin:14px 0 6px;fon
 .invite{display:flex;align-items:center;gap:14px;padding:14px;border-radius:16px;background:var(--accent-soft);margin-bottom:20px}
 .invite b{display:block;font-size:16px}.invite span{font-size:13.5px;color:var(--text-2)}
 @media (max-width:860px){.landing-in{grid-template-columns:1fr;gap:28px;padding:28px 18px 40px}.brand{margin-bottom:22px}.lead{font-size:16px;margin-bottom:22px}.feats{grid-template-columns:1fr}.signin-card{padding:26px 22px 22px}.has-invite .signin-card{order:-1}.has-invite .feats{display:none}}
+
+/* ---------- install + mobile polish ---------- */
+.install-link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:10px;border-radius:12px;color:var(--accent);font-weight:600;font-size:14px}
+.install-link:hover{background:var(--accent-soft)}
+.istep{display:flex;gap:12px;align-items:flex-start;margin:12px 0;font-size:14.5px;line-height:1.5}
+.inum{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 5px;border-radius:7px;background:var(--bg-3);vertical-align:middle;font-weight:700}
+button,a,.item,.pick{-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+.list,.msgs,.modal-b,.info{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.main{bottom:auto;height:var(--app-h,100%)}
+.sb-head{padding-top:max(14px,env(safe-area-inset-top))}
+.chat-head{padding-top:max(10px,env(safe-area-inset-top))}
+.sidebar,.chat{padding-left:env(safe-area-inset-left)}
+.chat,.info{padding-right:env(safe-area-inset-right)}
+.list{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.info{padding-bottom:env(safe-area-inset-bottom)}
+.toasts{bottom:max(24px,calc(env(safe-area-inset-bottom) + 16px))}
+.banner{padding-top:max(8px,env(safe-area-inset-top))}
+.modal{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px)}
+.landing-in{padding-top:max(48px,calc(env(safe-area-inset-top) + 20px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom) + 20px))}
+.callui .cinfo{padding-top:max(20px,env(safe-area-inset-top))}
+.callui video.lv{top:max(16px,env(safe-area-inset-top))}
+.lightbox .lb-bar{padding-top:max(12px,env(safe-area-inset-top))}
+@media (pointer:coarse){
+  input,textarea,select,.field,.composer textarea,.search input{font-size:16px!important}
+  .ibtn{width:42px;height:42px}
+  .mact .ibtn{width:36px;height:36px}
+}
+@media (max-width:760px){
+  .overlay{align-items:flex-end;padding:0}
+  .modal{max-width:none;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom);animation:sheet .22s ease-out}
+  @keyframes sheet{from{transform:translateY(40px);opacity:0}}
+  .chat-head{gap:4px;padding-left:6px;padding-right:6px}
+  .chat-head .ibtn{width:38px;height:38px}
+  .sb-title b{font-size:22px}
+  .popover{max-width:calc(100vw - 16px)}
+  .emoji-grid{width:min(320px,calc(100vw - 32px))}
+}
+.note>svg,.note>.icon,.waiting>svg,.trust>svg{flex-shrink:0}
+.note .icon{margin-top:2px}
+@media (pointer:coarse){.bubble{-webkit-user-select:none;user-select:none}}
 </style>
 </head>
 <body>
@@ -422,7 +468,9 @@ const I = {
   videooff: '<svg class="icon" viewBox="0 0 24 24"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.7 0H14a2 2 0 0 1 2 2v3.3l1 1L23 7v10M1 1l22 22"/></svg>',
   share: '<svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
   drive: '<svg class="icon" viewBox="0 0 24 24"><path d="M8 3h8l6 11-4 7H6l-4-7z"/><path d="M8 3l6 11H2M16 3 10 14M22 14H10l-4 7"/></svg>',
-  chat: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>'
+  chat: '<svg viewBox="0 0 24 24"><path fill="#fff" d="M5 4h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H10l-5 4v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/><circle cx="8" cy="11" r="1.3" fill="#7360f2"/><circle cx="12" cy="11" r="1.3" fill="#7360f2"/><circle cx="16" cy="11" r="1.3" fill="#7360f2"/></svg>',
+  install: '<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 7v7M9 11l3 3 3-3M10 18h4"/></svg>',
+  iosShare: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>'
 };
 const iconSm = (k, px = 15) => I[k].replace('class="icon"', `class="icon" style="width:${px}px;height:${px}px"`);
 
@@ -636,7 +684,7 @@ function convoTitle(c) {
 }
 const convoMembers = c => c.kind === 'dm' ? [S.outbox, c.peer] : c.members;
 const sortedMsgs = c => [...c.msgs.values()].sort((a, b) => a.ct < b.ct ? -1 : a.ct > b.ct ? 1 : 0);
-function lastMsg(c) { let l = null; for (const m of c.msgs.values()) if (!m.hidden && (!l || m.ct > l.ct)) l = m; return l; }
+function lastMsg(c) { let l = null, any = null; for (const m of c.msgs.values()) { if (m.hidden) continue; if (!any || m.ct > any.ct) any = m; if (m.icon !== 'lock' && (!l || m.ct > l.ct)) l = m; } return l || any; }
 function unreadCount(c) { const rd = S.myRd[c.id] || ''; let n = 0; for (const m of c.msgs.values()) if (m.from !== S.outbox && !m.sys && !m.hidden && !m.tmp && m.ct > rd) n++; return n; }
 const convoSortKey = c => lastMsg(c)?.ct || c.created || '';
 
@@ -1247,7 +1295,7 @@ function onCallSignal(c, from, p, f) {
     if (call) { if (call.id !== p.id) { const busy = { id: p.id, cid: c.id, files: [] }; signal(busy, 'busy').catch(() => {}); setTimeout(() => busy.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 20000); } return; }
     call = { id: p.id, cid: c.id, peer: from, video: !!p.video, dir: 'in', state: 'ringing', offer: p.sdp, files: [], muted: false, camOff: false };
     ringtone(true, false); renderCall();
-    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { try { const n = new Notification(`${personOf(from).n} is calling…`, { body: p.video ? 'Video call' : 'Voice call', tag: 'call' }); n.onclick = () => { window.focus(); n.close(); }; } catch {} }
+    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { showNote(`${personOf(from).n} is calling…`, { body: p.video ? 'Video call' : 'Voice call', tag: 'call', icon: personOf(from).p || 'icon-192.png', requireInteraction: true }, c.id); }
     call.ringOut = setTimeout(() => { if (call && call.state === 'ringing') endCall(false); }, 45000);
     return;
   }
@@ -1344,8 +1392,18 @@ function notifyMsg(c, m) {
   ping();
   if (S.notify && 'Notification' in window && Notification.permission === 'granted' && (document.hidden || !document.hasFocus())) {
     const u = personOf(m.from);
-    try { const n = new Notification(c.kind === 'dm' ? u.n : `${u.n} · ${convoTitle(c)}`, { body: preview(m), tag: c.id, icon: u.p || undefined }); n.onclick = () => { window.focus(); openConvo(c.id); n.close(); }; } catch {}
+    showNote(c.kind === 'dm' ? u.n : `${u.n} · ${convoTitle(c)}`, { body: preview(m), tag: c.id, icon: u.p || 'icon-192.png' }, c.id);
   }
+}
+async function showNote(title, opts, cid) {
+  opts = { badge: 'icon-maskable-192.png', ...opts, data: { cid } };
+  try { const reg = await navigator.serviceWorker?.getRegistration(); if (reg) { await reg.showNotification(title, opts); return; } } catch {}
+  try { const n = new Notification(title, opts); n.onclick = () => { window.focus(); if (cid && S.convos.has(cid)) openConvo(cid); n.close(); }; } catch {}
+}
+function askNotifyOnGesture() {
+  if (!('Notification' in window) || Notification.permission !== 'default' || !S.notify) return;
+  const once = () => { removeEventListener('pointerdown', once, true); try { Notification.requestPermission(); } catch {} };
+  addEventListener('pointerdown', once, true);
 }
 function updateTitle() { let n = 0; for (const c of S.convos.values()) if (!S.muted.has(c.id)) n += unreadCount(c); document.title = n ? `(${n}) DriveChat` : 'DriveChat'; }
 
@@ -1404,11 +1462,13 @@ function showSignIn(err) {
       <button class="gbtn" id="signin"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>Continue with Google</span></button>
       ${err ? `<p class="small" style="color:var(--danger);margin:12px 0 0">${esc(err)}</p>` : ''}
       <div class="trust">${iconSm('shield', 15)}<span>DriveChat can only see the files it creates, never the rest of your Drive.</span></div>
+      <button class="install-link hidden" data-install id="land-install">${iconSm('install', 16)} Install the app</button>
       <div class="legal"><a href="privacy.html">Privacy</a><span>·</span><a href="terms.html">Terms</a>${CONFIG.clientId ? '' : '<span>·</span><button id="reset-cid">Owner setup</button>'}</div>
     </section>
   </div></div>`;
   $('#signin').onclick = async () => { try { await requestToken(LS.get('lastEmail') ? '' : 'select_account'); await afterSignIn(); } catch (e) { showSignIn(e.message); } };
   const r = $('#reset-cid'); if (r) r.onclick = () => showSetup();
+  $('#land-install').onclick = installApp; refreshInstallUI();
   if (invite) fetchProfile(invite.o).then(p => {
     const el = $('#invite-slot'); if (!el) return;
     el.innerHTML = p ? `<div class="invite">${avatarHtml({ ...p, c: p.c || hashColor(invite.o) }, 52)}<div><b>${esc(p.n)}</b><span>invited you to chat on DriveChat</span></div></div>` : '';
@@ -1479,7 +1539,7 @@ async function startApp() {
   const pendingLink = LS.get('pendingAdd'); LS.del('pendingAdd');
   if (pendingLink) acceptLink(pendingLink);
   else { const want = LS.get('lastConvo'); if (want && S.convos.has(want) && innerWidth > 760) openConvo(want); }
-  if ('Notification' in window && Notification.permission === 'default' && S.notify) { try { Notification.requestPermission(); } catch {} }
+  askNotifyOnGesture();
 }
 
 /* ============================ RENDERING ============================ */
@@ -1506,6 +1566,7 @@ function renderMain() {
       <div class="sb-head">
         <button id="me-btn" title="Settings">${avatarHtml({ n: S.prof.n, c: S.prof.c, p: S.me.photo }, 40)}</button>
         <div class="sb-title"><b>Chats</b><span class="e2e">${iconSm('lock', 11)} End-to-end encrypted</span></div>
+        <button class="ibtn accent hidden" data-install id="inst-btn" title="Install app">${I.install}</button>
         <button class="ibtn" id="add-btn" title="Add people">${I.userplus}</button>
         <button class="ibtn" id="new-btn" title="New chat or group">${I.edit}</button>
       </div>
@@ -1518,6 +1579,7 @@ function renderMain() {
   </div>`;
   $('#new-btn').onclick = () => newChatModal();
   $('#add-btn').onclick = () => addPeopleModal();
+  $('#inst-btn').onclick = installApp; refreshInstallUI();
   $('#me-btn').onclick = () => settingsModal();
   $('#filter').oninput = e => { S.filter = e.target.value; renderSidebarList(); };
   $$('.tab').forEach(t => t.onclick = () => { S.tab = t.dataset.tab; $$('.tab').forEach(x => x.classList.toggle('on', x === t)); renderSidebarList(); });
@@ -1570,8 +1632,8 @@ function renderHeader() {
   el.innerHTML = `<button class="ibtn back" id="back-btn">${I.back}</button>${convoAvatar(c, 42)}<div class="who" id="who"><b>${esc(convoTitle(c))}</b>${sub}</div>
     ${c.kind === 'dm' ? `<button class="ibtn accent" id="call-a" title="Voice call">${I.phone}</button><button class="ibtn accent" id="call-v" title="Video call">${I.video}</button>` : ''}
     <button class="ibtn accent" id="info-btn" title="Conversation info">${I.info}</button>`;
-  $('#back-btn').onclick = () => { S.active = null; S.showInfo = false; renderMain(); };
-  $('#info-btn').onclick = $('#who').onclick = () => { S.showInfo = !S.showInfo; renderMain(); };
+  $('#back-btn').onclick = () => { if (history.state?.dc === 'chat') history.back(); else { S.active = null; S.showInfo = false; renderMain(); } };
+  $('#info-btn').onclick = $('#who').onclick = () => { S.showInfo = !S.showInfo; if (S.showInfo && isNarrow()) history.pushState({ dc: 'info' }, ''); else if (!S.showInfo && history.state?.dc === 'info') popBack(); renderMain(); };
   if (c.kind === 'dm') { $('#call-a').onclick = () => startCall(c, false); $('#call-v').onclick = () => startCall(c, true); }
 }
 function renderWaiting() {
@@ -1748,6 +1810,7 @@ function bindComposer() {
 }
 function startEdit(m) { S.editing = m.id; S.replyTo = null; const ta = $('#composer-input'); ta.value = m.t; autoGrow(ta); ta.focus(); renderBars(); updateSendBtn(); }
 function openConvo(id) {
+  if (isNarrow() && !S.active) history.pushState({ dc: 'chat' }, '');
   S.active = id; S.tab = 'chats'; S.replyTo = null; S.editing = null; S.showInfo = S.showInfo && innerWidth > 1100;
   LS.set('lastConvo', id);
   const c = S.convos.get(id); if (c && !c.loaded) loadHistory(c);
@@ -1762,7 +1825,8 @@ function bindChat() {
   box.onclick = e => {
     const cb = e.target.closest('[data-callback]'); if (cb) { const c = S.convos.get(S.active); return startCall(c, cb.dataset.callback === 'v'); }
     const t = e.target.closest('[data-act]'); const row = e.target.closest('.mrow');
-    if (!t) { if (row && matchMedia('(pointer:coarse)').matches) { $$('.mrow.touch').forEach(r => r !== row && r.classList.remove('touch')); row.classList.toggle('touch'); } return; }
+    if (suppressTap) { suppressTap = false; return; }
+    if (!t || t.dataset.act === 'bubble') { if (row && !row.querySelector('.mact')) return; if (row && matchMedia('(pointer:coarse)').matches) { $$('.mrow.touch').forEach(r => r !== row && r.classList.remove('touch')); row.classList.toggle('touch'); } else if (!row) $$('.mrow.touch').forEach(r => r.classList.remove('touch')); return; }
     const c = S.convos.get(S.active); const m = row ? c.msgs.get(row.dataset.id) : null; const act = t.dataset.act;
     if (act === 'zoom') lightbox(t.src, m.a);
     else if (act === 'dl') downloadAtt(m.a);
@@ -1775,6 +1839,18 @@ function bindChat() {
     else if (act === 'retry') retryMsg(c, m);
     else if (act === 'jump') { const el = box.querySelector(`.mrow[data-id="${CSS.escape(t.dataset.to)}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300); } else toast('That message is further up — load earlier messages'); }
   };
+  let pressTimer = null, suppressTap = false;
+  const rowMsg = row => { const c = S.convos.get(S.active); const m = row && c?.msgs.get(row.dataset.id); return m && !m.del && !m.tmp && !m.bad ? [c, m] : null; };
+  box.addEventListener('touchstart', e => {
+    const row = e.target.closest('.mrow'); if (!row || e.target.closest('a,audio,video,.react,.mact')) return;
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => { const cm = rowMsg(row); if (!cm) return; suppressTap = true; popGuard = Date.now() + 450; navigator.vibrate?.(15); msgMenu(row.querySelector('.bubble'), ...cm); }, 480);
+  }, { passive: true });
+  ['touchend', 'touchmove', 'touchcancel'].forEach(ev => box.addEventListener(ev, () => clearTimeout(pressTimer), { passive: true }));
+  box.oncontextmenu = e => {
+    const row = e.target.closest('.mrow'); if (!row || e.target.closest('a,img,video')) return;
+    const cm = rowMsg(row); if (!cm) return; e.preventDefault(); msgMenu(row.querySelector('.bubble'), ...cm);
+  };
   box.ondblclick = e => { const row = e.target.closest('.mrow'); if (!row || e.target.closest('[data-act="zoom"],a,audio,video')) return; const c = S.convos.get(S.active); const m = c.msgs.get(row.dataset.id); if (m && !m.del && !m.tmp && !m.bad) toggleReact(c, m, '❤️'); };
   let dragN = 0;
   chat.ondragenter = e => { if (![...e.dataTransfer.types].includes('Files')) return; e.preventDefault(); if (dragN++ === 0) { const d = document.createElement('div'); d.className = 'drop'; d.id = 'drop'; d.textContent = 'Drop files to send (encrypted)'; chat.appendChild(d); } };
@@ -1782,16 +1858,18 @@ function bindChat() {
   chat.ondragleave = () => { if (--dragN <= 0) { dragN = 0; $('#drop')?.remove(); } };
   chat.ondrop = e => { e.preventDefault(); dragN = 0; $('#drop')?.remove(); const files = [...e.dataTransfer.files]; if (files.length) sendFiles(files); };
 }
-let popEl = null;
+let popEl = null, popGuard = 0;
 function closePop() { popEl?.remove(); popEl = null; }
 function popover(anchor, html) {
+  const opened = Date.now();
   closePop(); popEl = document.createElement('div'); popEl.className = 'popover'; popEl.innerHTML = html; document.body.appendChild(popEl);
+  popEl.addEventListener('click', e => { if (Date.now() < popGuard) { e.stopPropagation(); e.preventDefault(); } }, true);
   const r = anchor.getBoundingClientRect(), pr = popEl.getBoundingClientRect();
   let top = r.top - pr.height - 6; if (top < 8) top = r.bottom + 6;
   let left = Math.max(8, Math.min(r.left + r.width / 2 - pr.width / 2, innerWidth - pr.width - 8)); top = Math.min(top, innerHeight - pr.height - 8);
   popEl.style.top = top + 'px'; popEl.style.left = left + 'px';
-  setTimeout(() => document.addEventListener('mousedown', outside, true), 0);
-  function outside(e) { if (popEl && !popEl.contains(e.target)) { closePop(); document.removeEventListener('mousedown', outside, true); } }
+  setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+  function outside(e) { if (!popEl) return document.removeEventListener('pointerdown', outside, true); if (popEl.contains(e.target) || (Date.now() - opened < 600 && anchor.contains(e.target))) return; closePop(); document.removeEventListener('pointerdown', outside, true); }
   return popEl;
 }
 function quickReact(anchor, c, m) {
@@ -1842,7 +1920,7 @@ async function renderInfo() {
     ${imgs.length ? `<div class="sect"><h4>Photos</h4><div class="media-grid">${imgs.map(m => `<img class="lazy-i" data-id="${esc(m.id)}" alt="">`).join('')}</div></div>` : ''}
     ${files.length ? `<div class="sect"><h4>Files</h4>${files.map(m => `<button class="act" data-file="${esc(m.id)}">${I.file}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.a.n)}</span><span class="tiny muted">${fmtSize(m.a.z)}</span></button>`).join('')}</div>` : ''}
     <div class="sect"><button class="act red" data-k="leave">${I.out}${c.kind === 'group' ? 'Leave group' : 'Remove contact'}</button></div>`;
-  $('#info-x').onclick = () => { S.showInfo = false; renderMain(); };
+  $('#info-x').onclick = () => { S.showInfo = false; if (history.state?.dc === 'info') popBack(); renderMain(); };
   if (p?.pub) Crypto.safetyCode(S.pubJwk, p.pub).then(code => { const s = $('#sc'); if (s) s.textContent = code; });
   $$('.lazy-i', el).forEach(img => { const m = c.msgs.get(img.dataset.id); loadMedia(m.a).then(u => img.src = u).catch(() => {}); });
   el.onclick = e => {
@@ -1859,13 +1937,14 @@ async function renderInfo() {
 
 /* ============================ MODALS ============================ */
 function modal(title, body, footer = '') {
-  closeModal();
+  $('#overlay')?.remove();
+  if (isNarrow() && history.state?.dc !== 'modal') history.pushState({ dc: 'modal' }, '');
   const o = document.createElement('div'); o.className = 'overlay'; o.id = 'overlay';
   o.innerHTML = `<div class="modal"><div class="modal-h"><h3>${esc(title)}</h3><button class="ibtn" id="m-x">${I.x}</button></div><div class="modal-b">${body}</div>${footer ? `<div class="modal-f">${footer}</div>` : ''}</div>`;
   o.onmousedown = e => { if (e.target === o) closeModal(); };
   document.body.appendChild(o); $('#m-x').onclick = closeModal; return o;
 }
-function closeModal() { $('#overlay')?.remove(); }
+function closeModal(fromPop) { const had = !!$('#overlay'); $('#overlay')?.remove(); if (had && !fromPop && history.state?.dc === 'modal') popBack(); }
 addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); closeModal(); } });
 async function addPeopleModal() {
   const o = modal('Add people', `
@@ -1941,7 +2020,7 @@ function settingsModal() {
     <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-sound" ${S.sound ? 'checked' : ''}> Sounds</label>
     <div class="divider">PRIVACY</div>
     <div class="note">${iconSm('lock', 18)}<span>Messages, files, calls, read receipts and typing are end-to-end encrypted. Your data is in the <b>DriveChat</b> folder of your Google Drive.</span></div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-inv">${I.userplus} Add people</button><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/${esc(S.root)}">Open in Drive</a></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost hidden" data-install id="s-install">${I.install} Install app</button><button class="btn ghost" id="s-inv">${I.userplus} Add people</button><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/${esc(S.root)}">Open in Drive</a></div>
     <div class="divider">ACCOUNT</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-lock">${I.lock} Forget keys on this device</button><button class="btn ghost" id="s-out">${I.out} Sign out</button></div>`,
     `<button class="btn ghost" id="s-c">Cancel</button><button class="btn" id="s-save">Save</button>`);
@@ -1950,6 +2029,7 @@ function settingsModal() {
   $('#s-theme', o).onclick = e => { const b = e.target.closest('button'); if (!b) return; theme = b.dataset.t; $$('#s-theme button', o).forEach(x => x.classList.toggle('on', x === b)); S.theme = theme; applyTheme(); };
   $('#s-c', o).onclick = () => { S.theme = LS.get('theme', 'system'); applyTheme(); closeModal(); };
   $('#s-inv', o).onclick = () => addPeopleModal();
+  $('#s-install', o).onclick = installApp; refreshInstallUI();
   $('#s-out', o).onclick = () => { closeModal(); signOut(); };
   $('#s-lock', o).onclick = async () => { if (!confirm('Remove your decryption key from this browser? You\'ll need your backup password next time.')) return; await IDB.del('id:' + S.me.email); closeModal(); signOut(); };
   $('#s-save', o).onclick = async () => {
@@ -1963,6 +2043,55 @@ function settingsModal() {
   };
 }
 
+/* ============================ INSTALL (PWA) ============================ */
+let installPrompt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const canInstall = () => !isStandalone() && (!!installPrompt || isIOS() || matchMedia('(pointer:coarse)').matches);
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; refreshInstallUI(); });
+addEventListener('appinstalled', () => { installPrompt = null; refreshInstallUI(); toast('DriveChat installed 🎉'); });
+function refreshInstallUI() { $$('[data-install]').forEach(el => el.classList.toggle('hidden', !canInstall())); }
+async function installApp() {
+  if (installPrompt) { installPrompt.prompt(); try { await installPrompt.userChoice; } catch {} installPrompt = null; refreshInstallUI(); return; }
+  const step = (n, html) => `<div class="istep"><span class="inum">${n}</span><div>${html}</div></div>`;
+  let body;
+  if (isIOS()) {
+    const safari = /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios/i.test(navigator.userAgent);
+    body = (safari ? '' : `<div class="note warn">On iPhone and iPad, apps can only be installed from <b>Safari</b>. Open this page in Safari first.</div>`)
+      + step(1, `Tap the <b>Share</b> button <span class="kbd">${iconSm('iosShare', 16)}</span> at the bottom of Safari (top on iPad).`)
+      + step(2, `Scroll down and tap <b>Add to Home Screen</b> <span class="kbd">${iconSm('plus', 16)}</span>.`)
+      + step(3, `Tap <b>Add</b>. DriveChat now appears on your Home Screen like any other app.`);
+  } else if (/android/i.test(navigator.userAgent)) {
+    body = step(1, `Tap the browser menu <span class="kbd">⋮</span> (top right in Chrome).`)
+      + step(2, `Tap <b>Install app</b> or <b>Add to Home screen</b>.`)
+      + step(3, `Tap <b>Install</b>. DriveChat appears in your app drawer with its own icon.`);
+  } else {
+    body = step(1, `In <b>Chrome</b> or <b>Edge</b>, click the install icon <span class="kbd">${iconSm('install', 16)}</span> at the right end of the address bar.`)
+      + step(2, `Or open the browser menu <span class="kbd">⋮</span> → <b>Cast, save and share</b> → <b>Install page as app</b> (Chrome), or <b>Apps</b> → <b>Install this site as an app</b> (Edge).`)
+      + step(3, `DriveChat opens in its own window and gets a Start menu / Dock icon.`)
+      + `<p class="tiny muted">Safari on Mac: File → Add to Dock. Firefox doesn't support installing web apps.</p>`;
+  }
+  modal('Install DriveChat', `<div style="display:flex;justify-content:center;margin:4px 0 16px"><img src="icon-192.png" width="72" height="72" alt="" style="border-radius:18px;box-shadow:0 8px 24px rgba(115,96,242,.35)"></div>${body}`, `<button class="btn" id="inst-ok">Got it</button>`);
+  $('#inst-ok').onclick = closeModal;
+}
+
+/* ============================ MOBILE: back button + keyboard-aware height ============================ */
+const isNarrow = () => innerWidth <= 760;
+let skipPop = false;
+function popBack() { skipPop = true; history.back(); }
+addEventListener('popstate', () => {
+  if (skipPop) { skipPop = false; return; }
+  if ($('#overlay')) { closeModal(true); return; }
+  if (S.showInfo && isNarrow()) { S.showInfo = false; renderMain(); return; }
+  if (S.active && isNarrow()) { S.active = null; S.showInfo = false; renderMain(); }
+});
+function fitViewport() {
+  const h = window.visualViewport ? visualViewport.height : innerHeight;
+  document.documentElement.style.setProperty('--app-h', h + 'px');
+  if (window.visualViewport && document.activeElement?.tagName === 'TEXTAREA') window.scrollTo(0, 0);
+}
+window.visualViewport?.addEventListener('resize', fitViewport); addEventListener('resize', fitViewport); fitViewport();
+
 /* ============================ BOOT ============================ */
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.running) { S.nextPoll.clear(); markRead(); saveStatus(); } });
 addEventListener('focus', () => S.running && markRead());
@@ -1972,6 +2101,11 @@ addEventListener('beforeunload', e => { if (call) { e.preventDefault(); e.return
 
 async function boot() {
   applyTheme();
+  if ('serviceWorker' in navigator && location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    navigator.serviceWorker?.register('sw.js').catch(e => console.warn('sw', e));
+    navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } });
+  }
+  const om = location.hash.match(/open=([\w-]+)/); if (om) { LS.set('lastConvo', om[1]); history.replaceState(null, '', location.pathname + location.search); }
   const L = parseLink(location.hash);
   if (L) { LS.set('pendingAdd', L.o + (L.r ? '.' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
   if (location.protocol === 'file:') { root().innerHTML = `<div class="screen"><div class="card"><h1>Serve over http(s)</h1><p class="muted">Google sign-in doesn't work from <code>file://</code>. Run <code>python3 -m http.server 8080</code> here and open <code>http://localhost:8080</code>, or deploy to GitHub Pages / Netlify.</p></div></div>`; return; }
