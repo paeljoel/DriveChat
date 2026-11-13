@@ -993,11 +993,10 @@ const relayBase = () => CONFIG.pushRelay.replace(/\/$/, '');
 async function checkHandshakes() {
   const pend = (S.st.pending || []).filter(p => p.keep || Date.now() - p.t < 14 * 86400000);
   if (pend.length !== (S.st.pending || []).length) { S.st.pending = pend; saveState(); }
-  if (!pend.length) return;
   const found = new Set();
   const info = await relayInfo();
   if (info?.hs) {
-    const ids = [...new Set([...pend].sort((a, b) => b.t - a.t).map(p => p.r))];   // newest first, every code
+    const ids = [...new Set([S.outbox, ...[...pend].sort((a, b) => b.t - a.t).map(p => p.r)])];   // my own ID + every invite code, newest first
     for (let i = 0; i < ids.length && i < 100; i += 10) {
       try { const r = await fetch(relayBase() + '/hs?r=' + ids.slice(i, i + 10).join(','), { cache: 'no-store' }); if (r.ok) ((await r.json()).o || []).forEach(o => found.add(o)); } catch {}
     }
@@ -1012,9 +1011,23 @@ async function checkHandshakes() {
     if (prof) { await addContact(o, prof); toast(`${prof.n} accepted your invite 🎉 Say hi!`, false, 5000); ping(); }
   }
 }
+const knocked = new Map();
+async function knock(o, force = false) {
+  const info = await relayInfo(); if (!info?.hs) return false;
+  if (!force && Date.now() - (knocked.get(o) || 0) < 10 * 60000) return true;
+  try {
+    const r = await fetch(relayBase() + '/hs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ r: o, o: S.outbox }) });
+    if (r.ok) { knocked.set(o, Date.now()); return true; }
+  } catch {}
+  return false;
+}
+async function knockWaiting() {
+  for (const [o, ct] of Object.entries(S.st.contacts)) if (!ct.connected) await knock(o);
+}
 async function pendingLoop(gen) {
   while (S.running && gen === S.gen) {
     await checkHandshakes().catch(e => console.warn('handshake', e.message));
+    await knockWaiting().catch(e => console.warn('knock', e.message));
     const recent = Date.now() - (S.lastShare || 0) < 15 * 60000;
     await new Promise(r => { pendingLoop.wake = r; setTimeout(r, document.hidden ? 300000 : recent ? 6000 : 45000); });
   }
@@ -1093,9 +1106,11 @@ async function acceptLink(link) {
     try {
       const c = await addContact(L.o, prof);
       let ok = false;
+      if (!L.r) ok = await knock(L.o, true);
       if (L.r) {
         const info = await relayInfo();
         if (info?.hs) { try { ok = (await fetch(relayBase() + '/hs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ r: L.r, o: S.outbox }) })).ok; } catch {} }
+        if (info?.hs) ok = (await knock(L.o, true)) || ok;
         try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); }
       }
       hideLoading(); openConvo(c.id);
