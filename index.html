@@ -1396,7 +1396,7 @@ function showPassword(mode, err) {
     catch (e) { showPassword(mode, e.message); }
   };
   $('#pw-go').onclick = go;
-  $$('.field').forEach(f => f.onkeydown = e => e.key === 'Enter' && go());
+  $$('.field').forEach(f => f.onkeydown = e => { if (e.key === 'Enter') go(); });
   $('#pw1').focus();
   const r = $('#pw-reset'); if (r) r.onclick = () => { if (confirm('Create new keys? Messages sent to you before now will no longer be readable, and your contacts will see that your security code changed.')) showPassword('create'); };
   $('#pw-out').onclick = signOut;
@@ -1872,7 +1872,7 @@ function newChatModal() {
 function renameModal(c) {
   const o = modal('Rename group', `<input class="field" id="rn" maxlength="80" value="${esc(c.name)}">`, `<button class="btn ghost" id="rn-c">Cancel</button><button class="btn" id="rn-ok">Save</button>`);
   const inp = $('#rn', o); inp.focus(); inp.select();
-  inp.onkeydown = e => e.key === 'Enter' && $('#rn-ok', o).click();
+  inp.onkeydown = e => { if (e.key === 'Enter') $('#rn-ok', o).click(); };
   $('#rn-c', o).onclick = closeModal;
   $('#rn-ok', o).onclick = async () => { const n = inp.value.trim(); closeModal(); if (n !== c.name) try { await renameGroup(c, n); } catch (e) { toast(e.message, true); } };
 }
