@@ -30,3 +30,19 @@ If the key ever leaks, generate a new key pair. Update `VAPID_PUBLIC_KEY` and `V
 | iPhone / iPad (iOS 16.4 or later) | ✅ Only after **Add to Home Screen**. Open DriveChat from the Home Screen icon, then turn on notifications. |
 
 An incoming call shows a notification with **Answer** and **Decline** that stays on screen until you respond. The notification plays your phone's notification sound once and vibrates in a long pattern, rather than ringing continuously like a native phone call. Web apps aren't allowed to use the full-screen call ringer.
+
+## Optional: branded invite emails
+
+The app never sends Google Drive "shared a folder" emails. Without this setup, **Invite → Email** opens your own Gmail or mail app with a ready-written invite. To have DriveChat send a polished email itself, with your photo and an **Accept invite** button:
+
+<img src="../docs/invite-email.png" width="420" alt="Invite email preview">
+
+1. **Get a domain** (any registrar, ~$10/year; Cloudflare Registrar is cheapest).
+2. **Set up Resend.** Create a free account at <https://resend.com> (3,000 emails/month free). Under **Domains**, add your domain and add the DNS records it shows.
+3. **Create an API key** in Resend.
+4. **Add two variables to the Worker.** In Cloudflare, open the `drivechat-push` Worker → **Settings → Variables and Secrets** and add:
+   - `RESEND_API_KEY`: your Resend API key (choose type **Secret**)
+   - `EMAIL_FROM`: e.g. `DriveChat <invite@yourdomain.com>`
+5. **Deploy.** Opening the Worker URL should now show `"email": true`. The app switches to branded emails automatically.
+
+Each sender can send up to 12 invites an hour, and invites only work for links to your own DriveChat site.

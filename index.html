@@ -362,6 +362,15 @@ html,body{overscroll-behavior:none}
 .nudge-t{flex:1;min-width:0;font-size:13px;color:var(--text-2);line-height:1.4}.nudge-t b{display:block;color:var(--text);font-size:14px;margin-bottom:2px}
 .nudge-t .btn{display:inline-block;margin-top:8px;padding:7px 14px;font-size:13.5px}
 .nudge .ibtn{width:30px;height:30px;margin:-4px -2px 0 0}.nudge .ibtn .icon{width:16px;height:16px}
+.linkcard{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--bg-2);border:1px solid var(--line)}
+.linkcard-ic{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.linkcard-t{flex:1;min-width:0}.linkcard-t b{display:block;font-size:14px}.linkcard-t span{display:block;font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linkcard .btn{padding:8px 16px;flex-shrink:0}
+.stiles{display:flex;gap:6px;justify-content:space-around;margin:18px 0 6px;flex-wrap:wrap}
+.stile{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2);min-width:64px;padding:6px 2px;border-radius:14px}
+.stile:hover{background:var(--bg-2)}
+.stile-ic{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:transform .12s}
+.stile:hover .stile-ic{transform:translateY(-2px)}
 </style>
 </head>
 <body>
@@ -1066,7 +1075,7 @@ async function acceptLink(link) {
       const c = await addContact(L.o, prof);
       let ok = false;
       if (L.r) { try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); } }
-      if (!ok && prof.e) { try { await shareWith(S.outbox, prof.e, `${S.prof.n} accepted your DriveChat invite.\n\n👉 TAP THIS LINK to finish connecting:\n${linkFor(null)}\n\n(Ignore the folder and the Open button below — that's just encrypted storage.)`); } catch (e) { console.warn(e); } }
+      if (!ok && prof.e) { try { await emailInvite(prof.e, linkFor(null)).then(h => h === 'compose' && toast(`Send that email so ${prof.n.split(' ')[0]} can connect back to you`, false, 6000)); } catch {} }
       hideLoading(); openConvo(c.id);
     } catch (e) { hideLoading(); toast('Could not add contact: ' + e.message, true); }
   };
@@ -2049,27 +2058,78 @@ function modal(title, body, footer = '') {
 }
 function closeModal(fromPop) { const had = !!$('#overlay'); $('#overlay')?.remove(); if (had && !fromPop && history.state?.dc === 'modal') popBack(); }
 addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); closeModal(); } });
+let relayInfoP = null;
+function relayInfo() {
+  if (!CONFIG.pushRelay) return Promise.resolve(null);
+  return relayInfoP ||= fetch(CONFIG.pushRelay.replace(/\/$/, '') + '/').then(r => r.ok ? r.json() : null).catch(() => null);
+}
+function inviteText(link) {
+  const me = (S.prof.n || S.me.name).split(' ')[0];
+  return { subject: `${S.prof.n || S.me.name} invited you to chat on DriveChat`,
+    short: `Let's chat on DriveChat 💬 Private, end-to-end encrypted messages and calls. Tap to connect with me:`,
+    body: `Hi!\n\nLet's chat on DriveChat. It's a private messenger: our messages and calls are end-to-end encrypted and stored in our own Google Drives.\n\nTap here to connect with me:\n${link}\n\nSee you there,\n${me}` };
+}
+async function emailInvite(to, link) {
+  const info = await relayInfo();
+  if (info?.email) {
+    const r = await fetch(CONFIG.pushRelay.replace(/\/$/, '') + '/invite', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, link, name: S.prof.n || S.me.name, photo: S.me.photo, replyTo: S.me.email }) });
+    if (r.ok) return 'sent';
+    if (r.status === 429) throw new Error('You\'ve sent a lot of invites. Try again in an hour.');
+  }
+  const t = inviteText(link);
+  const gmail = /@(gmail|googlemail)\.com$/i.test(S.me.email) && !matchMedia('(pointer:coarse)').matches;
+  if (gmail) window.open(`https://mail.google.com/mail/?view=cm&fs=1&authuser=${encodeURIComponent(S.me.email)}&to=${encodeURIComponent(to)}&su=${encodeURIComponent(t.subject)}&body=${encodeURIComponent(t.body)}`, '_blank', 'noopener');
+  else location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(t.subject)}&body=${encodeURIComponent(t.body)}`;
+  return 'compose';
+}
 async function addPeopleModal() {
-  const o = modal('Add people', `
-    <p class="small muted">Send your personal link to a friend (WhatsApp, SMS, email…). When they open it and sign in with Google, you're connected.</p>
-    <label class="lbl">Your invite link</label>
-    <div class="row-inline"><input class="field" readonly id="my-link" value="Generating…"><button class="btn ghost" id="cp-link" title="Copy">${I.copy}</button>${navigator.share ? `<button class="btn ghost" id="sh-link" title="Share">${I.share}</button>` : ''}</div>
-    <label class="lbl">Or invite by email</label>
-    <div class="row-inline"><input class="field" id="inv-email" type="email" placeholder="friend@gmail.com"><button class="btn" id="inv-send">Send</button></div>
-    <p class="tiny muted">Google sends them a "shared a folder" email with your link inside. Tell them to tap the link, not the Open button.</p>
-    <label class="lbl">Got a friend's link? Paste it here</label>
-    <div class="row-inline"><input class="field" id="paste-link" placeholder="https://…#add=…"><button class="btn ghost" id="paste-go">Add</button></div>`);
+  const mobile = matchMedia('(pointer:coarse)').matches;
+  const tile = (k, bg, icon, label) => `<button class="stile" data-k="${k}"><span class="stile-ic" style="background:${bg}">${icon}</span><span>${label}</span></button>`;
+  const WA = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg>';
+  const TG = '<svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>';
+  const VB = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M11.4 2C9.3 2 5 2.4 3.3 4c-1.3 1.2-1.7 3.1-1.8 5.4-.1 2.3-.1 6.6 4.1 7.8v1.8s0 .7.5.9c.6.2.9-.4 1.5-1l1.1-1.3c3 .3 5.3-.3 5.6-.4.6-.2 4.1-.6 4.7-5.3.6-4.9-.3-8-1.9-9.4C16.6 2.2 14.5 2 11.4 2zm.4 2.4c3.3 0 4.9.5 5.6 1.1 1.2 1.1 1.8 3.6 1.4 7.6-.5 3.9-3.3 4.1-3.8 4.3-.2.1-2.2.6-4.8.4l-2.3 2.6v-2.8c-3.4-.9-3.3-4.4-3.2-6.3.1-1.9.4-3.4 1.4-4.4 1.2-1.1 4-1.5 5.7-1.5zm.2 2c-.2 0-.2.3 0 .3 1.1 0 2 .4 2.7 1.1.7.7 1 1.7 1 2.9 0 .2.3.2.3 0 0-1.3-.4-2.4-1.2-3.2-.8-.7-1.8-1.1-2.8-1.1zm-2.5.5c-.3 0-.5.1-.8.4-.4.4-.8.9-.6 1.6.4 1 1 2 1.9 3 .9.9 2 1.6 3.2 2 .7.2 1.2-.2 1.6-.6.4-.4.4-.8 0-1.1l-1.3-.9c-.4-.3-.8-.1-1 .1l-.4.5c-.2.2-.5.2-.5.2-1.6-.4-2.2-2-2.2-2s0-.3.2-.5l.5-.4c.2-.2.4-.6.1-1l-.9-1.2a.7.7 0 0 0-.8-.1zm2.7.6c-.2 0-.2.3 0 .3.8.1 1.3.6 1.4 1.4 0 .2.3.2.3 0-.1-1-.7-1.6-1.7-1.7zm.2 1c-.2 0-.2.3 0 .3.3 0 .5.2.5.5 0 .2.3.2.3 0 0-.5-.4-.8-.8-.8z"/></svg>';
+  const o = modal('Invite friends', `
+    <p class="small muted" style="margin-top:0">Send your personal link. When a friend opens it and signs in with Google, you're connected.</p>
+    <div class="linkcard"><div class="linkcard-ic">${I.link}</div><div class="linkcard-t"><b>Your invite link</b><span id="my-link-t">Creating your link…</span></div><button class="btn" id="cp-link" disabled>Copy</button></div>
+    <input type="hidden" id="my-link">
+    <div class="stiles">
+      ${navigator.share ? tile('share', 'linear-gradient(135deg,#6a55ee,#9a6cf5)', I.share.replace('class="icon"', 'class="icon" style="color:#fff"'), 'Share') : ''}
+      ${tile('wa', '#25D366', WA, 'WhatsApp')}
+      ${mobile ? tile('vb', '#7360f2', VB, 'Viber') : ''}
+      ${tile('tg', '#2AABEE', TG, 'Telegram')}
+      ${tile('mail', '#ea4335', I.send.replace('class="icon"', 'class="icon" style="color:#fff"'), 'Email')}
+    </div>
+    <div id="mail-row" class="hidden">
+      <label class="lbl">Friend's email</label>
+      <div class="row-inline"><input class="field" id="inv-email" type="email" inputmode="email" autocomplete="email" placeholder="friend@gmail.com"><button class="btn" id="inv-send">Send</button></div>
+      <p class="tiny muted" id="mail-hint">Opens your email with a ready-to-send invite.</p>
+    </div>
+    <div class="divider">HAVE A FRIEND'S LINK?</div>
+    <div class="row-inline"><input class="field" id="paste-link" placeholder="Paste it here"><button class="btn ghost" id="paste-go">Add</button></div>`);
+  relayInfo().then(i => { const h = $('#mail-hint'); if (h && i?.email) h.textContent = 'We\'ll email them a personal invite with your photo and an Accept button.'; });
   const link = await freshInviteLink();
-  const inp = $('#my-link', o); if (!inp) return; inp.value = link;
-  $('#cp-link', o).onclick = () => navigator.clipboard?.writeText(link).then(() => toast('Link copied'));
-  const sh = $('#sh-link', o); if (sh) sh.onclick = () => navigator.share({ title: 'Chat with me on DriveChat', text: `${S.prof.n} wants to chat with you privately on DriveChat:`, url: link }).catch(() => {});
-  $('#inv-send', o).onclick = async () => {
-    const em = $('#inv-email', o).value.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast('Enter a valid email', true);
-    $('#inv-send', o).disabled = true;
-    try { await shareWith(S.outbox, em, `${S.prof.n} invited you to chat on DriveChat.\n\n👉 TAP THIS LINK to start chatting:\n${link}\n\n(Ignore the folder and the Open button below — that's just encrypted storage.)`); toast('Invite sent to ' + em); closeModal(); }
-    catch (e) { toast('Could not send: ' + e.message, true); $('#inv-send', o).disabled = false; }
+  if (!$('#my-link', o)) return;
+  $('#my-link', o).value = link; $('#my-link-t', o).textContent = link.replace(/^https?:\/\//, '');
+  const t = inviteText(link), cp = $('#cp-link', o); cp.disabled = false;
+  cp.onclick = () => navigator.clipboard?.writeText(link).then(() => { cp.textContent = 'Copied ✓'; setTimeout(() => { if (cp.isConnected) cp.textContent = 'Copy'; }, 1800); });
+  const open = url => window.open(url, '_blank', 'noopener');
+  $('.stiles', o).onclick = e => {
+    const k = e.target.closest('.stile')?.dataset.k; if (!k) return;
+    if (k === 'share') navigator.share({ title: t.subject, text: t.short, url: link }).catch(() => {});
+    else if (k === 'wa') open('https://wa.me/?text=' + encodeURIComponent(t.short + ' ' + link));
+    else if (k === 'tg') open('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(t.short));
+    else if (k === 'vb') location.href = 'viber://forward?text=' + encodeURIComponent(t.short + ' ' + link);
+    else if (k === 'mail') { $('#mail-row', o).classList.remove('hidden'); $('#inv-email', o).focus(); }
   };
+  const send = async () => {
+    const em = $('#inv-email', o).value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast('Enter a valid email address', true);
+    const btn = $('#inv-send', o); btn.disabled = true; btn.textContent = 'Sending…';
+    try { const how = await emailInvite(em, link); if (how === 'sent') { toast(`Invite sent to ${em} ✉️`); closeModal(); } else { btn.disabled = false; btn.textContent = 'Send'; } }
+    catch (e) { toast(e.message, true); btn.disabled = false; btn.textContent = 'Send'; }
+  };
+  $('#inv-send', o).onclick = send; $('#inv-email', o).onkeydown = e => { if (e.key === 'Enter') send(); };
   $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); acceptLink(v); };
 }
 function pickPeopleModal(title, exclude, onDone, { group = false } = {}) {
