@@ -526,7 +526,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '16';
+const APP_VERSION = '17';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -3054,7 +3054,7 @@ async function addPeopleModal(note = '') {
     <input type="hidden" id="my-link">
     <div class="stiles">
       ${navigator.share ? tile('share', 'linear-gradient(135deg,#6a55ee,#9a6cf5)', I.share.replace('class="icon"', 'class="icon" style="color:#fff"'), 'Share') : ''}
-      ${mobile ? tile('sms', '#34C759', SMS, 'Text') : ''}
+      <span id="sms-slot" style="display:contents">${mobile ? tile('sms', '#34C759', SMS, 'Text') : ''}</span>
       ${tile('wa', '#25D366', WA, 'WhatsApp')}
       ${mobile ? tile('vb', '#7360f2', VB, 'Viber') : ''}
       ${tile('tg', '#2AABEE', TG, 'Telegram')}
@@ -3072,7 +3072,7 @@ async function addPeopleModal(note = '') {
     </div>
     <div class="divider">HAVE A FRIEND'S LINK?</div>
     <div class="row-inline"><input class="field" id="paste-link" placeholder="Paste it here"><button class="btn ghost" id="paste-go">Add</button></div>`);
-  relayInfo().then(i => { const h = $('#mail-hint'); if (h && i?.email) h.textContent = 'We\'ll email them a personal invite with your photo and an Accept button.'; });
+  relayInfo().then(i => { if (i?.sms) { const sl = $('#sms-slot', o); if (sl && !sl.innerHTML.trim()) sl.innerHTML = tile('sms', '#34C759', SMS, 'Text'); const hp = $('#sms-row .tiny', o); if (hp) hp.textContent = 'We\'ll text them your invite link right away.'; } const h = $('#mail-hint'); if (h && i?.email) h.textContent = 'We\'ll email them a personal invite with your photo and an Accept button.'; });
   const link = await freshInviteLink();
   if (!$('#my-link', o)) return;
   $('#my-link', o).value = link; $('#my-link-t', o).textContent = link.replace(/^https?:\/\//, '');
@@ -3088,9 +3088,18 @@ async function addPeopleModal(note = '') {
     else if (k === 'mail') { $('#sms-row', o).classList.add('hidden'); $('#mail-row', o).classList.remove('hidden'); $('#inv-email', o).focus(); }
     else if (k === 'sms') { $('#mail-row', o).classList.add('hidden'); $('#sms-row', o).classList.remove('hidden'); $('#inv-phone', o).focus(); }
   };
-  const textIt = () => {
+  const textIt = async () => {
     const ph = $('#inv-phone', o).value.replace(/[^\d+]/g, '');
-    if (ph.replace('+', '').length < 6) return toast('Enter a phone number', true);
+    if (ph.replace('+', '').length < 7) return toast('Enter a phone number', true);
+    if ((await relayInfo())?.sms) {   // texted for you by the DriveChat relay (textbee)
+      const b = $('#inv-text', o); b.disabled = true; b.textContent = 'Sending…';
+      try {
+        const r = await fetch(relayBase() + '/sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: ph, link, name: S.prof.n || S.me.name }) });
+        if (r.ok) { toast('Invite texted to ' + ph + ' 💬'); closeModal(); return; }
+        toast(r.status === 429 ? 'Text limit reached — opening your Messages app instead' : 'Couldn\'t text it — opening your Messages app instead');
+      } catch {}
+      b.disabled = false; b.textContent = 'Text';
+    }
     location.href = 'sms:' + ph + '?&body=' + encodeURIComponent(t.short + ' ' + link);   // ?&body works on both iPhone and Android
   };
   $('#inv-text', o).onclick = textIt; $('#inv-phone', o).onkeydown = e => { if (e.key === 'Enter') textIt(); };

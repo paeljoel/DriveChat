@@ -56,3 +56,14 @@ The app never sends Google Drive "shared a folder" emails. Without this setup, *
 5. **Deploy.** Opening the Worker URL should now show `"email": true`. The app switches to branded emails automatically.
 
 Each sender can send up to 12 invites an hour, and invites only work for links to your own DriveChat site.
+
+## Optional: send invite texts automatically (textbee.dev)
+
+With this on, tapping **Text** in *Add people* sends the invite SMS straight away from your own Android phone, instead of opening the sender's Messages app.
+
+1. Sign up at [textbee.dev](https://textbee.dev) (free: 50 texts a day) and install the textbee app on an Android phone with a SIM. Keep it charged and online.
+2. In the textbee dashboard, register the phone and create an **API key**.
+3. In Cloudflare: Worker `drivechat-push` → **Settings → Variables and Secrets → Add** → type **Secret**, name `TEXTBEE_API_KEY`, value = your key → **Deploy**.
+4. Optional variables: `TEXTBEE_DEVICE_ID` (only if you registered several phones) and `SMS_DAILY_MAX` (default 45).
+
+Texts go out from that phone's number and use its SMS plan. Each person can send 5 invite texts an hour, and the relay only ever sends the DriveChat invite message, so nobody can use it to text anything else. If the phone is offline or the daily cap is hit, the app falls back to opening the sender's Messages app.

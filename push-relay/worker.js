@@ -11,6 +11,10 @@
  * EMAIL_FROM (e.g. "DriveChat <invite@yourdomain.com>"). Without them the app opens the
  * sender's own mail app instead.
  *
+ * Optional: invite texts (SMS) sent from your own Android phone with textbee.dev. Add Worker secret
+ * TEXTBEE_API_KEY (and TEXTBEE_DEVICE_ID if you have more than one phone). Optional SMS_DAILY_MAX
+ * (default 45, under textbee's free 50/day). Without them the app opens the sender's Messages app.
+ *
  * Contacts: when a friend opens your invite link, their app leaves a note here so YOUR app adds
  * them automatically. Needs a KV namespace bound to this Worker as HS (see README).
  *
@@ -106,13 +110,14 @@ export default {
     const cors = { 'Access-Control-Allow-Origin': cfg.origin || '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400', 'Vary': 'Origin' };
     const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM);
+    const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM), smsOn = !!env.TEXTBEE_API_KEY;
     if (req.method === 'GET' && new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
-    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, hs: !!env.HS });
+    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, sms: smsOn, hs: !!env.HS });
     if (req.method !== 'POST') return json({ error: 'method' }, 405);
     if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
     if (new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
     if (new URL(req.url).pathname === '/invite') return sendInvite(req, env, cfg, json, emailOn);
+    if (new URL(req.url).pathname === '/sms') return sendSms(req, env, cfg, json, smsOn);
     if (!cfg.pub || !cfg.priv) return json({ error: 'relay not configured' }, 500);
     let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
     let url; try { url = new URL(p.endpoint); } catch { return json({ error: 'bad endpoint' }, 400); }
@@ -130,6 +135,28 @@ export default {
     return json({ status: r.status }, r.ok ? 200 : (r.status === 404 || r.status === 410) ? 410 : 502);
   }
 };
+
+/* Invite by text message through textbee.dev (your Android phone + SIM). The message text is built
+   here, so the relay can only ever send a DriveChat invite, never arbitrary SMS. */
+async function sendSms(req, env, cfg, json, smsOn) {
+  if (!smsOn) return json({ error: 'sms not configured' }, 501);
+  if (limited('sms:' + (req.headers.get('CF-Connecting-IP') || 'x'), 5)) return json({ error: 'too many texts, try later' }, 429);
+  let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
+  const to = String(p.to || '').replace(/[^\d+]/g, '');
+  if (!/^\+?\d{7,15}$/.test(to)) return json({ error: 'bad number' }, 400);
+  const appUrl = (cfg.origin || '') + '/', link = String(p.link || '');
+  if (!cfg.origin || !link.startsWith(appUrl + '#add=') || link.length > 300) return json({ error: 'bad link' }, 400);
+  const name = String(p.name || 'A friend').replace(/[^\p{L}\p{N} .'-]/gu, '').trim().slice(0, 40) || 'A friend';
+  if (env.HS) {   // daily cap so the phone's plan and textbee's free tier are never exceeded
+    const day = 'sms:' + new Date().toISOString().slice(0, 10), n = +(await env.HS.get(day)) || 0;
+    if (n >= (+env.SMS_DAILY_MAX || 45)) return json({ error: 'daily text limit reached' }, 429);
+    await env.HS.put(day, String(n + 1), { expirationTtl: 2 * 86400 });
+  }
+  const dev = env.TEXTBEE_DEVICE_ID ? `devices/${encodeURIComponent(env.TEXTBEE_DEVICE_ID)}/` : '';
+  const r = await fetch(`https://api.textbee.dev/api/v1/gateway/${dev}send-sms`, { method: 'POST', headers: { 'x-api-key': env.TEXTBEE_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipients: [to], message: `${name} invited you to DriveChat, a private encrypted messenger. Tap to chat: ${link}` }) });
+  return r.ok ? json({ ok: true }) : json({ error: 'sms failed', status: r.status }, 502);
+}
 
 async function sendInvite(req, env, cfg, json, emailOn) {
   if (!emailOn) return json({ error: 'email not configured' }, 501);
