@@ -239,7 +239,28 @@ label.lbl{display:block;font-size:13px;color:var(--text-2);margin:14px 0 6px;fon
 .toast.err{background:var(--danger)}
 .banner{position:fixed;top:0;left:0;right:0;z-index:80;background:#ffb020;color:#222;display:flex;align-items:center;justify-content:center;gap:14px;padding:8px;font-size:14px;font-weight:600}
 .banner button{background:#222;color:#fff;padding:5px 12px;border-radius:8px}
-.spinner{width:28px;height:28px;border:3px solid var(--bg-3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:auto}
+.spinner{width:28px;height:28px;border-radius:50%;margin:auto;background:conic-gradient(from 90deg,transparent 0 12%,var(--accent));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3.5px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 3.5px),#000 calc(100% - 3px));animation:spin .75s linear infinite}
+.splash{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--accent) 14%,var(--bg)),var(--bg) 70%);color:var(--text-2);animation:fadein .3s ease}
+.splash .sl-logo{position:relative;width:124px;height:124px}
+.splash .sl-logo img{position:absolute;inset:auto;left:22px;top:22px;width:80px!important;height:80px!important;border-radius:22px;box-shadow:0 12px 30px -10px color-mix(in srgb,var(--accent) 60%,transparent);animation:breathe 1.8s ease-in-out infinite}
+.splash .sl-logo svg{position:absolute;inset:0;width:124px;height:124px;animation:spin 1.6s linear infinite}
+.splash .sl-logo svg{overflow:visible}.splash .sl-logo circle{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 265}
+.splash .sl-brand{font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--text)}
+.splash .msg{font-size:14px;min-height:20px;display:flex;align-items:center;gap:2px;transition:opacity .2s}
+.splash .ldots i{display:inline-block;width:4px;height:4px;margin-left:3px;border-radius:50%;background:currentColor;animation:dot 1.2s infinite}
+.splash .ldots i:nth-child(2){animation-delay:.15s}.splash .ldots i:nth-child(3){animation-delay:.3s}
+.splash .lock{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));font-size:12px;display:flex;gap:6px;align-items:center;opacity:.7}
+.ovl{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fadein .2s ease}
+.ovl .box{background:color-mix(in srgb,var(--bg) 88%,transparent);border-radius:20px;padding:22px 26px;min-width:150px;max-width:260px;text-align:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.45);animation:popbox .25s cubic-bezier(.2,.9,.3,1.2)}
+.ovl .box p{margin:12px 0 0;font-size:14px;color:var(--text-2)}
+.skel{padding:14px 12px;display:flex;flex-direction:column;gap:10px}
+.skel i{display:block;height:34px;border-radius:18px;background:linear-gradient(90deg,var(--bg-2) 0%,var(--bg-3) 50%,var(--bg-2) 100%);background-size:200% 100%;animation:shimmer 1.2s ease-in-out infinite}
+.skel i.me{align-self:flex-end;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 22%,var(--bg-2)),color-mix(in srgb,var(--accent) 34%,var(--bg-2)),color-mix(in srgb,var(--accent) 22%,var(--bg-2)));background-size:200% 100%}
+@keyframes breathe{50%{transform:scale(.94)}}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+@keyframes popbox{from{transform:scale(.9);opacity:0}}
+@keyframes fadein{from{opacity:0}}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-full{position:fixed;inset:0;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:var(--bg);z-index:40;color:var(--text-2)}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
@@ -465,6 +486,11 @@ html,body{overscroll-behavior:none}
 .mrow.pop{animation:popin .32s cubic-bezier(.2,.9,.25,1.15)}
 .mrow.me.pop{transform-origin:100% 100%}.mrow.them.pop{transform-origin:0 100%}
 .sys.pop{animation:fadein .3s ease-out}
+
+.tones{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.tones button{border:1px solid var(--line);background:var(--bg-2);color:var(--fg);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;transition:transform .12s,background .15s}
+.tones button:active{transform:scale(.94)}
+.tones button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}
 @keyframes popin{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes fadein{from{opacity:0}}
 .clock{display:inline-flex;vertical-align:middle;opacity:.7;animation:spinslow 1.4s linear infinite}
@@ -484,11 +510,11 @@ html,body{overscroll-behavior:none}
 .mrow.them.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted)::after{left:-5px;clip-path:path('M12 0 C12 9 9 14 0 16 C6 16.5 10 15 12 13.5 Z')}
 .mrow.me.last .bubble{border-bottom-right-radius:var(--radius)}
 .mrow.them.last .bubble{border-bottom-left-radius:var(--radius)}
-@media (prefers-reduced-motion: reduce){.mrow.pop,.sys.pop,.clock{animation:none}.bubble:active,.send:active{transform:none}}
+@media (prefers-reduced-motion: reduce){.mrow.pop,.sys.pop,.clock,.splash .sl-logo img,.skel i,.splash .ldots i{animation:none}.bubble:active,.send:active{transform:none}}
 </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div class="splash"><div class="sl-logo"><svg viewBox="0 0 124 124"><circle cx="62" cy="62" r="58"/></svg><img src="icon-192.png" alt=""></div><div class="sl-brand">DriveChat</div><div class="msg">Loading<span class="ldots"><i></i><i></i><i></i></span></div></div></div>
 <div class="toasts" id="toasts"></div>
 <script>
 'use strict';
@@ -500,7 +526,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '14';
+const APP_VERSION = '15';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -1540,10 +1566,55 @@ function markRead() {
 
 /* ============================ CALLS (WebRTC, signalled through Drive) ============================ */
 let call = null, ringTimer = null;
+/* Ringtones and message sounds — original tunes synthesized on the fly (no files to download). */
+const N = n => 440 * 2 ** ((n - 69) / 12);   // MIDI note -> Hz
+const RINGTONES = {
+  classic:   { name: 'Classic',   loop: 1.5, notes: [[76, 0, .2], [76, .25, .2]], wave: 'sine' },
+  marimba:   { name: 'Marimba',   loop: 2.2, notes: [[72, 0, .3], [76, .15, .3], [79, .3, .3], [84, .45, .5], [79, .75, .3], [84, .9, .6]], wave: 'triangle', pluck: true },
+  chime:     { name: 'Chime',     loop: 2.6, notes: [[84, 0, 1.2], [79, .4, 1.2], [76, .8, 1.6]], wave: 'sine', bell: true },
+  pickleball:{ name: 'Pickleball',loop: 1.8, notes: [[67, 0, .07], [67, .32, .07], [74, .64, .07], [79, .86, .12]], wave: 'square', dink: true },
+  bounce:    { name: 'Bounce',    loop: 2,   notes: [[72, 0, .12], [79, .12, .12], [76, .24, .12], [84, .36, .25], [72, .8, .12], [79, .92, .12], [84, 1.04, .3]], wave: 'triangle', pluck: true },
+  retro:     { name: 'Retro',     loop: 2.4, notes: [[64, 0, .12], [67, .14, .12], [71, .28, .12], [76, .42, .3], [74, .8, .12], [71, .94, .12], [67, 1.08, .35]], wave: 'square' },
+  breeze:    { name: 'Breeze',    loop: 3.2, notes: [[69, 0, .6], [73, .3, .6], [76, .6, .6], [81, .9, 1.2]], wave: 'sine', soft: true },
+  pulse:     { name: 'Pulse',     loop: 1.4, notes: [[81, 0, .08], [81, .12, .08], [81, .24, .08]], wave: 'sine' },
+  silent:    { name: 'Silent',    loop: 0,   notes: [] }
+};
+const MSG_TONES = {
+  pop:    { name: 'Pop',    notes: [[81, 0, .12, 88]], wave: 'sine' },
+  note:   { name: 'Note',   notes: [[79, 0, .12], [84, .09, .25]], wave: 'sine', bell: true },
+  dink:   { name: 'Dink',   notes: [[79, 0, .06]], wave: 'square', dink: true },
+  glass:  { name: 'Glass',  notes: [[91, 0, .5]], wave: 'sine', bell: true },
+  bubble: { name: 'Bubble', notes: [[72, 0, .08, 84], [79, .08, .1, 91]], wave: 'sine' },
+  chirp:  { name: 'Chirp',  notes: [[88, 0, .05], [91, .07, .05], [93, .14, .08]], wave: 'triangle' },
+  none:   { name: 'None',   notes: [] }
+};
+function actx() { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {}); return audioCtx; }
+function playTune(t, vol = .14) {
+  if (!t?.notes?.length) return;
+  try {
+    const ctx = actx(), now = ctx.currentTime + .02;
+    for (const [n, at, dur, to] of t.notes) {
+      const parts = t.bell ? [[1, 1], [2.76, .35], [5.4, .12]] : t.dink ? [[1, 1], [1.5, .3]] : [[1, 1]];
+      for (const [mul, amp] of parts) {
+        const o = ctx.createOscillator(), g = ctx.createGain(), st = now + at, len = t.bell ? dur : t.pluck ? Math.min(dur, .35) : dur;
+        o.type = mul === 1 ? (t.wave || 'sine') : 'sine'; o.frequency.setValueAtTime(N(n) * mul, st);
+        if (to) o.frequency.exponentialRampToValueAtTime(N(to) * mul, st + len * .8);
+        const peak = vol * amp * (t.wave === 'square' ? .35 : 1) * (t.soft ? .8 : 1);
+        g.gain.setValueAtTime(.0001, st); g.gain.exponentialRampToValueAtTime(peak, st + (t.soft ? .12 : .008));
+        g.gain.exponentialRampToValueAtTime(.0001, st + len);
+        if (t.dink) { o.frequency.exponentialRampToValueAtTime(N(n) * mul * .97, st + len); }
+        o.connect(g).connect(ctx.destination); o.start(st); o.stop(st + len + .05);
+      }
+    }
+  } catch {}
+}
 function ringtone(on, outgoing) {
   clearInterval(ringTimer); ringTimer = null; if (!on) return;
-  const beep = () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); [0, .25].forEach(d => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.value = outgoing ? 440 : 660; g.gain.setValueAtTime(.0001, audioCtx.currentTime + d); g.gain.exponentialRampToValueAtTime(.12, audioCtx.currentTime + d + .03); g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + d + .2); o.connect(g).connect(audioCtx.destination); o.start(audioCtx.currentTime + d); o.stop(audioCtx.currentTime + d + .22); }); } catch {} };
-  beep(); ringTimer = setInterval(beep, outgoing ? 3000 : 1500);
+  const t = outgoing ? { loop: 3, notes: [[69, 0, .9], [69, 1, .9]], wave: 'sine', soft: true } : (RINGTONES[LS.get('ringtone', 'marimba')] || RINGTONES.marimba);
+  if (!t.loop) return;
+  const once = () => playTune(t, outgoing ? .06 : .16);
+  once(); ringTimer = setInterval(once, t.loop * 1000);
+  if (!outgoing && navigator.vibrate) navigator.vibrate([400, 200, 400]);
 }
 async function getMedia(video) {
   try { return await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } : false }); }
@@ -1918,13 +1989,7 @@ function renderGroupCall() {
 let audioCtx = null;
 function ping() {
   if (!S.sound) return;
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = 'sine'; o.frequency.setValueAtTime(880, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + .08);
-    g.gain.setValueAtTime(.0001, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.15, audioCtx.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + .3);
-    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + .32);
-  } catch {}
+  playTune(MSG_TONES[LS.get('msgTone', 'pop')] || MSG_TONES.pop, .15);
 }
 function preview(m) {
   if (m.del) return 'Message deleted';
@@ -1963,9 +2028,13 @@ const root = () => $('#root');
 function applyTheme() { setTimeout(() => applyChatTheme(true), 0); document.documentElement.dataset.theme = S.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : S.theme; }
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
 const logoHtml = () => `<div class="logo">${I.chat}</div>`;
+const SPLASH = t => `<div class="splash" id="splash"><div class="sl-logo"><svg viewBox="0 0 124 124"><circle cx="62" cy="62" r="58"/></svg><img src="icon-192.png" alt=""></div><div class="sl-brand">DriveChat</div><div class="msg" id="splash-msg">${esc(t)}<span class="ldots"><i></i><i></i><i></i></span></div><div class="lock">${iconSm('lock', 13)} End-to-end encrypted</div></div>`;
 function showLoading(text, overlay = false) {
-  if (overlay) { hideLoading(); const d = document.createElement('div'); d.className = 'loading-full'; d.id = 'loading'; d.style.background = 'rgba(0,0,0,.25)'; d.innerHTML = `<div class="card" style="max-width:260px;text-align:center"><div class="spinner"></div><p class="muted">${esc(text)}</p></div>`; document.body.appendChild(d); return; }
-  root().innerHTML = `<div class="loading-full"><div class="spinner"></div><div>${esc(text)}</div></div>`;
+  text = String(text).replace(/…$/, '');
+  if (overlay) { hideLoading(); const d = document.createElement('div'); d.className = 'ovl'; d.id = 'loading'; d.innerHTML = `<div class="box"><div class="spinner"></div><p>${esc(text)}</p></div>`; document.body.appendChild(d); return; }
+  const m = $('#splash-msg');   // already showing: just swap the words, no flash
+  if (m && root().contains(m)) { m.style.opacity = 0; setTimeout(() => { m.firstChild.textContent = text; m.style.opacity = 1; }, 150); return; }
+  root().innerHTML = SPLASH(text);
 }
 function hideLoading() { $('#loading')?.remove(); }
 
@@ -2215,7 +2284,7 @@ function renderTyping() {
   const typers = typingIn(c); let el = $('#typing-row');
   if (!typers.length) { el?.remove(); return; }
   if (!el) { el = document.createElement('div'); el.id = 'typing-row'; el.className = 'typing-row'; const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80; box.appendChild(el); if (near) box.scrollTop = box.scrollHeight; }
-  el.innerHTML = `<div class="avs">${avatarHtml(typers[0], 30)}</div><div class="dots"><i></i><i></i><i></i></div>`;
+  el.innerHTML = `<div class="avs">${avatarHtml(typers[0], 30)}</div><div class="ldots"><i></i><i></i><i></i></div>`;
 }
 function attHtml(m) {
   const a = m.a, mime = a.m || '';
@@ -2236,7 +2305,7 @@ function renderMessages(force = false) {
   box.dataset.sig = sig2; box.dataset.cid = c.id;
   let html = '';
   if (c.hasMore && c.loaded) html += `<button class="load-more" id="load-more">${c.loading ? 'Loading…' : 'Load earlier messages'}</button>`;
-  if (!c.loaded) html += '<div class="spinner" style="margin:30px auto"></div>';
+  if (!c.loaded) html += '<div class="skel"><i style="width:46%"></i><i class="me" style="width:38%"></i><i style="width:62%"></i><i style="width:30%"></i><i class="me" style="width:54%"></i><i style="width:42%"></i></div>';
   if (c.loaded && !c.hasMore) html += `<div class="sys" style="margin:20px auto 10px">${convoAvatar(c, 72)}<div style="margin-top:10px;font-weight:700;color:var(--text);font-size:16px">${esc(convoTitle(c))}</div><div class="note" style="text-align:left;margin-top:10px">${iconSm('lock', 16)}<span>Messages and calls are end-to-end encrypted. They're stored in each sender's own Google Drive, and only people in this chat can read them.</span></div></div>`;
   let lastMine = null; for (const m of msgs) if (m.from === S.outbox && !m.sys && !m.log && !m.tmp) lastMine = m;
   let prev = null;
@@ -3070,7 +3139,10 @@ function settingsModal() {
     <label class="lbl">Notifications</label>
     <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-notif" ${S.notify ? 'checked' : ''}> Show notifications</label>
     <div class="small muted" style="margin:2px 0 8px">${'Notification' in window && Notification.permission === 'granted' ? (S.myPush ? '🔔 On, including when DriveChat is closed.' : pushReady() ? '🔔 On while DriveChat is open.' : '🔔 On while DriveChat is open.') : `<button class="btn ghost" id="s-enable" style="padding:6px 12px">${iconSm('bell', 15)} Turn on notifications</button>`}</div>
-    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-sound" ${S.sound ? 'checked' : ''}> Sounds</label>
+    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-sound" ${S.sound ? 'checked' : ''}> Message sounds</label>
+    <label class="lbl">Ringtone</label><div class="tones" id="s-ring">${Object.entries(RINGTONES).map(([k, t]) => `<button data-k="${k}" class="${LS.get('ringtone', 'marimba') === k ? 'on' : ''}">${k === 'silent' ? '🔕' : '♪'} ${t.name}</button>`).join('')}</div>
+    <label class="lbl">Message sound</label><div class="tones" id="s-msgt">${Object.entries(MSG_TONES).map(([k, t]) => `<button data-k="${k}" class="${LS.get('msgTone', 'pop') === k ? 'on' : ''}">${k === 'none' ? '🔕' : '♪'} ${t.name}</button>`).join('')}</div>
+    <div class="tiny muted" style="margin:4px 0 8px">Tap to hear it. Plays while DriveChat is open; when it's closed your phone uses its notification sound.</div>
     <div class="divider">PRIVACY</div>
     <div class="note">${iconSm('lock', 18)}<span>Messages, files, calls, read receipts and typing are end-to-end encrypted. Your data is in the <b>DriveChat</b> folder of your Google Drive.</span></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost hidden" data-install id="s-install">${I.install} Install app</button><button class="btn ghost" id="s-inv">${I.userplus} Add people</button><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/${esc(S.root)}">Open in Drive</a></div>
@@ -3078,7 +3150,9 @@ function settingsModal() {
     <p class="tiny muted" style="margin:-4px 0 10px">DriveChat version ${APP_VERSION}</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-lock">${I.lock} Forget keys on this device</button><button class="btn ghost" id="s-out">${I.out} Sign out</button></div>`,
     `<button class="btn ghost" id="s-c">Cancel</button><button class="btn" id="s-save">Save</button>`);
-  let color = S.prof.c, theme = S.theme;
+  let color = S.prof.c, theme = S.theme, ring = LS.get('ringtone', 'marimba'), msgT = LS.get('msgTone', 'pop'), demo = null;
+  const pickTone = (id, lib, set) => $('#' + id, o).onclick = e => { const b = e.target.closest('button'); if (!b) return; set(b.dataset.k); $$('#' + id + ' button', o).forEach(x => x.classList.toggle('on', x === b)); clearTimeout(demo); ringtone(false); const t = lib[b.dataset.k]; playTune(t, lib === RINGTONES ? .16 : .15); if (lib === RINGTONES && t.loop) demo = setTimeout(() => playTune(t, .16), t.loop * 1000); };
+  pickTone('s-ring', RINGTONES, k => ring = k); pickTone('s-msgt', MSG_TONES, k => msgT = k);
   $('#s-col', o).onclick = e => { const b = e.target.closest('.sw'); if (!b) return; color = b.dataset.c; $$('.sw', o).forEach(x => x.classList.toggle('on', x === b)); };
   $('#s-theme', o).onclick = e => { const b = e.target.closest('button'); if (!b) return; theme = b.dataset.t; $$('#s-theme button', o).forEach(x => x.classList.toggle('on', x === b)); S.theme = theme; applyTheme(); };
   $('#s-c', o).onclick = () => { S.theme = LS.get('theme', 'system'); applyTheme(); closeModal(); };
@@ -3091,7 +3165,7 @@ function settingsModal() {
     S.prof.n = $('#s-name', o).value.trim() || S.me.name; S.prof.st = $('#s-st', o).value.trim(); S.prof.c = color;
     S.st.me = { ...S.prof }; saveState();
     S.theme = theme; LS.set('theme', theme); applyTheme();
-    S.notify = $('#s-notif', o).checked; LS.set('notify', S.notify); S.sound = $('#s-sound', o).checked; LS.set('sound', S.sound);
+    S.notify = $('#s-notif', o).checked; LS.set('notify', S.notify); S.sound = $('#s-sound', o).checked; LS.set('sound', S.sound); LS.set('ringtone', ring); LS.set('msgTone', msgT);
     if (S.notify && 'Notification' in window && Notification.permission === 'default') enableNotifications();
     closeModal(); renderMain(); toast('Saved');
     try { await publishProfile(); } catch (e) { toast(e.message, true); }
