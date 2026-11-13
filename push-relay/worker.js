@@ -113,7 +113,8 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM), smsOn = !!(env.TEXTBEE_API_KEY || TEXTBEE_API_KEY);
     if (req.method === 'GET' && new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
-    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, sms: smsOn, hs: !!env.HS });
+    if (new URL(req.url).pathname === '/code') return inviteCodeRoute(req, env, cfg, json, okOrigin);
+    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, sms: smsOn, code: !!env.HS, hs: !!env.HS });
     if (req.method !== 'POST') return json({ error: 'method' }, 405);
     if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
     if (new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
@@ -148,6 +149,7 @@ async function sendSms(req, env, cfg, json, smsOn) {
   const appUrl = (cfg.origin || '') + '/', link = String(p.link || '');
   if (!cfg.origin || !link.startsWith(appUrl + '#add=') || link.length > 300) return json({ error: 'bad link' }, 400);
   const name = String(p.name || 'A friend').replace(/[^\p{L}\p{N} .'-]/gu, '').trim().slice(0, 40) || 'A friend';
+  const code = env.HS ? await codeFor(env, link) : null;
   if (env.HS) {   // daily cap so the phone's plan and textbee's free tier are never exceeded
     const day = 'sms:' + new Date().toISOString().slice(0, 10), n = +(await env.HS.get(day)) || 0;
     if (n >= (+env.SMS_DAILY_MAX || 45)) return json({ error: 'daily text limit reached' }, 429);
@@ -155,8 +157,42 @@ async function sendSms(req, env, cfg, json, smsOn) {
   }
   const dev = env.TEXTBEE_DEVICE_ID ? `devices/${encodeURIComponent(env.TEXTBEE_DEVICE_ID)}/` : '';
   const r = await fetch(`https://api.textbee.dev/api/v1/gateway/${dev}send-sms`, { method: 'POST', headers: { 'x-api-key': env.TEXTBEE_API_KEY || TEXTBEE_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ recipients: [to], message: `${name} invited you to DriveChat, a private encrypted messenger. Tap to chat: ${link}` }) });
+    body: JSON.stringify({ recipients: [to], message: code ? smsText(name, code, cfg.origin) : `${name} invited you to DriveChat, a private encrypted messenger. Tap to chat: ${link}` }) });
   return r.ok ? json({ ok: true }) : json({ error: 'sms failed', status: r.status }, 502);
+}
+
+/* Invite codes: Philippine networks block every person-to-person SMS that contains a link, so texts
+   carry a short code instead. The friend opens DriveChat and types the code. */
+const CODE_ABC = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+const fmtCode = c => c.slice(0, 3) + '-' + c.slice(3);
+function smsText(name, code, origin) {
+  const host = new URL(origin).host.replace(/\./g, ' dot ');   // spelled out so carriers don't treat it as a link
+  return `${name} invited you to chat on DriveChat, a private encrypted messenger. Open ${host} in your browser and enter invite code ${fmtCode(code)}`;
+}
+async function codeFor(env, link) {
+  const k = 'cl:' + link.split('#add=')[1];
+  let c = await env.HS.get(k);
+  if (!c) {
+    const b = crypto.getRandomValues(new Uint8Array(6)); c = [...b].map(x => CODE_ABC[x % 32]).join('');
+    await env.HS.put('c:' + c, link, { expirationTtl: 60 * 86400 }); await env.HS.put(k, c, { expirationTtl: 59 * 86400 });
+  }
+  return c;
+}
+async function inviteCodeRoute(req, env, cfg, json, okOrigin) {
+  if (!env.HS) return json({ error: 'kv not configured' }, 501);
+  if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
+  if (limited('code:' + (req.headers.get('CF-Connecting-IP') || 'x'), 30)) return json({ error: 'slow down' }, 429);
+  if (req.method === 'GET') {
+    const c = (new URL(req.url).searchParams.get('c') || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (c.length !== 6) return json({ error: 'bad code' }, 400);
+    const link = await env.HS.get('c:' + c, { cacheTtl: 300 });
+    return link ? json({ link }) : json({ error: 'not found' }, 404);
+  }
+  let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
+  const appUrl = (cfg.origin || '') + '/', link = String(p.link || '');
+  if (!cfg.origin || !link.startsWith(appUrl + '#add=') || link.length > 300) return json({ error: 'bad link' }, 400);
+  const c = await codeFor(env, link);
+  return json({ c: fmtCode(c), text: smsText(String(p.name || 'A friend').replace(/[^\p{L}\p{N} .'-]/gu, '').slice(0, 40) || 'A friend', c, cfg.origin) });
 }
 
 async function sendInvite(req, env, cfg, json, emailOn) {

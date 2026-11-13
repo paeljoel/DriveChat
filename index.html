@@ -491,6 +491,8 @@ html,body{overscroll-behavior:none}
 .tones button{border:1px solid var(--line);background:var(--bg-2);color:var(--fg);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;transition:transform .12s,background .15s}
 .tones button:active{transform:scale(.94)}
 .tones button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}
+.codebox{margin:14px 0 0;font-size:14px}.codebox summary{cursor:pointer;color:var(--accent);font-weight:600;list-style:none}.codebox summary::-webkit-details-marker{display:none}
+.codebox .field{text-transform:uppercase;letter-spacing:.12em;font-weight:600}
 @keyframes popin{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
 @keyframes fadein{from{opacity:0}}
 .clock{display:inline-flex;vertical-align:middle;opacity:.7;animation:spinslow 1.4s linear infinite}
@@ -526,7 +528,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '17';
+const APP_VERSION = '18';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -2081,11 +2083,13 @@ function showSignIn(err) {
       <p class="muted small">${invite ? 'Sign in with Google to start chatting. It\'s free and takes a few seconds.' : 'Sign in with your Google account. It\'s free, with no new password to remember.'}</p>
       <button class="gbtn" id="signin"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg><span>Continue with Google</span></button>
       ${err ? `<p class="small" style="color:var(--danger);margin:12px 0 0">${esc(err)}</p>` : ''}
+      ${invite || !CONFIG.pushRelay ? '' : `<details class="codebox"><summary>Got an invite code?</summary><div class="row-inline" style="margin-top:8px"><input class="field" id="code-in" placeholder="ABC-123" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="btn" id="code-go">Continue</button></div></details>`}
       <div class="trust">${iconSm('shield', 15)}<span>DriveChat can only see the files it creates, never the rest of your Drive.</span></div>
       <button class="install-link hidden" data-install id="land-install">${iconSm('install', 16)} Install the app</button>
       <div class="legal"><a href="privacy.html">Privacy</a><span>·</span><a href="terms.html">Terms</a>${CONFIG.clientId ? '' : '<span>·</span><button id="reset-cid">Owner setup</button>'}</div>
     </section>
   </div></div>`;
+  const cg = $('#code-go'); if (cg) { const go = async () => { cg.disabled = true; try { const l = await resolveCode($('#code-in').value); const L = l && parseLink(l); if (!L) throw new Error('Enter the 6-character code from the text, like ABC-123.'); LS.set('pendingAdd', L.o + (L.r ? '.' + L.r : '')); showSignIn(); } catch (e) { toast(e.message, true); cg.disabled = false; } }; cg.onclick = go; $('#code-in').onkeydown = e => { if (e.key === 'Enter') go(); }; }
   $('#signin').onclick = async () => { try { await requestToken(LS.get('lastEmail') ? '' : 'select_account'); await afterSignIn(); } catch (e) { showSignIn(e.message); } };
   const r = $('#reset-cid'); if (r) r.onclick = () => showSetup();
   $('#land-install').onclick = () => installApp(); refreshInstallUI();
@@ -3027,6 +3031,21 @@ function inviteText(link) {
     short: `Let's chat on DriveChat 💬 Private, end-to-end encrypted messages and calls. Tap to connect with me:`,
     body: `Hi!\n\nLet's chat on DriveChat. It's a private messenger: our messages and calls are end-to-end encrypted and stored in our own Google Drives.\n\nTap here to connect with me:\n${link}\n\nSee you there,\n${me}` };
 }
+/* Short invite codes (for SMS: Philippine networks block texts that contain links). */
+const CODE_RE = /^\s*([2-9A-HJ-NP-Z]{3})[-\s]?([2-9A-HJ-NP-Z]{3})\s*$/i;
+async function inviteCode(link) {
+  const cached = LS.get('invcode', {}); if (cached[link]) return cached[link];
+  if (!(await relayInfo())?.code) return null;
+  try { const r = await fetch(relayBase() + '/code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link, name: S.prof.n || S.me.name }) });
+    if (!r.ok) return null; const j = await r.json(); LS.set('invcode', { [link]: j }); return j; } catch { return null; }
+}
+async function resolveCode(code) {
+  const m = String(code).match(CODE_RE); if (!m || !CONFIG.pushRelay) return null;
+  const r = await fetch(relayBase() + '/code?c=' + (m[1] + m[2]).toUpperCase(), { cache: 'no-store' });
+  if (r.status === 404) throw new Error('That invite code doesn\'t exist or has expired.');
+  if (!r.ok) throw new Error('Couldn\'t check the code. Try again.');
+  return (await r.json()).link;
+}
 async function emailInvite(to, link) {
   const info = await relayInfo();
   if (info?.email) {
@@ -3071,7 +3090,7 @@ async function addPeopleModal(note = '') {
       <p class="tiny muted" id="mail-hint">Opens your email with a ready-to-send invite.</p>
     </div>
     <div class="divider">HAVE A FRIEND'S LINK?</div>
-    <div class="row-inline"><input class="field" id="paste-link" placeholder="Paste it here"><button class="btn ghost" id="paste-go">Add</button></div>`);
+    <div class="row-inline"><input class="field" id="paste-link" placeholder="Paste a link or invite code" autocapitalize="characters"><button class="btn ghost" id="paste-go">Add</button></div>`);
   relayInfo().then(i => { if (i?.sms) { const sl = $('#sms-slot', o); if (sl && !sl.innerHTML.trim()) sl.innerHTML = tile('sms', '#34C759', SMS, 'Text'); const hp = $('#sms-row .tiny', o); if (hp) hp.textContent = 'We\'ll text them your invite link right away.'; } const h = $('#mail-hint'); if (h && i?.email) h.textContent = 'We\'ll email them a personal invite with your photo and an Accept button.'; });
   const link = await freshInviteLink();
   if (!$('#my-link', o)) return;
@@ -3100,7 +3119,8 @@ async function addPeopleModal(note = '') {
       } catch {}
       b.disabled = false; b.textContent = 'Text';
     }
-    location.href = 'sms:' + ph + '?&body=' + encodeURIComponent(t.short + ' ' + link);   // ?&body works on both iPhone and Android
+    const ic = await inviteCode(link);   // links in texts are blocked by PH networks, so send a code when we can
+    location.href = 'sms:' + ph + '?&body=' + encodeURIComponent(ic ? ic.text : t.short + ' ' + link);   // ?&body works on both iPhone and Android
   };
   $('#inv-text', o).onclick = textIt; $('#inv-phone', o).onkeydown = e => { if (e.key === 'Enter') textIt(); };
   const pk = $('#inv-pick', o); if (pk) pk.onclick = async () => { try { const [c] = await navigator.contacts.select(['tel'], { multiple: false }); if (c?.tel?.[0]) { $('#inv-phone', o).value = c.tel[0]; textIt(); } } catch {} };
@@ -3112,7 +3132,9 @@ async function addPeopleModal(note = '') {
     catch (e) { toast(e.message, true); btn.disabled = false; btn.textContent = 'Send'; }
   };
   $('#inv-send', o).onclick = send; $('#inv-email', o).onkeydown = e => { if (e.key === 'Enter') send(); };
-  $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); parseJoin(v) ? acceptGroupLink(v) : acceptLink(v); };
+  $('#paste-go', o).onclick = async () => { let v = $('#paste-link', o).value;
+    if (CODE_RE.test(v)) { try { v = await resolveCode(v); } catch (e) { return toast(e.message, true); } }
+    closeModal(); parseJoin(v) ? acceptGroupLink(v) : acceptLink(v); };
 }
 function pickPeopleModal(title, exclude, onDone, { group = false } = {}) {
   const people = Object.keys(S.st.contacts).filter(o => !exclude.includes(o)).map(personOf).sort((a, b) => a.n.localeCompare(b.n));
