@@ -1,0 +1,14 @@
+{
+  "name": "DriveChat",
+  "short_name": "DriveChat",
+  "description": "Private, end-to-end encrypted chat and calls stored in your own Google Drive.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#7360f2",
+  "theme_color": "#7360f2",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

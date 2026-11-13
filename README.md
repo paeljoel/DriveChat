@@ -1,66 +1,77 @@
-# DriveChat v2: open sign-up, end-to-end encrypted, with calls
+<div align="center">
 
-DriveChat is a Messenger/Viber-style app in a single `index.html` file. Each user's messages live in their own Google Drive, and there is no server.
+<img src="icon-192.png" width="88" alt="DriveChat logo">
 
-| | v1 | **v2** |
-|---|---|---|
-| Who can sign in | Only test users you listed (max 100) | **Anyone with a Google account** |
-| Google review needed | Yes (full Drive access is a "restricted" permission) | **No.** The app uses only `drive.file`, which Google classes as non-sensitive. |
-| Access to the user's Drive | The whole Drive | **Only the files DriveChat creates** |
-| Encryption | None | **End-to-end** (messages, files, voice notes, read receipts, typing, call setup) |
-| Voice/video calls | None | **1:1 voice and video calls** (WebRTC, peer-to-peer) |
+# DriveChat
 
-## One-time owner setup (about 5 minutes, done once by you)
-This step can't be skipped. Every app that uses Google sign-in needs its own Client ID, and only the owner of a Google Cloud project can create one. After this, **your users configure nothing**.
+**Private chat that lives in your own Google Drive.**
 
-1. Go to <https://console.cloud.google.com/>, create a project, then **APIs & Services → Library** and enable **Google Drive API**.
-2. Open **Google Auth Platform** (the OAuth consent screen):
-   - **Branding:** set the app name and support email.
-   - **Audience:** choose External, then click **Publish app** so the status reads *In production*.
-   - Because DriveChat only asks for `drive.file`, Google doesn't require a review and there's no test-user limit.
-3. **Clients → Create client → Web application.** Under *Authorized JavaScript origins*, add your site, for example `https://yourname.github.io`.
-4. **Credentials → Create credentials → API key.** Restrict it as follows:
-   - *API restrictions:* Google Drive API only.
-   - *Website restrictions:* your site.
-5. Paste both values at the top of the script in `index.html`:
-   ```js
-   const CONFIG = {
-     clientId: '1234-abc.apps.googleusercontent.com',
-     apiKey:   'AIza...',
-   ```
-6. Host the file anywhere static: GitHub Pages, Netlify, Vercel, or Cloudflare Pages. Google sign-in doesn't work from `file://`; for local testing, run `python3 -m http.server 8080`.
+End-to-end encrypted messages, photos, voice notes and voice/video calls, with no company servers in the middle.
 
-## What your users do
-1. Open the site, sign in with Google, and choose a **backup password**. The password protects their encryption key, so they can read their chats on other devices.
-2. Tap **Add people**, then copy their invite link and send it to a friend through WhatsApp, SMS, email or anywhere else. They can also send the invite by email from inside the app.
-3. The friend opens the link and signs in. Both sides are then connected and can chat, send files and voice notes, make groups, and call.
+[**Open DriveChat →**](https://drivechat-7nzd.onrender.com)
+
+<img src="docs/chat.png" alt="DriveChat conversation view" width="860">
+
+</div>
+
+## Features
+
+| | |
+|---|---|
+| 🔒 **End-to-end encrypted** | Messages, photos, files, voice notes, read receipts and typing are encrypted on your device. |
+| 📞 **Voice & video calls** | One-to-one calls that go straight between devices, also encrypted. |
+| 💬 **Everything you expect** | Groups, replies, reactions, edits, deletes, read receipts, typing indicators and online status. |
+| 📁 **Your data, your Drive** | Everything is stored in a `DriveChat` folder in your own Google Drive. Delete it any time. |
+| 🛡️ **Minimal permissions** | DriveChat can only see the files it creates, never the rest of your Drive. |
+| 📱 **Works everywhere** | Desktop and mobile browsers. Add it to your home screen and it runs like an app. |
+
+<div align="center">
+<img src="docs/invite.png" alt="Invite screen" width="560">&nbsp;&nbsp;
+<img src="docs/landing-mobile.png" alt="Mobile invite" width="190">
+</div>
+
+## How to use it
+
+1. Open the app and **sign in with Google**.
+2. Create a **backup password**. It protects your encryption key, so you can read your chats on other devices.
+3. Tap **Add people** and send your invite link to a friend.
+4. When they open it and sign in, you're connected.
 
 ## How it works
-```
-Alice's Google Drive                         Bob's Google Drive
-└── DriveChat/  (private)                    └── DriveChat/  (private)
-    ├── identity   ← key, locked with her        ├── identity
-    │                backup password             ├── state
-    ├── state      ← contacts and group keys,    └── outbox/  (link-readable)
-    │                encrypted                       ├── profile
-    └── outbox/  (link-readable, all ciphertext)     ├── status
-        ├── profile   name, photo, public key        └── <chat-id> …
-        ├── status    online status; read receipts
-        │             and typing are encrypted
-        ├── <chat-id> one encrypted file per message or reaction
-        └── a         encrypted attachments
-```
-- **Who writes where.** Each person writes only to their own outbox. Friends read it with the public API key, which `drive.file` allows without seeing anything else in the person's Drive.
-- **Encryption.** Each person has a P-256 key pair. Every 1:1 chat gets a shared AES-256-GCM key, agreed between the two key pairs (ECDH) and never sent anywhere. Groups get a random AES key, sent to each member through their encrypted 1:1 chat.
-- **Security codes.** Each 1:1 chat's info panel shows a **security code**. If both people see the same code, nobody is intercepting the chat.
-- **Calls.** The call setup messages travel through Drive, encrypted. After that, audio and video go directly between the two browsers, encrypted with DTLS-SRTP. Ringing starts about 2–6 seconds after you press call.
-- **Syncing.** The app checks the chat you have open about every 2 seconds and other contacts every 5–8 seconds, and slows down when the tab is in the background.
 
-## Limits
-- **Some calls won't connect.** On strict corporate or mobile networks (roughly 1 in 10 connections), browsers can't find a direct path. Adding a TURN server to `CONFIG.iceServers` fixes this. Free and paid TURN services exist; you'd sign up for one.
-- **Work and school accounts may be blocked.** Their admins often disable link sharing, which DriveChat needs. Personal Gmail accounts work.
-- **Some details are visible to anyone who has a person's invite link.** That includes the person's name, email, photo, and when they posted (but nothing they wrote). Message contents, files, read receipts and typing stay encrypted.
-- **Lost passwords can't be recovered.** If someone loses their backup password and all their logged-in devices, they can start over with new keys, but their old messages become unreadable.
-- **Usage limits are shared.** The API key's free request allowance covers all your users together. That's comfortable for dozens of simultaneously active users. For more, request a free quota increase in Cloud Console.
-- **Group membership changes don't change the key.** Removing someone from a group doesn't rotate its key, so they could still decrypt new group messages if they kept reading the files. For true removal, start a new group.
-- **One part is untested on real Google.** When a friend opens your link, the app tries to connect you automatically by creating a file with an ID your link carries. Everything was tested against a simulated Drive with Google's permission rules, not against Google itself. If Google rejects that step, the app falls back to sending you a Google share email with their link, and either of you can also paste the other's link under **Add people**.
+DriveChat is a single static web page with no backend.
+
+- **Storage.** Each person keeps an encrypted *outbox* folder in their own Google Drive. Friends' apps read it to receive messages.
+- **Encryption.** Every user has a P-256 key pair. Each one-to-one chat uses an AES-256-GCM key agreed between the two people's key pairs (ECDH), so the key never travels anywhere. Each group gets a random key that's shared through members' encrypted one-to-one chats. A per-chat *security code* lets two people confirm nobody is intercepting.
+- **Calls.** Call setup messages are encrypted and passed through Drive. The audio and video then go peer-to-peer over WebRTC, encrypted with DTLS-SRTP.
+- **Permissions.** The app uses Google's `drive.file` permission, which only covers files the app itself creates.
+
+<div align="center"><img src="docs/incoming-call.png" alt="Incoming call" width="620"></div>
+
+## Self-hosting
+
+Want your own copy? Follow these steps:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google Drive API**.
+2. Set up **Google Auth Platform**:
+   - **Branding:** set the app name, support email, your domain, and the privacy and terms links.
+   - **Audience:** set it to *External*, then click **Publish app**.
+3. **Clients → Create client → Web application.** Add your site's address under *Authorized JavaScript origins*.
+4. **Credentials → Create API key.** Restrict it to the Google Drive API and to your website.
+5. Paste both values into `CONFIG` at the top of `index.html`.
+6. Host the files on any static host, such as GitHub Pages, Netlify, Render or Vercel.
+
+| File | What it is |
+|---|---|
+| `index.html` | The whole app |
+| `privacy.html`, `terms.html` | Privacy policy and terms of service |
+| `manifest.webmanifest`, `icon-*.png` | Lets people install the app on their home screen |
+| `og.png` | The preview image shown when the link is shared |
+
+## Good to know
+
+- **Some calls won't connect.** On very strict networks, peer-to-peer calls can fail. Adding a TURN server to `CONFIG.iceServers` fixes this.
+- **Work and school accounts.** Some Google Workspace admins block link sharing, which DriveChat needs. Personal Gmail accounts always work.
+- **Lost backup passwords can't be recovered.** If you lose it and every signed-in device, older messages can't be decrypted.
+
+[Privacy Policy](https://drivechat-7nzd.onrender.com/privacy.html) · [Terms of Service](https://drivechat-7nzd.onrender.com/terms.html)
