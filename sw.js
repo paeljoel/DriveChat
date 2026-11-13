@@ -1,6 +1,6 @@
 /* DriveChat service worker: makes the app installable, loads it instantly,
    shows a friendly offline page, and delivers notifications on Android. */
-const VERSION = 'dc-v7';
+const VERSION = 'dc-v8';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'privacy.html', 'terms.html'];
 
 self.addEventListener('install', e => {

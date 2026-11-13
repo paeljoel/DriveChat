@@ -371,6 +371,58 @@ html,body{overscroll-behavior:none}
 .stile:hover{background:var(--bg-2)}
 .stile-ic{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:transform .12s}
 .stile:hover .stile-ic{transform:translateY(-2px)}
+
+/* ---------- groups ---------- */
+.qas{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.qa{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--text-2);min-width:58px}
+.qa>span{width:42px;height:42px;border-radius:50%;background:var(--bg-2);color:var(--accent);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.qa:hover>span{background:var(--accent-soft)} .qa .icon{width:20px;height:20px}
+.gdesc{max-width:260px;white-space:pre-wrap;color:var(--text-2)}
+.pill{margin-left:auto;font-size:11px;font-weight:700;color:var(--ok);background:rgba(34,160,107,.12);padding:2px 8px;border-radius:10px}
+.role{font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;margin-right:2px}
+.mline .ibtn{width:32px;height:32px}
+.addic{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+.toggle-row{display:flex;align-items:center;gap:12px;padding:8px 4px;cursor:pointer}
+.toggle-row span{flex:1;min-width:0;font-size:14px}.toggle-row small{display:block;color:var(--text-3);font-size:12px;margin-top:2px}
+.toggle-row input{appearance:none;width:44px;height:26px;border-radius:13px;background:var(--bg-3);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
+.toggle-row input:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.toggle-row input:checked{background:var(--accent)}.toggle-row input:checked:after{transform:translateX(18px)}
+.mention{font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:0 3px}
+.mrow.me .mention{color:#fff;background:rgba(255,255,255,.22)}
+.mention.me{background:#ffe08a;color:#5a4300}
+.bubble.mentions-me{box-shadow:0 0 0 2px #ffd34d}
+.fwd{font-size:11.5px;opacity:.75;margin-bottom:3px;display:flex;align-items:center;gap:4px;font-style:italic}
+.mention-pop{padding:4px;min-width:200px}.mention-pop .pi{gap:8px;padding:6px 10px}.mention-pop .pi.on{background:var(--accent-soft)}
+.pinbar{display:flex;align-items:center;gap:4px;padding:6px 10px 6px 14px;border-bottom:1px solid var(--line);background:var(--bg)}
+.pin-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left}
+.pin-ic{font-size:16px}.pin-t{min-width:0;font-size:13px;border-left:3px solid var(--accent);padding-left:8px}
+.pin-t b{display:block;font-size:12px;color:var(--accent)}.pin-t span{display:block;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bubble.pollb{min-width:min(300px,70vw);white-space:normal}
+.poll-q{font-weight:700;margin:2px 2px 10px;font-size:15px}
+.popt{position:relative;display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;margin-bottom:6px;border-radius:12px;background:rgba(127,127,127,.12);overflow:hidden;text-align:left;font-size:14px;color:inherit}
+.popt .pbar{position:absolute;left:0;top:0;bottom:0;background:rgba(115,96,242,.22);transition:width .3s}
+.mrow.me .popt{background:rgba(255,255,255,.16)}.mrow.me .popt .pbar{background:rgba(255,255,255,.28)}
+.popt>*:not(.pbar){position:relative}
+.pchk{width:20px;height:20px;border-radius:50%;border:2px solid currentColor;opacity:.6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.popt.on .pchk{opacity:1;background:var(--accent);border-color:var(--accent);color:#fff}.mrow.me .popt.on .pchk{background:#fff;color:var(--accent);border-color:#fff}
+.ptxt{flex:1;min-width:0}.pcnt{font-size:12px;font-weight:700;opacity:.85}.pfaces{display:flex}.pfaces .av{margin-left:-5px;border:2px solid var(--bg);border-radius:50%}
+.poll-f{font-size:12px;opacity:.7;margin:2px 2px 0}
+/* group call */
+.callui.gcall{justify-content:flex-start;padding:max(14px,env(safe-area-inset-top)) 12px 120px}
+.gc-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:12px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.gc-top b{font-size:18px}.gc-top span{font-size:13px;opacity:.85}
+.gc-grid{flex:1;width:100%;max-width:1100px;display:grid;gap:10px;grid-template-columns:1fr;grid-auto-rows:1fr;min-height:0}
+.gc-grid[data-n="2"]{grid-template-columns:1fr 1fr}
+.gc-grid[data-n="3"],.gc-grid[data-n="4"]{grid-template-columns:1fr 1fr}
+.gc-grid[data-n="5"],.gc-grid[data-n="6"]{grid-template-columns:repeat(3,1fr)}
+.gc-grid[data-n="7"],.gc-grid[data-n="8"]{grid-template-columns:repeat(4,1fr)}
+@media (max-width:760px){.gc-grid[data-n="2"]{grid-template-columns:1fr}.gc-grid[data-n="5"],.gc-grid[data-n="6"],.gc-grid[data-n="7"],.gc-grid[data-n="8"]{grid-template-columns:1fr 1fr}}
+.gc-tile{position:relative;border-radius:18px;overflow:hidden;background:#24203a;min-height:120px}
+.gc-tile video{width:100%;height:100%;object-fit:cover;display:block}
+.gc-tile.me video{transform:scaleX(-1)}
+.gc-tile .gc-av{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
+.gc-tile.novideo video{visibility:hidden}.gc-tile.novideo .gc-av{display:flex}
+.gc-name{position:absolute;left:10px;bottom:8px;font-size:13px;font-weight:600;background:rgba(0,0,0,.45);padding:3px 10px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -689,7 +741,7 @@ const S = {
   startedAt: 0, running: false, gen: 0,
   active: null, tab: 'chats', filter: '', showInfo: false, replyTo: null, editing: null,
   muted: new Set(LS.get('muted', [])), notify: LS.get('notify', true), sound: LS.get('sound', true), theme: LS.get('theme', 'system'),
-  keyCache: new Map()
+  keyCache: new Map(), gph: new Map()
 };
 function personOf(o) {
   return S.people.get(o) || { o, n: 'Unknown', e: '', p: '', c: hashColor(o), st: '', pub: null, mt: 0, rd: {}, ty: null, ghost: true };
@@ -804,6 +856,7 @@ async function buildConvos() {
     ensureConvo(ct.cid, { kind: 'dm', peer: o, created: ct.added ? iso(ct.added) : '' });
   }
   for (const [gid, g] of Object.entries(S.st.groups)) {
+    normGroup(g);
     for (const m of g.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true);
     ensureConvo(gid, { kind: 'group', name: g.n, members: g.m.map(m => m.o), by: g.by, created: g.created ? iso(g.created) : '' });
   }
@@ -814,19 +867,29 @@ function upsertPerson(o, d, weak = false) {
   const np = { o, n: d.n || p?.n || (d.e || 'Unknown').split('@')[0], e: d.e || p?.e || '', p: d.p ?? p?.p ?? '', c: d.c || p?.c || hashColor(o), st: d.st ?? p?.st ?? '', pub: d.pub || p?.pub || null, mt: p?.mt || 0, rd: p?.rd || {}, ty: p?.ty || null, tyAt: p?.tyAt || 0 };
   S.people.set(o, np); return np;
 }
-async function convoKey(c) {
-  const ck = c.kind === 'dm' ? 'dm:' + c.peer + ':' + JSON.stringify(personOf(c.peer).pub) : 'g:' + c.id + ':' + S.st.groups[c.id]?.key;
-  if (S.keyCache.has(ck)) return S.keyCache.get(ck);
-  let k;
-  if (c.kind === 'dm') { const pb = personOf(c.peer).pub; if (!pb) throw new Error('no key for contact'); k = Crypto.derive(S.priv, pb, [S.outbox, c.peer].sort().join('|'), 'dc-dm'); }
-  else { const g = S.st.groups[c.id]; if (!g) throw new Error('unknown group'); k = Crypto.importRaw(g.key); }
-  S.keyCache.set(ck, k); k.catch(() => S.keyCache.delete(ck));
-  return k;
+function normGroup(g) { g.kv ??= 0; g.keys ??= { 0: g.key }; g.keys[g.kv] ??= g.key; g.adm ??= []; return g; }
+const gOf = c => c?.kind === 'group' ? S.st.groups[c.id] : null;
+const isAdmin = (g, o) => !!g && (o === g.by || (g.adm || []).includes(o));
+const canEdit = (g, o) => !!g && (!g.lock || isAdmin(g, o));
+function pairKey(o) {
+  const pb = personOf(o).pub; if (!pb) return Promise.reject(new Error('no key for ' + o));
+  const ck = 'pk:' + o + ':' + pb.x;
+  if (!S.keyCache.has(ck)) { const k = Crypto.derive(S.priv, pb, [S.outbox, o].sort().join('|'), 'dc-dm'); S.keyCache.set(ck, k); k.catch(() => S.keyCache.delete(ck)); }
+  return S.keyCache.get(ck);
+}
+async function convoKey(c, v) {
+  if (c.kind === 'dm') return pairKey(c.peer);
+  const g = S.st.groups[c.id]; if (!g) throw new Error('unknown group'); normGroup(g);
+  v ??= g.kv; const raw = g.keys[v]; if (!raw) throw Object.assign(new Error('missing group key v' + v), { missingKey: true });
+  const ck = 'g:' + c.id + ':' + v + ':' + raw;
+  if (!S.keyCache.has(ck)) { const k = Crypto.importRaw(raw); S.keyCache.set(ck, k); k.catch(() => S.keyCache.delete(ck)); }
+  return S.keyCache.get(ck);
 }
 
 /* ============================ RECORDS (encrypted messages in my outbox) ============================ */
 async function writeRecord(c, payload, fileId) {
-  const sealed = await Crypto.seal(await convoKey(c), payload);
+  const g = gOf(c); if (g) normGroup(g);
+  const sealed = (g?.kv ? `g${g.kv}.` : '') + await Crypto.seal(await convoKey(c), payload);
   if (sealed.length <= INLINE_MAX) {
     return fileId ? patchMeta(fileId, { description: sealed }) : createMeta({ name: c.id, parents: [S.outbox], mimeType: 'text/plain', description: sealed });
   }
@@ -848,7 +911,12 @@ async function processFile(f, o, live, known) {
     if (!convoMembers(c).includes(o) && !(c.kind === 'group')) return;
     if (f.trashed) { c.msgs.delete(f.id); scheduleRender(); return; }
     let p = known;
-    if (!p) { try { p = await Crypto.open(await convoKey(c), await readSealed(f, o)); } catch (e) { p = { k: 'm', bad: 1 }; } }
+    if (!p) {
+      let raw = await readSealed(f, o), v;
+      const mm = c.kind === 'group' && /^g(\d+)\./.exec(raw); if (mm) { v = +mm[1]; raw = raw.slice(mm[0].length); } else if (c.kind === 'group') v = 0;
+      try { p = await Crypto.open(await convoKey(c, v), raw); }
+      catch (e) { if (e.missingKey) { (c.retry ||= new Map()).set(f.id, [f, o, live]); S.seen.delete(f.id); return; } p = { k: 'm', bad: 1 }; }
+    }
     ingestRecord(c, o, f, p, live && isNew);
   } catch (e) { console.warn('process', f.name, e); S.seen.delete(f.id); }
 }
@@ -857,7 +925,7 @@ function ingestRecord(c, from, f, p, live) {
   switch (p.k) {
     case 'm': {
       if (p.cl) for (const [k, v] of c.msgs) if (v.tmp && v.cl === p.cl) c.msgs.delete(k);
-      const m = { ...base, t: p.t || '', rp: p.rp || null, a: p.a || null, ed: !!p.ed, del: !!p.del, bad: !!p.bad, cl: p.cl };
+      const m = { ...base, t: p.t || '', rp: p.rp || null, a: p.a || null, ed: !!p.ed, del: !!p.del, bad: !!p.bad, cl: p.cl, mn: p.mn || null, fw: !!p.fw };
       c.msgs.set(f.id, m);
       if (live && from !== S.outbox && !m.del) notifyMsg(c, m);
       break;
@@ -871,8 +939,29 @@ function ingestRecord(c, from, f, p, live) {
     case 'log': c.msgs.set(f.id, { ...base, log: { video: !!p.video, dur: p.dur || 0, missed: !!p.missed, by: from } }); if (live && p.missed && from !== S.outbox) notifyMsg(c, { from, t: 'Missed call', ct: f.createdTime }); break;
     case 'call': c.msgs.set(f.id, { ...base, hidden: true }); if (live) onCallSignal(c, from, p, f); break;
     case 'ginv': c.msgs.set(f.id, { ...base, hidden: true }); onGroupInvite(from, p, f); break;
-    case 'gupd': c.msgs.set(f.id, { ...base, sys: p.sys || 'updated the group' }); onGroupUpdate(c, from, p, f); break;
+    case 'gupd': { const accepted = onGroupUpdate(c, from, p, f) !== false; c.msgs.set(f.id, p.sys && accepted ? { ...base, sys: p.sys } : { ...base, hidden: true }); break; }
     case 'gleave': c.msgs.set(f.id, { ...base, sys: 'left the group' }); onGroupLeave(c, from, f); break;
+    case 'gkey': c.msgs.set(f.id, { ...base, hidden: true }); onGroupKey(c, from, p, f); break;
+    case 'poll': c.msgs.set(f.id, { ...base, poll: { q: p.q, o: p.o || [], mul: !!p.mul } }); if (live && from !== S.outbox) notifyMsg(c, { from, t: '📊 ' + p.q, ct: f.createdTime }); break;
+    case 'vote': {
+      c.msgs.set(f.id, { ...base, hidden: true });
+      if (!c.votes) c.votes = new Map(); if (!c.votes.has(p.to)) c.votes.set(p.to, new Map());
+      const vm = c.votes.get(p.to), cur = vm.get(from);
+      if (!cur || !cur.ct || f.createdTime >= cur.ct || f.id === cur.fid) vm.set(from, { ch: p.ch || [], ct: f.modifiedTime, fid: f.id });
+      break;
+    }
+    case 'pin': {
+      const g = gOf(c); const ok = !g || canEdit(g, from);
+      c.msgs.set(f.id, ok ? { ...base, sys: p.to ? 'pinned a message' : 'unpinned a message', icon: null } : { ...base, hidden: true });
+      if (ok && (!c.pinRec || f.createdTime > c.pinRec.ct)) c.pinRec = { to: p.to, ct: f.createdTime, from };
+      break;
+    }
+    case 'gcall': {
+      if (p.op === 'start') c.msgs.set(f.id, { ...base, gcall: { id: p.id, video: !!p.video } }); else c.msgs.set(f.id, { ...base, hidden: true });
+      onGroupCallRecord(c, from, p, f, live); break;
+    }
+    case 'hide': { c.msgs.set(f.id, { ...base, hidden: true }); const g = gOf(c); if (g && isAdmin(g, from)) (c.adminHidden ||= new Set()).add(p.to); break; }
+    case 'gjoin': c.msgs.set(f.id, { ...base, sys: 'joined using the group invite link' }); break;
     default: c.msgs.set(f.id, { ...base, hidden: true });
   }
   scheduleRender();
@@ -903,6 +992,7 @@ async function ingestStatus(o, f) {
       const v = await Crypto.open(await convoKey(c), sealed);
       if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; continue; }
       if (v.rd) p.rd[cid] = v.rd;
+      (p.mu ||= {})[cid] = !!v.mu;
       if ('push' in v) p.push = v.push; if ('vis' in v) p.vis = !!v.vis;
       if (v.ty && (!p.ty || p.ty.t !== v.ty) && Math.abs(v.ty - p.mt) < 15000) { p.ty = { c: cid, t: v.ty }; p.tyAt = Date.now(); }
     } catch {}
@@ -922,7 +1012,7 @@ function saveStatus(now = false) {
       if (S.myTy && !ids.includes(S.myTy.c)) ids.push(S.myTy.c);
       for (const cid of ids) {
         const c = S.convos.get(cid); if (!c) continue;
-        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0, push: S.myPush || null, vis: !document.hidden }); } catch {}
+        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0, mu: S.muted.has(cid), push: S.myPush || null, vis: !document.hidden }); } catch {}
       }
       const desc = JSON.stringify({ ls: Date.now(), s });
       if (S.files.status) await patchMeta(S.files.status, { description: desc });
@@ -944,9 +1034,10 @@ function pollTargets() {
 function pollInterval(o) {
   let ms;
   if (call && call.peer === o) ms = 1000;
+  else if (gc && gc.state === 'joined' && S.convos.get(gc.cid) && convoMembers(S.convos.get(gc.cid)).includes(o)) ms = 1000;
   else if (o === S.outbox) ms = 10000;
   else { const c = S.convos.get(S.active); ms = c && convoMembers(c).includes(o) ? 2000 : (S.st.contacts[o] ? 5000 : 8000); }
-  if (document.hidden && !(call && call.peer === o)) ms = Math.max(ms * 4, 20000);
+  if (document.hidden && !(call && call.peer === o) && !gc) ms = Math.max(ms * 4, 20000);
   return ms + (S.backoff.get(o) || 0);
 }
 async function initPeer(o) {
@@ -1028,8 +1119,9 @@ async function pendingLoop(gen) {
   while (S.running && gen === S.gen) {
     await checkHandshakes().catch(e => console.warn('handshake', e.message));
     await knockWaiting().catch(e => console.warn('knock', e.message));
-    const recent = Date.now() - (S.lastShare || 0) < 15 * 60000;
-    await new Promise(r => { pendingLoop.wake = r; setTimeout(r, document.hidden ? 300000 : recent ? 6000 : 45000); });
+    await checkGroupJoins().catch(e => console.warn('joins', e.message));
+    const recent = Date.now() - (S.lastShare || 0) < 15 * 60000, links = Object.values(S.st.groups).some(g => g.link);
+    await new Promise(r => { pendingLoop.wake = r; setTimeout(r, document.hidden ? 300000 : recent ? 6000 : links ? 15000 : 45000); });
   }
 }
 async function heartbeatLoop(gen) { while (S.running && gen === S.gen) { await sleep(HEARTBEAT_MS); if (S.running && gen === S.gen && !document.hidden) saveStatus(true); } }
@@ -1066,6 +1158,7 @@ async function freshInviteLink() {
   S.lastShare = Date.now(); pendingLoop.wake?.();
   return linkFor(S.st.myR);
 }
+function parseLinkAny(s) { return parseJoin(s) ? { join: s } : parseLink(s); }
 function parseLink(s) {
   s = String(s || '').trim();
   const m = s.match(/add=([\w-]{10,})(?:(?:~|\.|%7E)([\w-]{10,}))?/i) || s.match(/^([\w-]{20,})(?:[~.]([\w-]{10,}))?$/);
@@ -1127,65 +1220,154 @@ async function removeContact(o) {
 
 /* ============================ GROUPS ============================ */
 const memberCard = o => { const p = personOf(o); return { o, n: p.n, e: p.e, p: p.p, c: p.c, pub: p.pub }; };
+const groupMeta = g => ({ n: g.n, d: g.d || '', ph: g.ph || null, adm: g.adm || [], lock: !!g.lock, link: !!g.link, m: g.m, by: g.by, created: g.created });
 async function createGroup(name, others) {
   closeModal(); showLoading('Creating group…', true);
   try {
     const gid = 'g' + (await Crypto.sha(uid() + Math.random())).slice(0, 24);
-    const g = { key: Crypto.randRaw(), n: name, m: [S.outbox, ...others].map(memberCard), by: S.outbox, created: Date.now(), metaAt: '' };
+    const key = Crypto.randRaw();
+    const g = normGroup({ key, kv: 0, keys: { 0: key }, n: name, d: '', adm: [S.outbox], m: [S.outbox, ...others].map(memberCard), by: S.outbox, created: Date.now(), metaAt: '' });
     S.st.groups[gid] = g; saveState(true);
     const c = ensureConvo(gid, { kind: 'group', name, members: g.m.map(m => m.o), by: S.outbox, created: iso(g.created) });
     c.loaded = true; c.hasMore = false; for (const m of c.members) c.tokens[m] = null;
     for (const o of others) await sendGroupInvite(o, gid);
-    await sendRecord(c, { k: 'gupd', n: name, m: g.m, sys: `created the group${name ? ` "${name}"` : ''}` });
+    await sendRecord(c, { k: 'gupd', ...groupMeta(g), sys: `created the group${name ? ` "${name}"` : ''}` });
     hideLoading(); openConvo(gid);
   } catch (e) { hideLoading(); toast('Could not create group: ' + e.message, true); }
 }
 async function sendGroupInvite(o, gid) {
-  const g = S.st.groups[gid]; const dm = [...S.convos.values()].find(c => c.kind === 'dm' && c.peer === o);
+  const g = normGroup(S.st.groups[gid]); const dm = [...S.convos.values()].find(c => c.kind === 'dm' && c.peer === o);
   if (!dm) throw new Error('not a contact');
-  await sendRecord(dm, { k: 'ginv', gid, key: g.key, n: g.n, m: g.m, by: g.by, created: g.created });
+  await sendRecord(dm, { k: 'ginv', gid, key: g.keys[g.kv], kv: g.kv, keys: g.keys, ...groupMeta(g) });
+}
+function adoptGroup(gid, p, at) {
+  const keys = p.keys || { [p.kv || 0]: p.key };
+  const g = normGroup({ key: keys[p.kv || 0] || p.key, kv: p.kv || 0, keys, n: p.n, d: p.d || '', ph: p.ph || null, adm: p.adm || [p.by], lock: !!p.lock, link: !!p.link, m: p.m, by: p.by, created: p.created, metaAt: at });
+  S.st.groups[gid] = g; S.st.left = (S.st.left || []).filter(x => x !== gid); saveState();
+  for (const m of g.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true);
+  const c = ensureConvo(gid, { kind: 'group', name: g.n, members: g.m.map(m => m.o), by: g.by, created: iso(g.created || Date.now()) });
+  loadHistory(c); return c;
 }
 function onGroupInvite(from, p, f) {
-  if (from === S.outbox || !p.gid || S.st.groups[p.gid] || (S.st.left || []).includes(p.gid)) return;
+  if (from === S.outbox || !p.gid) return;
+  if ((S.st.left || []).includes(p.gid) && Date.parse(f.createdTime) <= (S.st.leftAt?.[p.gid] || 0)) return;
   if (!p.m?.some(m => m.o === S.outbox)) return;
-  S.st.groups[p.gid] = { key: p.key, n: p.n, m: p.m, by: p.by, created: p.created, metaAt: f.createdTime };
-  saveState();
-  for (const m of p.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true);
-  const c = ensureConvo(p.gid, { kind: 'group', name: p.n, members: p.m.map(m => m.o), by: p.by, created: iso(p.created || Date.now()) });
-  loadHistory(c);
+  const g = S.st.groups[p.gid];
+  if (g) {
+    normGroup(g); let changed = false;
+    for (const [v, k] of Object.entries(p.keys || { [p.kv || 0]: p.key })) if (!g.keys[v]) { g.keys[v] = k; changed = true; if (+v > g.kv) { g.kv = +v; g.key = k; } }
+    if (changed) { saveState(); retryGroup(S.convos.get(p.gid)); }
+    return;
+  }
+  adoptGroup(p.gid, p, f.createdTime);
   if (Date.parse(f.createdTime) > S.startedAt - 60000) toast(`${personOf(from).n} added you to ${p.n || 'a group'}`);
 }
 function onGroupUpdate(c, from, p, f) {
-  const g = S.st.groups[c.id]; if (!g) return;
+  const g = S.st.groups[c.id]; if (!g) return; normGroup(g);
   if ((g.metaAt || '') >= f.createdTime) return;
+  const admin = isAdmin(g, from), edit = canEdit(g, from);
+  if (p.m) {
+    const before = new Set(g.m.map(m => m.o)), after = new Set(p.m.map(m => m.o));
+    const removed = [...before].filter(o => !after.has(o) && o !== from), added = [...after].filter(o => !before.has(o));
+    if ((removed.length && !admin) || (added.length && !edit)) return false;      // not allowed: ignore
+  }
+  if (!edit && (p.n !== undefined || p.d !== undefined || p.ph !== undefined)) return false;
+  if (!admin && (p.adm !== undefined || p.lock !== undefined)) return false;
+  if (!edit && p.link !== undefined) return false;
   g.metaAt = f.createdTime;
   if (p.n !== undefined) { g.n = p.n; c.name = p.n; }
+  if (p.d !== undefined) g.d = p.d;
+  if (p.ph !== undefined) { g.ph = p.ph; S.gph.delete(c.id); }
+  if (p.adm !== undefined) g.adm = p.adm;
+  if (p.lock !== undefined) g.lock = p.lock;
+  if (p.link !== undefined) g.link = p.link;
   if (p.m) { g.m = p.m; c.members = p.m.map(m => m.o); for (const m of p.m) if (m.o !== S.outbox) upsertPerson(m.o, m, true); }
-  if (!c.members.includes(S.outbox)) { delete S.st.groups[c.id]; S.convos.delete(c.id); if (S.active === c.id) S.active = null; renderMain(); }
+  if (!c.members.includes(S.outbox)) {
+    delete S.st.groups[c.id]; S.st.left = [...new Set([...(S.st.left || []), c.id])]; (S.st.leftAt ||= {})[c.id] = Date.parse(f.createdTime);
+    S.convos.delete(c.id); if (S.active === c.id) { S.active = null; S.showInfo = false; }
+    toast(`You were removed from ${g.n || 'a group'}`, false, 5000); saveState(); renderMain(); return;
+  }
   saveState();
 }
 function onGroupLeave(c, from, f) {
   const g = S.st.groups[c.id]; if (!g || from === S.outbox) return;
   if ((g.metaAt || '') >= f.createdTime) return;
-  g.m = g.m.filter(m => m.o !== from); c.members = g.m.map(m => m.o); g.metaAt = f.createdTime; saveState();
+  g.m = g.m.filter(m => m.o !== from); g.adm = (g.adm || []).filter(o => o !== from); c.members = g.m.map(m => m.o); g.metaAt = f.createdTime; saveState();
 }
-async function renameGroup(c, n) {
-  const g = S.st.groups[c.id]; g.n = n; c.name = n; saveState();
-  await sendRecord(c, { k: 'gupd', n, sys: n ? `renamed the group to "${n}"` : 'removed the group name' });
+async function onGroupKey(c, from, p, f) {
+  const g = S.st.groups[c.id]; if (!g || from === S.outbox || !p.w?.[S.outbox]) return; normGroup(g);
+  if (!isAdmin(g, from) || g.keys[p.v]) return;
+  try {
+    const raw = await Crypto.open(await pairKey(from), p.w[S.outbox]);
+    g.keys[p.v] = raw; if (p.v > g.kv) { g.kv = p.v; g.key = raw; }
+    saveState(); retryGroup(c);
+  } catch (e) { console.warn('gkey', e.message); }
 }
+function retryGroup(c) {
+  if (!c?.retry?.size) return;
+  const items = [...c.retry.values()]; c.retry.clear();
+  for (const [f, o, live] of items) processFile(f, o, live);
+}
+/* new group key for everyone still in the group (after a removal or a link reset) */
+async function rotateGroupKey(c) {
+  const g = normGroup(S.st.groups[c.id]); const raw = Crypto.randRaw(), v = g.kv + 1, w = {};
+  for (const m of g.m) { if (m.o === S.outbox) continue; try { w[m.o] = await Crypto.seal(await pairKey(m.o), raw); } catch {} }
+  await sendRecord(c, { k: 'gkey', v, w });          // sealed with the OLD key; only remaining members can unwrap
+  g.keys[v] = raw; g.kv = v; g.key = raw; saveState(true);
+}
+async function updateGroup(c, patch, sys) {
+  const g = normGroup(S.st.groups[c.id]);
+  Object.assign(g, patch); if (patch.n !== undefined) c.name = patch.n; if (patch.ph !== undefined) S.gph.delete(c.id);
+  if (patch.m) c.members = patch.m.map(m => m.o);
+  saveState(); scheduleRender();
+  await sendRecord(c, { k: 'gupd', ...patch, sys });
+}
+async function renameGroup(c, n) { await updateGroup(c, { n }, n ? `renamed the group to "${n}"` : 'removed the group name'); }
 async function addToGroup(c, list) {
-  const g = S.st.groups[c.id];
+  const g = normGroup(S.st.groups[c.id]);
   list = list.filter(o => !c.members.includes(o)); if (!list.length) return;
-  g.m = [...g.m, ...list.map(memberCard)]; c.members = g.m.map(m => m.o); saveState();
+  const m = [...g.m, ...list.map(memberCard)];
+  g.m = m; c.members = m.map(x => x.o); saveState();
   for (const o of list) await sendGroupInvite(o, c.id);
-  await sendRecord(c, { k: 'gupd', m: g.m, sys: 'added ' + list.map(o => personOf(o).n).join(', ') });
+  await updateGroup(c, { m }, 'added ' + list.map(o => personOf(o).n).join(', '));
   toast('Added');
+}
+async function removeFromGroup(c, o) {
+  const g = normGroup(S.st.groups[c.id]); const name = personOf(o).n;
+  if (!confirm(`Remove ${name} from "${convoTitle(c)}"? They won't be able to read new messages.`)) return;
+  showLoading('Removing…', true);
+  try {
+    await updateGroup(c, { m: g.m.filter(x => x.o !== o), adm: (g.adm || []).filter(x => x !== o) }, `removed ${name}`);
+    await rotateGroupKey(c);
+    toast(`${name} was removed`);
+  } catch (e) { toast(e.message, true); }
+  hideLoading();
+}
+async function setAdmin(c, o, on) {
+  const g = normGroup(S.st.groups[c.id]);
+  const adm = on ? [...new Set([...(g.adm || []), o])] : (g.adm || []).filter(x => x !== o);
+  await updateGroup(c, { adm }, `${on ? 'made' : 'removed'} ${personOf(o).n} ${on ? 'an admin' : 'as admin'}`);
 }
 async function leaveGroup(c) {
   if (!confirm(`Leave "${convoTitle(c)}"?`)) return;
   try { await sendRecord(c, { k: 'gleave' }); } catch {}
-  delete S.st.groups[c.id]; S.st.left = [...(S.st.left || []), c.id]; saveState(true);
+  delete S.st.groups[c.id]; S.st.left = [...new Set([...(S.st.left || []), c.id])]; (S.st.leftAt ||= {})[c.id] = Date.now(); saveState(true);
   S.convos.delete(c.id); S.active = null; S.showInfo = false; renderMain();
+}
+async function uploadEncrypted(file) {
+  const raw = Crypto.randRaw();
+  const sealed = await Crypto.sealBytes(await Crypto.importRaw(raw), new Uint8Array(await file.arrayBuffer()));
+  const f = await uploadBlob(new Blob([sealed], { type: 'application/octet-stream' }), { name: 'a', parents: [S.outbox], mimeType: 'application/octet-stream' }, null, 'id');
+  return { id: f.id, k: raw, o: S.outbox, m: file.type || 'image/jpeg', n: file.name, z: file.size };
+}
+async function shrinkImage(file, max = 512) {
+  try {
+    const bmp = await createImageBitmap(file); const sc = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * sc); cv.height = Math.round(bmp.height * sc);
+    cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.85));
+    return new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+  } catch { return file; }
 }
 
 /* ============================ SENDING ============================ */
@@ -1201,7 +1383,7 @@ async function postMessage(c, data) {
   try {
     const f = await sendRecord(c, { k: 'm', ...data, cl });
     S.myRd[c.id] = f.createdTime; saveStatus();
-    notifyPeers(c, { t: 'msg', body: preview({ ...data, from: S.outbox }) });
+    notifyPeers(c, { t: 'msg', body: (data.mn?.length ? '@ ' : '') + preview({ ...data, from: S.outbox }), mn: data.mn || [] });
   } catch (e) { tmp.failed = true; scheduleRender(); toast('Message not sent: ' + e.message, true); }
 }
 async function sendText() {
@@ -1219,7 +1401,7 @@ async function sendText() {
   }
   const rp = S.replyTo; S.replyTo = null; renderBars();
   const chunks = []; while (text.length) { chunks.push(text.slice(0, MAX_TEXT)); text = text.slice(MAX_TEXT); }
-  for (let i = 0; i < chunks.length; i++) await postMessage(c, { t: chunks[i], rp: i === 0 ? rp : null });
+  for (let i = 0; i < chunks.length; i++) { const mn = mentionsIn(c, chunks[i]); await postMessage(c, { t: chunks[i], rp: i === 0 ? rp : null, ...(mn.length ? { mn } : {}) }); }
 }
 async function retryMsg(c, m) { c.msgs.delete(m.id); scheduleRender(); await postMessage(c, { t: m.t, rp: m.rp, a: m.a }); }
 async function deleteMsg(c, m) {
@@ -1330,7 +1512,7 @@ async function signal(k, op, extra = {}) {
   k.files.push(f.id);
 }
 async function startCall(c, video) {
-  if (call) return toast('You are already in a call');
+  if (call || gc) return toast('You are already in a call');
   if (c.kind !== 'dm') return toast('Calls work in one-to-one chats');
   if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) return toast('Calls are not supported in this browser', true);
   call = { id: uid(), cid: c.id, peer: c.peer, video, dir: 'out', state: 'calling', files: [], muted: false, camOff: false };
@@ -1351,7 +1533,7 @@ function onCallSignal(c, from, p, f) {
   if (Date.parse(f.createdTime) < S.startedAt - 5000 && Date.now() - Date.parse(f.createdTime) > 60000) return;
   if (p.op === 'offer') {
     if (Date.now() - Date.parse(f.createdTime) > 60000) return;
-    if (call) { if (call.id !== p.id) { const busy = { id: p.id, cid: c.id, files: [] }; signal(busy, 'busy').catch(() => {}); setTimeout(() => busy.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 20000); } return; }
+    if (call || gc) { if (!call || call.id !== p.id) { const busy = { id: p.id, cid: c.id, files: [] }; signal(busy, 'busy').catch(() => {}); setTimeout(() => busy.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 20000); } return; }
     call = { id: p.id, cid: c.id, peer: from, video: !!p.video, dir: 'in', state: 'ringing', offer: p.sdp, files: [], muted: false, camOff: false };
     ringtone(true, false); renderCall();
     if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { showNote(`${personOf(from).n} is calling…`, { body: p.video ? 'Video call' : 'Voice call', tag: 'call', icon: personOf(from).p || 'icon-192.png', requireInteraction: true }, c.id); }
@@ -1462,8 +1644,9 @@ function notifyPeers(c, data) {
   const msg = { ...data, cid: c.id, title: c.kind === 'group' ? `${me} · ${convoTitle(c)}` : me, icon: S.me?.photo || '' };
   if (msg.body) msg.body = String(msg.body).slice(0, 180);
   for (const o of convoMembers(c)) {
-    if (o === S.outbox || S.muted.has(c.id)) continue;
+    if (o === S.outbox) continue;
     const p = S.people.get(o); if (!p?.push) continue;
+    if (p.mu?.[c.id] && data.t === 'msg' && !(data.mn || []).includes(o)) continue;
     const away = !p.vis || Date.now() - (p.mt || 0) > 70000;
     if (data.t === 'msg' && !away) continue;          // they're looking at the app right now
     sendPush(p, msg).catch(e => console.warn('push', e.message));
@@ -1514,6 +1697,145 @@ function unlockAudio() {
   try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); const b = audioCtx.createBuffer(1, 1, 22050), src = audioCtx.createBufferSource(); src.buffer = b; src.connect(audioCtx.destination); src.start(0); audioUnlocked = true; } catch {}
 }
 
+/* ============================ GROUP CALLS (mesh, up to 8 people) ============================ */
+const GC_MAX = 8;
+let gc = null;   // { id, cid, video, state: 'ringing'|'joined', peers: Map, local, muted, camOff, t0, by }
+function gcInfo(c, id) { if (!c.gcalls) c.gcalls = new Map(); if (!c.gcalls.has(id)) c.gcalls.set(id, { id, parts: new Set(), left: new Set(), last: 0, by: null, video: false, start: 0 }); return c.gcalls.get(id); }
+function activeGroupCall(c) {
+  if (!c?.gcalls) return null; let best = null;
+  for (const x of c.gcalls.values()) { const live = [...x.parts].filter(o => !x.left.has(o)); if (live.length && Date.now() - x.last < 150000 && (!best || x.start > best.start)) best = { ...x, live }; }
+  return best;
+}
+function onGroupCallRecord(c, from, p, f, live) {
+  const x = gcInfo(c, p.id); const t = Date.parse(f.createdTime);
+  x.last = Math.max(x.last, t);
+  if (p.op === 'start') { x.by = from; x.video = !!p.video; x.start = t; x.parts.add(from); x.left.delete(from); }
+  if (p.op === 'join' || p.op === 'ping') { x.parts.add(from); if (p.op === 'join') x.left.delete(from); }
+  if (p.op === 'leave') x.left.add(from);
+  scheduleRender();
+  if (from === S.outbox || !live) return;
+  if (p.op === 'start' && !gc && !call && Date.now() - t < 60000 && !x.left.has(S.outbox)) ringGroupCall(c, x);
+  if (!gc || gc.id !== p.id || gc.state !== 'joined') return;
+  if (p.op === 'join' && S.outbox < from) gcOffer(from);
+  if (p.op === 'leave') gcDropPeer(from);
+  if (p.op === 'offer' && p.to === S.outbox) gcAnswer(from, p.sdp);
+  if (p.op === 'answer' && p.to === S.outbox) { const pr = gc.peers.get(from); pr?.pc.setRemoteDescription({ type: 'answer', sdp: p.sdp }).catch(e => console.warn('gc answer', e)); }
+}
+async function gcSignal(op, extra = {}) { const c = S.convos.get(gc.cid); await sendRecord(c, { k: 'gcall', op, id: gc.id, ...extra }); }
+function ringGroupCall(c, x) {
+  gc = { id: x.id, cid: c.id, video: x.video, state: 'ringing', peers: new Map(), by: x.by };
+  ringtone(true, false); renderGroupCall();
+  if (document.hidden) showNote(`${personOf(x.by).n} · ${convoTitle(c)}`, { body: x.video ? '📹 Group video call' : '📞 Group call', tag: 'call', requireInteraction: true }, c.id);
+  gc.ringOut = setTimeout(() => { if (gc?.state === 'ringing') { ringtone(false); gc = null; renderGroupCall(); } }, 45000);
+}
+async function startGroupCall(c, video) {
+  if (gc || call) return toast('You are already in a call');
+  const x = activeGroupCall(c); if (x) return joinGroupCall(c, x.id, video);
+  if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) return toast('Calls are not supported in this browser', true);
+  gc = { id: uid(), cid: c.id, video, state: 'joined', peers: new Map(), by: S.outbox, t0: Date.now() };
+  try { gc.local = await getMedia(video); gc.video = gc.local.getVideoTracks().length > 0; }
+  catch (e) { gc = null; return toast('Microphone/camera unavailable: ' + e.message, true); }
+  renderGroupCall();
+  await gcSignal('start', { video: gc.video });
+  notifyPeers(c, { t: 'call', body: gc.video ? '📹 Group video call' : '📞 Group call', video: gc.video });
+  gcStartTimers(c);
+}
+async function joinGroupCall(c, id, video) {
+  const x = gcInfo(c, id); const live = [...x.parts].filter(o => !x.left.has(o));
+  if (live.length >= GC_MAX) { toast('This call is full (8 people)', true); return; }
+  ringtone(false); if (gc?.ringOut) clearTimeout(gc.ringOut);
+  gc = { id, cid: c.id, video, state: 'joined', peers: new Map(), by: x.by, t0: Date.now() };
+  try { gc.local = await getMedia(video); gc.video = gc.local.getVideoTracks().length > 0; }
+  catch (e) { gc = null; renderGroupCall(); return toast('Microphone/camera unavailable: ' + e.message, true); }
+  renderGroupCall();
+  await gcSignal('join', { video: gc.video });
+  for (const o of live) if (o !== S.outbox && S.outbox < o) gcOffer(o);
+  gcStartTimers(c);
+}
+function gcStartTimers(c) {
+  gc.ping = setInterval(() => gc && gcSignal('ping').catch(() => {}), 60000);
+  gc.tick = setInterval(() => { const s = $('#gc-stat'); if (s && gc) s.textContent = `${gc.peers.size + 1} in call · ${fmtDur((Date.now() - gc.t0) / 1000)}`; }, 1000);
+  for (const o of convoMembers(c)) wakePeer(o);
+}
+function gcPeer(o) {
+  let pr = gc.peers.get(o); if (pr) return pr;
+  const pc = new RTCPeerConnection({ iceServers: CONFIG.iceServers });
+  pr = { o, pc, stream: new MediaStream(), state: 'connecting' }; gc.peers.set(o, pr);
+  gc.local.getTracks().forEach(t => pc.addTrack(t, gc.local));
+  pc.ontrack = e => { pr.stream.addTrack(e.track); renderGroupCall(); };
+  pc.onconnectionstatechange = () => {
+    pr.state = pc.connectionState; renderGroupCall();
+    if (pc.connectionState === 'failed') { toast(`Couldn't connect to ${personOf(o).n.split(' ')[0]}`, true); gcDropPeer(o); }
+  };
+  renderGroupCall(); return pr;
+}
+async function gcOffer(o) {
+  if (!gc || gc.peers.has(o)) return;
+  const pr = gcPeer(o);
+  try { await pr.pc.setLocalDescription(await pr.pc.createOffer()); await iceComplete(pr.pc); if (gc) await gcSignal('offer', { to: o, sdp: pr.pc.localDescription.sdp }); }
+  catch (e) { console.warn('gc offer', e); }
+}
+async function gcAnswer(o, sdp) {
+  if (!gc) return;
+  gcDropPeer(o, true); const pr = gcPeer(o);
+  try {
+    await pr.pc.setRemoteDescription({ type: 'offer', sdp });
+    await pr.pc.setLocalDescription(await pr.pc.createAnswer()); await iceComplete(pr.pc);
+    if (gc) await gcSignal('answer', { to: o, sdp: pr.pc.localDescription.sdp });
+  } catch (e) { console.warn('gc answer', e); }
+}
+function gcDropPeer(o, quiet) { const pr = gc?.peers.get(o); if (!pr) return; try { pr.pc.close(); } catch {} gc.peers.delete(o); if (!quiet) renderGroupCall(); }
+async function leaveGroupCall(notify = true) {
+  if (!gc) return; const k = gc; gc = null; ringtone(false);
+  [k.ping, k.tick].forEach(t => clearInterval(t)); clearTimeout(k.ringOut);
+  for (const pr of k.peers.values()) try { pr.pc.close(); } catch {}
+  k.local?.getTracks().forEach(t => t.stop());
+  $('#gcallui')?.remove();
+  if (notify && k.state === 'joined') { gc = k; try { await gcSignal('leave'); } catch {} gc = null; }
+  scheduleRender();
+}
+function renderGroupCall() {
+  if (!gc) { $('#gcallui')?.remove(); return; }
+  const c = S.convos.get(gc.cid); if (!c) return;
+  let el = $('#gcallui');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'gcallui'; el.className = 'callui gcall'; document.body.appendChild(el);
+    el.onclick = e => {
+      const a = e.target.closest('[data-c]')?.dataset.c; if (!a || !gc) return;
+      if (a === 'join-a' || a === 'join-v') joinGroupCall(c, gc.id, a === 'join-v');
+      else if (a === 'decline') { ringtone(false); clearTimeout(gc.ringOut); gc = null; renderGroupCall(); }
+      else if (a === 'end') leaveGroupCall(true);
+      else if (a === 'mute') { gc.muted = !gc.muted; gc.local?.getAudioTracks().forEach(t => t.enabled = !gc.muted); renderGroupCall(); }
+      else if (a === 'cam') { gc.camOff = !gc.camOff; gc.local?.getVideoTracks().forEach(t => t.enabled = !gc.camOff); renderGroupCall(); }
+    };
+  }
+  const btn = (k, ic, label, cls = '') => `<div class="cbtn-wrap"><button class="cbtn ${cls}" data-c="${k}">${I[ic]}</button>${label}</div>`;
+  if (gc.state === 'ringing') {
+    el.innerHTML = `<div class="cinfo"><div class="pulse" style="border-radius:50%">${convoAvatar(c, 120)}</div><b>${esc(convoTitle(c))}</b><span>${esc(personOf(gc.by).n)} started a ${gc.video ? 'video' : 'voice'} call</span><span class="e2e" style="color:#fff;opacity:.7">${iconSm('lock', 12)} End-to-end encrypted</span></div>
+      <div class="cbtns">${btn('decline', 'phoneoff', 'Decline', 'red')}${btn('join-a', 'phone', 'Join', 'green')}${gc.video ? btn('join-v', 'video', 'Video', 'green') : ''}</div>`;
+    return;
+  }
+  // joined: keep existing <video> elements so playback doesn't restart
+  if (!el.querySelector('.gc-grid')) el.innerHTML = `<div class="gc-top"><b>${esc(convoTitle(c))}</b><span id="gc-stat">${gc.peers.size + 1} in call</span></div><div class="gc-grid" id="gc-grid"></div><div class="cbtns" id="gc-btns"></div>`;
+  const grid = $('#gc-grid', el); const tiles = [{ o: S.outbox, stream: gc.local, me: true }, ...[...gc.peers.values()].map(p => ({ o: p.o, stream: p.stream, state: p.state }))];
+  grid.dataset.n = tiles.length;
+  const keep = new Set(tiles.map(t => t.o));
+  $$('.gc-tile', grid).forEach(t => { if (!keep.has(t.dataset.o)) t.remove(); });
+  for (const t of tiles) {
+    let tile = grid.querySelector(`.gc-tile[data-o="${CSS.escape(t.o)}"]`);
+    if (!tile) {
+      tile = document.createElement('div'); tile.className = 'gc-tile' + (t.me ? ' me' : ''); tile.dataset.o = t.o;
+      tile.innerHTML = `<video autoplay playsinline ${t.me ? 'muted' : ''}></video><div class="gc-av">${avatarHtml(personOf(t.o), 72)}</div><div class="gc-name"></div>`;
+      grid.appendChild(tile);
+    }
+    const v = tile.querySelector('video'); if (t.stream && v.srcObject !== t.stream) v.srcObject = t.stream;
+    const hasVideo = t.stream?.getVideoTracks().some(tr => tr.readyState === 'live' && tr.enabled !== false) && !(t.me && gc.camOff);
+    tile.classList.toggle('novideo', !hasVideo);
+    tile.querySelector('.gc-name').textContent = (t.me ? 'You' : personOf(t.o).n.split(' ')[0]) + (t.me && gc.muted ? ' · muted' : '') + (t.state && t.state !== 'connected' ? ' · connecting…' : '');
+  }
+  $('#gc-btns', el).innerHTML = btn('mute', gc.muted ? 'micoff' : 'mic', gc.muted ? 'Unmute' : 'Mute', gc.muted ? 'off' : '') + (gc.local?.getVideoTracks().length ? btn('cam', gc.camOff ? 'videooff' : 'video', gc.camOff ? 'Camera on' : 'Camera off', gc.camOff ? 'off' : '') : '') + btn('end', 'phoneoff', 'Leave', 'red');
+}
+
 /* ============================ NOTIFICATIONS ============================ */
 let audioCtx = null;
 function ping() {
@@ -1531,12 +1853,14 @@ function preview(m) {
   if (m.bad) return '🔒 Message could not be decrypted';
   if (m.sys) return `${m.from === S.outbox ? 'You' : personOf(m.from).n} ${m.sys}`;
   if (m.log) return m.log.missed ? `Missed ${m.log.video ? 'video' : 'voice'} call` : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`;
+  if (m.poll) return '📊 ' + m.poll.q;
+  if (m.gcall) return `${m.gcall.video ? '📹' : '📞'} Group call`;
   if (m.a) return m.a.v ? '🎤 Voice message' : (m.a.m || '').startsWith('image/') ? '📷 Photo' : (m.a.m || '').startsWith('video/') ? '🎬 Video' : '📎 ' + m.a.n;
   return m.t;
 }
 function notifyMsg(c, m) {
   if (Date.parse(m.ct) < S.startedAt - 5000) return;
-  if (S.muted.has(c.id)) return;
+  if (S.muted.has(c.id) && !(m.mn || []).includes(S.outbox)) return;
   if (S.active === c.id && !document.hidden && document.hasFocus()) { markRead(); return; }
   ping();
   if (S.notify && 'Notification' in window && Notification.permission === 'granted' && (document.hidden || !document.hasFocus())) {
@@ -1668,7 +1992,7 @@ function signOut() {
   accessToken = null; tokenExp = 0; localStorage.removeItem('dc_tok'); LS.del('lastEmail');
   stopApp(); showSignIn();
 }
-function stopApp() { S.running = false; S.gen++; if (call) endCall(true); }
+function stopApp() { S.running = false; S.gen++; if (call) endCall(true); if (gc) leaveGroupCall(true); }
 
 async function startApp() {
   showLoading('Decrypting…');
@@ -1685,8 +2009,9 @@ async function startApp() {
   pollLoop(gen); heartbeatLoop(gen); pendingLoop(gen); saveStatus(true);
   const all = [...S.convos.values()]; let i = 0;
   Promise.all(Array.from({ length: 3 }, async () => { while (i < all.length && gen === S.gen) await loadHistory(all[i++]).catch(() => {}); }));
-  const pendingLink = LS.get('pendingAdd'); LS.del('pendingAdd');
-  if (pendingLink) acceptLink(pendingLink);
+  const pendingLink = LS.get('pendingAdd'), pendingJoin = LS.get('pendingJoin'); LS.del('pendingAdd'); LS.del('pendingJoin');
+  if (pendingJoin) acceptGroupLink(pendingJoin);
+  else if (pendingLink) acceptLink(pendingLink);
   else { const want = LS.get('lastConvo'); if (want && S.convos.has(want) && innerWidth > 760) openConvo(want); }
   askNotifyOnGesture();
 }
@@ -1700,7 +2025,7 @@ function avatarHtml(u, size = 40, online = false, group = false) {
 }
 function convoAvatar(c, size) {
   if (c.kind === 'dm') { const p = personOf(c.peer); return avatarHtml(p, size, isOnline(p)); }
-  return avatarHtml({ n: convoTitle(c), c: hashColor(c.id) }, size, c.members.some(m => m !== S.outbox && isOnline(S.people.get(m))), true);
+  return avatarHtml({ n: convoTitle(c), c: hashColor(c.id), p: groupPhotoUrl(c) }, size, c.members.some(m => m !== S.outbox && isOnline(S.people.get(m))), true);
 }
 let stickBottom = true, renderQueued = false;
 function scheduleRender() {
@@ -1763,7 +2088,7 @@ function renderSidebarList() {
 }
 setInterval(() => { if (S.running) { renderHeader(); renderTyping(); renderSidebarList(); } }, 3000);
 function chatShell() {
-  return `<div class="chat-head" id="chat-head"></div><div id="waiting"></div>
+  return `<div class="chat-head" id="chat-head"></div><div id="pinbar"></div><div id="waiting"></div>
     <div class="msgs" id="msgs"></div>
     <div id="bars"></div><div class="uploads" id="uploads"></div>
     <div class="composer" id="composer">
@@ -1780,11 +2105,11 @@ function renderHeader() {
   else if (c.kind === 'dm') { const p = personOf(c.peer); sub = `<span>${isOnline(p) ? 'Active now' : p.mt ? 'Active ' + ago(p.mt) : `${iconSm('lock', 11)} End-to-end encrypted`}</span>`; }
   else { const on = c.members.filter(m => m !== S.outbox && isOnline(S.people.get(m))).length; sub = `<span>${c.members.length} members${on ? ` · ${on} online` : ''}</span>`; }
   el.innerHTML = `<button class="ibtn back" id="back-btn">${I.back}</button>${convoAvatar(c, 42)}<div class="who" id="who"><b>${esc(convoTitle(c))}</b>${sub}</div>
-    ${c.kind === 'dm' ? `<button class="ibtn accent" id="call-a" title="Voice call">${I.phone}</button><button class="ibtn accent" id="call-v" title="Video call">${I.video}</button>` : ''}
+    <button class="ibtn accent" id="call-a" title="${c.kind === 'dm' ? 'Voice call' : 'Group voice call'}">${I.phone}</button><button class="ibtn accent" id="call-v" title="${c.kind === 'dm' ? 'Video call' : 'Group video call'}">${I.video}</button>
     <button class="ibtn accent" id="info-btn" title="Conversation info">${I.info}</button>`;
   $('#back-btn').onclick = () => { if (history.state?.dc === 'chat') history.back(); else { S.active = null; S.showInfo = false; renderMain(); } };
   $('#info-btn').onclick = $('#who').onclick = () => { S.showInfo = !S.showInfo; if (S.showInfo && isNarrow()) history.pushState({ dc: 'info' }, ''); else if (!S.showInfo && history.state?.dc === 'info') popBack(); renderMain(); };
-  if (c.kind === 'dm') { $('#call-a').onclick = () => startCall(c, false); $('#call-v').onclick = () => startCall(c, true); }
+  $('#call-a').onclick = () => c.kind === 'dm' ? startCall(c, false) : startGroupCall(c, false); $('#call-v').onclick = () => c.kind === 'dm' ? startCall(c, true) : startGroupCall(c, true);
 }
 function renderWaiting() {
   const el = $('#waiting'); const c = S.convos.get(S.active); if (!el) return;
@@ -1823,10 +2148,12 @@ function renderMessages(force = false) {
   const box = $('#msgs'); const c = S.convos.get(S.active); if (!box || !c) return;
   const msgs = sortedMsgs(c).filter(m => !m.hidden);
   const sig = msgs.map(m => m.id + m.mt + (m.failed ? 'f' : '') + (m.del ? 'd' : '') + (m.t || '').length).join('|') + '#' + [...c.reacts.values()].map(mp => [...mp.values()].map(r => r.id + r.del).join()).join() + '#' + convoMembers(c).map(o => (personOf(o).rd[c.id] || '') + personOf(o).n + personOf(o).p).join() + c.hasMore + c.loading + c.loaded;
-  if (!force && box.dataset.sig === sig && box.dataset.cid === c.id) return;
+  const sig2 = sig + '#' + [...(c.votes || new Map()).values()].map(v => [...v.values()].map(x => x.ch.join('.')).join()).join('|') + (c.pinRec?.to || '') + (c.adminHidden?.size || 0) + (gOf(c)?.adm || []).join();
+  renderPinBar();
+  if (!force && box.dataset.sig === sig2 && box.dataset.cid === c.id) return;
   const nearBottom = stickBottom || box.scrollHeight - box.scrollTop - box.clientHeight < 120;
   const prevH = box.scrollHeight, prevTop = box.scrollTop, firstBefore = box.dataset.first;
-  box.dataset.sig = sig; box.dataset.cid = c.id;
+  box.dataset.sig = sig2; box.dataset.cid = c.id;
   let html = '';
   if (c.hasMore && c.loaded) html += `<button class="load-more" id="load-more">${c.loading ? 'Loading…' : 'Load earlier messages'}</button>`;
   if (!c.loaded) html += '<div class="spinner" style="margin:30px auto"></div>';
@@ -1837,6 +2164,8 @@ function renderMessages(force = false) {
     const d = new Date(m.ct);
     if (!prev || !sameDay(new Date(prev.ct), d)) html += `<div class="day">${esc(fmtDay(m.ct))}</div>`;
     if (m.sys) { html += `<div class="sys">${m.icon ? iconSm(m.icon, 12) + ' ' : ''}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n)}</b> ${esc(m.sys)}</div>`; prev = m; return; }
+    if (m.gcall) { const x = c.gcalls?.get(m.gcall.id); const live = x && [...x.parts].filter(o => !x.left.has(o)); const on = live?.length && Date.now() - x.last < 150000; const inIt = gc?.id === m.gcall.id && gc.state === 'joined';
+      html += `<div class="calllog">${I[m.gcall.video ? 'video' : 'phone']}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n.split(' ')[0])}</b>&nbsp;started a group ${m.gcall.video ? 'video ' : ''}call · ${esc(fmtTime(m.ct))}${on && !inIt ? `<button class="small" style="color:var(--accent);font-weight:700;margin-left:6px" data-gjoin="${esc(m.gcall.id)}" data-v="${m.gcall.video ? 1 : 0}">Join (${live.length})</button>` : on ? ' · <span style="color:var(--ok)">in call</span>' : ''}</div>`; prev = m; return; }
     if (m.log) { const out = m.log.by === S.outbox; html += `<div class="calllog${m.log.missed ? ' missed' : ''}">${I[m.log.video ? 'video' : 'phone']}${m.log.missed ? (out ? `${personOf(c.peer).n.split(' ')[0]} missed your call` : `Missed ${m.log.video ? 'video' : 'voice'} call`) : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`} · ${esc(fmtTime(m.ct))}${c.kind === 'dm' ? `<button class="small" style="color:var(--accent);font-weight:600;margin-left:6px" data-callback="${m.log.video ? 'v' : 'a'}">Call back</button>` : ''}</div>`; prev = m; return; }
     const next = msgs[i + 1];
     const plain = x => x && !x.sys && !x.log;
@@ -1846,11 +2175,14 @@ function renderMessages(force = false) {
     const cls = ['mrow', minee ? 'me' : 'them', grpWithPrev ? '' : 'first', grpWithNext ? '' : 'last'].join(' ');
     let inner = '', bcls = 'bubble';
     if (m.rp && !m.del) { const q = c.msgs.get(m.rp); inner += `<div class="quote" data-act="jump" data-to="${esc(m.rp)}"><b>${esc(q ? (q.from === S.outbox ? 'You' : personOf(q.from).n) : 'Message')}</b>${esc(q ? preview(q) : 'Original message not loaded')}</div>`; }
-    if (m.del) { bcls += ' deleted'; inner = 'This message was deleted'; }
+    if (m.fw && !m.del) inner += `<div class="fwd">${iconSm('reply', 12).replace('<svg', '<svg style="transform:scaleX(-1)"')} Forwarded</div>`;
+    if (c.adminHidden?.has(m.id)) { bcls += ' deleted'; inner = 'Removed by a group admin'; }
+    else if (m.del) { bcls += ' deleted'; inner = 'This message was deleted'; }
     else if (m.bad) { bcls += ' deleted'; inner = '🔒 This message couldn\'t be decrypted'; }
     else {
+      if (m.poll) { inner += pollHtml(c, m); bcls += ' pollb'; }
       if (m.a) { inner += attHtml(m); if (/^(image|video)\//.test(m.a.m || '') && !m.t) bcls += ' media'; }
-      if (m.t) { if (isEmojiOnly(m.t) && !m.a && !m.rp) bcls += ' big'; inner += (m.a ? '<div style="padding:4px 6px 0">' : '') + linkify(m.t) + (m.a ? '</div>' : ''); }
+      if (m.t) { if (isEmojiOnly(m.t) && !m.a && !m.rp) bcls += ' big'; inner += (m.a ? '<div style="padding:4px 6px 0">' : '') + highlightMentions(linkify(m.t), c) + (m.a ? '</div>' : ''); if ((m.mn || []).includes(S.outbox)) bcls += ' mentions-me'; }
     }
     if (m.tmp) bcls += m.failed ? ' failed' : ' pending';
     const status = m.tmp ? (m.failed ? ' · Failed — tap to retry' : ' · Sending…') : '';
@@ -1946,8 +2278,9 @@ function bindComposer() {
   const dk = 'draft:' + S.active;
   if (!S.editing) ta.value = sessionStorage.getItem(dk) || '';
   autoGrow(ta); updateSendBtn();
-  ta.oninput = () => { autoGrow(ta); updateSendBtn(); onTyping(); try { sessionStorage.setItem(dk, ta.value); } catch {} };
+  ta.oninput = () => { autoGrow(ta); updateSendBtn(); onTyping(); onMentionInput(ta); try { sessionStorage.setItem(dk, ta.value); } catch {} };
   ta.onkeydown = e => {
+    if (mentionPop) { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); mentionPop.move(e.key === 'ArrowDown' ? 1 : -1); return; } if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); mentionPop.pick(); return; } if (e.key === 'Escape') { mentionPop.remove(); mentionPop = null; return; } }
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer:coarse)').matches) { e.preventDefault(); sessionStorage.removeItem(dk); sendText().then(updateSendBtn); }
     else if (e.key === 'Escape') { S.editing = null; S.replyTo = null; renderBars(); }
     else if (e.key === 'ArrowUp' && !ta.value) { const c = S.convos.get(S.active); const m = sortedMsgs(c).filter(m => m.from === S.outbox && m.t && !m.del && !m.tmp).pop(); if (m) { e.preventDefault(); startEdit(m); } }
@@ -1973,6 +2306,7 @@ function bindChat() {
   const box = $('#msgs'), chat = $('#chat');
   box.onscroll = () => { if (box.scrollTop < 60) { const c = S.convos.get(S.active); if (c?.hasMore && c.loaded && !c.loading) loadHistory(c); } };
   box.onclick = e => {
+    const gj = e.target.closest('[data-gjoin]'); if (gj) { const c = S.convos.get(S.active); if (gc || call) return toast('You are already in a call'); return joinGroupCall(c, gj.dataset.gjoin, gj.dataset.v === '1'); }
     const cb = e.target.closest('[data-callback]'); if (cb) { const c = S.convos.get(S.active); return startCall(c, cb.dataset.callback === 'v'); }
     const t = e.target.closest('[data-act]'); const row = e.target.closest('.mrow');
     if (suppressTap) { suppressTap = false; return; }
@@ -1987,6 +2321,7 @@ function bindChat() {
     else if (act === 'qreact') quickReact(t, c, m);
     else if (act === 'menu') msgMenu(t, c, m);
     else if (act === 'retry') retryMsg(c, m);
+    else if (act === 'vote') vote(c, m, +t.dataset.i);
     else if (act === 'jump') { const el = box.querySelector(`.mrow[data-id="${CSS.escape(t.dataset.to)}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300); } else toast('That message is further up — load earlier messages'); }
   };
   let pressTimer = null, suppressTap = false;
@@ -2035,12 +2370,15 @@ function msgMenu(anchor, c, m) {
   if (m.t) items.push(['copy', I.copy, 'Copy text']);
   if (m.a) items.push(['dl', I.dl, 'Download']);
   if (minee && m.t && !m.a?.v) items.push(['edit', I.edit, 'Edit']);
+  if ((m.t || m.a) && !m.poll) items.push(['fwd', I.reply.replace('<svg', '<svg style="transform:scaleX(-1)"'), 'Forward']);
+  { const g = gOf(c); if (!g || canEdit(g, S.outbox)) items.push(c.pinRec?.to === m.id ? ['unpin', I.x, 'Unpin'] : ['pin', I.link, 'Pin message']); }
   if (minee) items.push(['del', I.trash, 'Delete for everyone', 'red']);
+  else if (gOf(c) && isAdmin(gOf(c), S.outbox)) items.push(['hide', I.trash, 'Remove (admin)', 'red']);
   const p = popover(anchor, `<div class="qr" style="border-bottom:1px solid var(--line);margin-bottom:4px">${QUICK.map(e => `<button data-e="${e}">${e}</button>`).join('')}</div>` + items.map(([k, ic, l, cls]) => `<button class="pi ${cls || ''}" data-k="${k}">${ic}${l}</button>`).join('') + `<div class="tiny muted" style="padding:6px 12px">${esc(new Date(m.ct).toLocaleString())}</div>`);
   p.onclick = e => {
     const b = e.target.closest('button'); if (!b) return; closePop();
     if (b.dataset.e) return toggleReact(c, m, b.dataset.e);
-    ({ reply: () => { S.replyTo = m.id; renderBars(); $('#composer-input').focus(); }, copy: () => navigator.clipboard?.writeText(m.t).then(() => toast('Copied')), dl: () => downloadAtt(m.a), edit: () => startEdit(m), del: () => deleteMsg(c, m) })[b.dataset.k]?.();
+    ({ reply: () => { S.replyTo = m.id; renderBars(); $('#composer-input').focus(); }, copy: () => navigator.clipboard?.writeText(m.t).then(() => toast('Copied')), dl: () => downloadAtt(m.a), edit: () => startEdit(m), del: () => deleteMsg(c, m), fwd: () => forwardModal(m), pin: () => setPin(c, m), unpin: () => setPin(c, null), hide: () => adminRemove(c, m) })[b.dataset.k]?.();
   };
 }
 function lightbox(src, a) {
@@ -2052,38 +2390,332 @@ function lightbox(src, a) {
 }
 async function renderInfo() {
   const el = $('#info'); const c = S.convos.get(S.active); if (!el || !c) return;
-  const sig = c.id + convoMembers(c).join() + c.name + c.msgs.size + convoMembers(c).map(o => isOnline(S.people.get(o)) ? 1 : 0).join('') + S.muted.has(c.id);
+  const g = gOf(c); if (g) normGroup(g);
+  const sig = c.id + convoMembers(c).join() + c.name + c.msgs.size + convoMembers(c).map(o => isOnline(S.people.get(o)) ? 1 : 0).join('') + S.muted.has(c.id) + JSON.stringify(g ? [g.adm, g.lock, g.d, g.link, g.myLinkV, g.kv, !!S.gph.get(c.id)] : '') + (c.pin?.id || '');
   if (el.dataset.sig === sig) return; el.dataset.sig = sig;
   const all = sortedMsgs(c);
   const imgs = all.filter(m => !m.del && (m.a?.m || '').startsWith('image/')).reverse().slice(0, 12);
   const files = all.filter(m => !m.del && m.a && !(m.a.m || '').startsWith('image/') && !m.a.v).reverse().slice(0, 8);
   const muted = S.muted.has(c.id), p = c.kind === 'dm' ? personOf(c.peer) : null;
+  const meAdmin = g && isAdmin(g, S.outbox), edit = g && canEdit(g, S.outbox);
+  const qa = (k, ic, label) => `<button class="qa" data-k="${k}"><span>${I[ic]}</span>${label}</button>`;
+  const members = g ? [...c.members].sort((a, b) => (b === S.outbox) - (a === S.outbox) || isAdmin(g, b) - isAdmin(g, a) || personOf(a).n.localeCompare(personOf(b).n)) : [];
   el.innerHTML = `<div style="display:flex;justify-content:flex-end;padding:8px"><button class="ibtn" id="info-x">${I.x}</button></div>
-    <div class="info-hero">${convoAvatar(c, 84)}<b>${esc(convoTitle(c))}</b><span class="small muted">${p ? esc(p.e) : c.members.length + ' members'}</span>${p?.st ? `<span class="small">${esc(p.st)}</span>` : ''}
-      ${p ? `<div style="display:flex;gap:10px;margin-top:6px"><button class="btn ghost" data-k="ca">${iconSm('phone', 18)}</button><button class="btn ghost" data-k="cv">${iconSm('video', 18)}</button></div>` : ''}</div>
-    <div class="sect">
-      ${c.kind === 'group' ? `<button class="act" data-k="rename">${I.edit}Rename group</button><button class="act" data-k="add">${I.userplus}Add people</button>` : ''}
-      <button class="act" data-k="mute">${muted ? I.bell + 'Unmute notifications' : I.belloff + 'Mute notifications'}</button>
+    <div class="info-hero">
+      ${g && edit ? `<button data-k="edit" title="Change group photo" style="border-radius:50%">${convoAvatar(c, 88)}</button>` : convoAvatar(c, 88)}
+      <b>${esc(convoTitle(c))}</b>
+      <span class="small muted">${p ? esc(p.e) : `Group · ${c.members.length} member${c.members.length === 1 ? '' : 's'}`}</span>
+      ${p?.st ? `<span class="small">${esc(p.st)}</span>` : ''}${g?.d ? `<span class="small gdesc">${linkify(g.d)}</span>` : ''}
+      <div class="qas">${qa('ca', 'phone', 'Audio')}${qa('cv', 'video', 'Video')}${g && edit ? qa('add', 'userplus', 'Add') : ''}${qa('mute', muted ? 'belloff' : 'bell', muted ? 'Unmute' : 'Mute')}</div>
     </div>
-    ${p ? `<div class="sect"><h4>${iconSm('shield', 13)} Security code</h4><div class="code" id="sc">…</div><p class="tiny muted">Compare this code with ${esc(p.n.split(' ')[0])} (in person or on a call). If it matches, nobody is intercepting your chat.</p></div>` : ''}
-    ${c.kind === 'group' ? `<div class="sect"><h4>Members</h4>${c.members.map(o => { const u = personOf(o); return `<div class="mline">${avatarHtml(u, 36, isOnline(u))}<div class="n">${esc(u.n)}${o === S.outbox ? ' (you)' : ''}<small>${o === c.by ? 'Creator · ' : ''}${esc(u.e)}</small></div></div>`; }).join('')}</div>` : ''}
+    ${c.pin && !c.pin.del && !c.adminHidden?.has(c.pin.id) ? `<div class="sect"><h4>📌 Pinned message</h4><button class="act" data-k="pin" style="align-items:flex-start"><span style="flex:1;min-width:0;text-align:left"><b class="small">${esc(c.pin.from === S.outbox ? 'You' : personOf(c.pin.from).n)}</b><br><span class="small muted">${esc(preview(c.pin))}</span></span></button></div>` : ''}
+    ${g ? `<div class="sect">
+      ${edit ? `<button class="act" data-k="edit">${I.edit}Edit name, photo & description</button>` : ''}
+      <button class="act" data-k="link">${I.link}Invite via link${g.link && g.myLinkV === g.kv ? '<span class="pill">On</span>' : ''}</button>
+      <button class="act" data-k="poll">${iconSm('more', 20)}Create a poll</button>
+    </div>` : ''}
+    ${p ? `<div class="sect"><button class="act" data-k="poll">${iconSm('more', 20)}Create a poll</button></div><div class="sect"><h4>${iconSm('shield', 13)} Security code</h4><div class="code" id="sc">…</div><p class="tiny muted">Compare this code with ${esc(p.n.split(' ')[0])} (in person or on a call). If it matches, nobody is intercepting your chat.</p></div>` : ''}
+    ${g ? `<div class="sect"><h4>${c.members.length} members</h4>
+      ${edit ? `<button class="act" data-k="add"><span class="addic">${I.userplus}</span>Add people</button>` : ''}
+      ${members.map(o => { const u = personOf(o); const role = o === g.by ? 'Creator' : isAdmin(g, o) ? 'Admin' : ''; const menu = o !== S.outbox && (meAdmin || [...S.convos.values()].some(x => x.kind === 'dm' && x.peer === o));
+        return `<div class="mline">${avatarHtml(u, 40, isOnline(u))}<div class="n">${esc(u.n)}${o === S.outbox ? ' (you)' : ''}<small>${role ? `<span class="role">${role}</span> ` : ''}${isOnline(u) ? 'Active now' : esc(u.e)}</small></div>${menu ? `<button class="ibtn" data-mem="${esc(o)}" title="Options">${I.more}</button>` : ''}</div>`; }).join('')}
+    </div>` : ''}
+    ${meAdmin ? `<div class="sect"><h4>Admin settings</h4><label class="toggle-row"><span><b>Only admins can edit</b><small>Name, photo, description, invite link and adding people</small></span><input type="checkbox" id="g-lock" ${g.lock ? 'checked' : ''}></label></div>` : ''}
     ${imgs.length ? `<div class="sect"><h4>Photos</h4><div class="media-grid">${imgs.map(m => `<img class="lazy-i" data-id="${esc(m.id)}" alt="">`).join('')}</div></div>` : ''}
     ${files.length ? `<div class="sect"><h4>Files</h4>${files.map(m => `<button class="act" data-file="${esc(m.id)}">${I.file}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.a.n)}</span><span class="tiny muted">${fmtSize(m.a.z)}</span></button>`).join('')}</div>` : ''}
-    <div class="sect"><button class="act red" data-k="leave">${I.out}${c.kind === 'group' ? 'Leave group' : 'Remove contact'}</button></div>`;
+    <div class="sect"><button class="act red" data-k="leave">${I.out}${g ? 'Leave group' : 'Remove contact'}</button></div>`;
   $('#info-x').onclick = () => { S.showInfo = false; if (history.state?.dc === 'info') popBack(); renderMain(); };
   if (p?.pub) Crypto.safetyCode(S.pubJwk, p.pub).then(code => { const s = $('#sc'); if (s) s.textContent = code; });
   $$('.lazy-i', el).forEach(img => { const m = c.msgs.get(img.dataset.id); loadMedia(m.a).then(u => img.src = u).catch(() => {}); });
+  const lk = $('#g-lock', el); if (lk) lk.onchange = () => setGroupLock(c, lk.checked).catch(e => toast(e.message, true));
   el.onclick = e => {
     const img = e.target.closest('.lazy-i'); if (img) return lightbox(img.src, c.msgs.get(img.dataset.id).a);
     const fb = e.target.closest('[data-file]'); if (fb) return downloadAtt(c.msgs.get(fb.dataset.file).a);
+    const mb = e.target.closest('[data-mem]'); if (mb) return memberMenu(mb, c, mb.dataset.mem);
     const k = e.target.closest('[data-k]')?.dataset.k;
-    if (k === 'ca') startCall(c, false); else if (k === 'cv') startCall(c, true);
-    else if (k === 'rename') renameModal(c);
+    if (k === 'ca' || k === 'cv') g ? startGroupCall(c, k === 'cv') : startCall(c, k === 'cv');
+    else if (k === 'edit') editGroupModal(c);
+    else if (k === 'link') groupInviteModal(c);
+    else if (k === 'poll') pollModal(c);
+    else if (k === 'pin') jumpTo(c.pin.id);
     else if (k === 'add') pickPeopleModal('Add people', c.members, async sel => { closeModal(); showLoading('Adding…', true); try { await addToGroup(c, sel); } catch (er) { toast(er.message, true); } hideLoading(); });
-    else if (k === 'mute') { muted ? S.muted.delete(c.id) : S.muted.add(c.id); LS.set('muted', [...S.muted]); el.dataset.sig = ''; renderInfo(); renderSidebarList(); }
-    else if (k === 'leave') c.kind === 'group' ? leaveGroup(c) : removeContact(c.peer);
+    else if (k === 'mute') { muted ? S.muted.delete(c.id) : S.muted.add(c.id); LS.set('muted', [...S.muted]); el.dataset.sig = ''; renderInfo(); renderSidebarList(); saveStatus(); }
+    else if (k === 'leave') g ? leaveGroup(c) : removeContact(c.peer);
   };
 }
+/* ============================ CHAT TOOLS: mentions, pins, polls, forward ============================ */
+const memberNames = c => convoMembers(c).filter(o => o !== S.outbox).map(o => ({ o, n: personOf(o).n })).filter(x => x.n);
+function mentionsIn(c, text) { if (c.kind !== 'group') return []; return memberNames(c).filter(x => text.includes('@' + x.n)).map(x => x.o); }
+function highlightMentions(html, c) {
+  if (c.kind !== 'group') return html;
+  const names = [...convoMembers(c).map(o => ({ o, n: personOf(o).n }))].filter(x => x.n).sort((a, b) => b.n.length - a.n.length);
+  for (const x of names) { const n = esc('@' + x.n); html = html.split(n).join(`<span class="mention${x.o === S.outbox ? ' me' : ''}">${n}</span>`); }
+  return html;
+}
+let mentionPop = null;
+function onMentionInput(ta) {
+  const c = S.convos.get(S.active); mentionPop?.remove(); mentionPop = null;
+  if (!c || c.kind !== 'group') return;
+  const before = ta.value.slice(0, ta.selectionStart); const m = before.match(/(^|\s)@([^\s@]{0,24})$/); if (!m) return;
+  const q = m[2].toLowerCase(); const list = memberNames(c).filter(x => x.n.toLowerCase().includes(q)).slice(0, 6); if (!list.length) return;
+  mentionPop = document.createElement('div'); mentionPop.className = 'popover mention-pop';
+  mentionPop.innerHTML = list.map((x, i) => `<button class="pi${i ? '' : ' on'}" data-o="${esc(x.o)}">${avatarHtml(personOf(x.o), 26)}<span>${esc(x.n)}</span></button>`).join('');
+  document.body.appendChild(mentionPop);
+  const r = ta.getBoundingClientRect(); mentionPop.style.left = Math.max(8, r.left) + 'px'; mentionPop.style.top = (r.top - mentionPop.offsetHeight - 8) + 'px';
+  const pick = o => { const n = personOf(o).n; const start = before.length - m[2].length - 1; ta.value = ta.value.slice(0, start) + '@' + n + ' ' + ta.value.slice(ta.selectionStart); ta.selectionStart = ta.selectionEnd = start + n.length + 2; mentionPop?.remove(); mentionPop = null; ta.focus(); ta.oninput?.(); };
+  mentionPop.onmousedown = e => { e.preventDefault(); const b = e.target.closest('[data-o]'); if (b) pick(b.dataset.o); };
+  mentionPop.pick = () => { const b = mentionPop.querySelector('.on') || mentionPop.querySelector('[data-o]'); if (b) pick(b.dataset.o); };
+  mentionPop.move = d => { const bs = [...mentionPop.querySelectorAll('[data-o]')]; let i = bs.findIndex(b => b.classList.contains('on')); bs[i]?.classList.remove('on'); i = (i + d + bs.length) % bs.length; bs[i].classList.add('on'); };
+}
+function pinOf(c) { return c.pinRec?.to ? c.msgs.get(c.pinRec.to) || null : null; }
+async function setPin(c, m) {
+  try { await sendRecord(c, { k: 'pin', to: m ? m.id : null }); toast(m ? 'Message pinned 📌' : 'Message unpinned'); } catch (e) { toast(e.message, true); }
+}
+function renderPinBar() {
+  const el = $('#pinbar'); const c = S.convos.get(S.active); if (!el || !c) return;
+  c.pin = pinOf(c); const m = c.pin;
+  if (!m || m.del || c.adminHidden?.has(m.id)) { el.innerHTML = ''; return; }
+  const g = gOf(c); const can = !g || canEdit(g, S.outbox);
+  const sig = m.id + m.mt + can; if (el.dataset.sig === sig) return; el.dataset.sig = sig;
+  el.innerHTML = `<div class="pinbar"><button class="pin-main" data-act="jump" data-to="${esc(m.id)}"><span class="pin-ic">📌</span><span class="pin-t"><b>Pinned · ${esc(m.from === S.outbox ? 'You' : personOf(m.from).n.split(' ')[0])}</b><span>${esc(preview(m))}</span></span></button>${can ? `<button class="ibtn" id="unpin" title="Unpin">${I.x}</button>` : ''}</div>`;
+  el.querySelector('.pin-main').onclick = () => jumpTo(m.id);
+  const u = $('#unpin', el); if (u) u.onclick = () => setPin(c, null);
+}
+function jumpTo(id) {
+  const box = $('#msgs'); const el = box?.querySelector(`.mrow[data-id="${CSS.escape(id)}"]`);
+  if (S.showInfo && isNarrow()) { S.showInfo = false; renderMain(); return setTimeout(() => jumpTo(id), 50); }
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300); }
+  else toast('That message is further up — load earlier messages');
+}
+/* ----- polls ----- */
+function pollModal(c) {
+  let opts = ['', ''];
+  const o = modal('Create a poll', `<label class="lbl">Question</label><input class="field" id="pq" maxlength="200" placeholder="Ask something…">
+    <label class="lbl">Options</label><div id="popts"></div><button class="btn ghost" id="padd" style="margin-top:6px">${iconSm('plus', 15)} Add option</button>
+    <label class="toggle-row" style="margin-top:12px"><span><b>Allow multiple answers</b></span><input type="checkbox" id="pmul"></label>`,
+    `<button class="btn ghost" id="pc">Cancel</button><button class="btn" id="pok">Send poll</button>`);
+  const draw = () => {
+    $('#popts', o).innerHTML = opts.map((v, i) => `<div class="row-inline" style="margin-bottom:6px"><input class="field popt-in" data-i="${i}" maxlength="80" placeholder="Option ${i + 1}" value="${esc(v)}">${opts.length > 2 ? `<button class="ibtn" data-del="${i}">${I.x}</button>` : ''}</div>`).join('');
+    $('#padd', o).classList.toggle('hidden', opts.length >= 10);
+  };
+  draw();
+  $('#popts', o).oninput = e => { const i = e.target.dataset.i; if (i !== undefined) opts[i] = e.target.value; };
+  $('#popts', o).onclick = e => { const d = e.target.closest('[data-del]'); if (d) { opts.splice(+d.dataset.del, 1); draw(); } };
+  $('#padd', o).onclick = () => { opts.push(''); draw(); $$('.popt-in', o).pop().focus(); };
+  $('#pc', o).onclick = closeModal;
+  $('#pok', o).onclick = async () => {
+    const q = $('#pq', o).value.trim(), list = opts.map(x => x.trim()).filter(Boolean);
+    if (!q) return toast('Type a question', true); if (list.length < 2) return toast('Add at least 2 options', true);
+    closeModal();
+    try { await sendRecord(c, { k: 'poll', q, o: list, mul: $('#pmul', o).checked }); notifyPeers(c, { t: 'msg', body: '📊 Poll: ' + q }); stickBottom = true; scheduleRender(); }
+    catch (e) { toast('Could not send poll: ' + e.message, true); }
+  };
+}
+function pollTally(c, m) {
+  const votes = c.votes?.get(m.id) || new Map(); const counts = m.poll.o.map(() => 0); const who = m.poll.o.map(() => []); let voters = 0;
+  for (const [o, v] of votes) { if (!v.ch?.length) continue; voters++; for (const i of v.ch) if (counts[i] !== undefined) { counts[i]++; who[i].push(o); } }
+  return { counts, who, voters, mine: votes.get(S.outbox)?.ch || [] };
+}
+function pollHtml(c, m) {
+  const t = pollTally(c, m); const max = Math.max(1, ...t.counts);
+  return `<div class="poll"><div class="poll-q">📊 ${esc(m.poll.q)}</div>${m.poll.o.map((opt, i) => {
+    const on = t.mine.includes(i), pct = t.voters ? Math.round(t.counts[i] / t.voters * 100) : 0;
+    return `<button class="popt${on ? ' on' : ''}" data-act="vote" data-i="${i}"><span class="pbar" style="width:${t.voters ? (t.counts[i] / max) * 100 : 0}%"></span><span class="pchk">${on ? '✓' : ''}</span><span class="ptxt">${esc(opt)}</span><span class="pfaces">${t.who[i].slice(0, 3).map(o => avatarHtml(personOf(o), 18)).join('')}</span><span class="pcnt">${t.counts[i] ? pct + '%' : ''}</span></button>`;
+  }).join('')}<div class="poll-f">${t.voters} vote${t.voters === 1 ? '' : 's'}${m.poll.mul ? ' · Select one or more' : ' · Select one'}</div></div>`;
+}
+async function vote(c, m, i) {
+  const votes = c.votes?.get(m.id) || new Map(); const cur = votes.get(S.outbox);
+  let ch = cur?.ch || [];
+  ch = m.poll.mul ? (ch.includes(i) ? ch.filter(x => x !== i) : [...ch, i]) : (ch.includes(i) ? [] : [i]);
+  const payload = { k: 'vote', to: m.id, ch };
+  if (!c.votes) c.votes = new Map(); if (!c.votes.has(m.id)) c.votes.set(m.id, new Map());
+  c.votes.get(m.id).set(S.outbox, { ch, ct: iso(Date.now()), fid: cur?.fid }); scheduleRender();
+  try {
+    const f = await writeRecord(c, payload, cur?.fid); S.seen.delete(f.id); await processFile(f, S.outbox, false, payload);
+  } catch (e) { toast('Vote failed: ' + e.message, true); }
+}
+/* ----- forward ----- */
+function forwardModal(m) {
+  const list = [...S.convos.values()].sort((a, b) => convoSortKey(b) < convoSortKey(a) ? -1 : 1);
+  const o = modal('Forward to…', `<input class="field" id="fq" placeholder="Search chats" style="margin-bottom:6px"><div id="fl"></div>`);
+  const draw = () => {
+    const q = $('#fq', o).value.toLowerCase();
+    $('#fl', o).innerHTML = list.filter(c => convoTitle(c).toLowerCase().includes(q)).map(c => `<div class="pick" data-id="${esc(c.id)}">${convoAvatar(c, 40)}<b style="flex:1;min-width:0">${esc(convoTitle(c))}</b><button class="btn" style="padding:6px 14px">Send</button></div>`).join('');
+  };
+  draw(); $('#fq', o).oninput = draw;
+  $('#fl', o).onclick = async e => {
+    const b = e.target.closest('button'); const row = e.target.closest('[data-id]'); if (!b || !row) return;
+    b.disabled = true; b.textContent = 'Sending…';
+    try { await postMessage(S.convos.get(row.dataset.id), { t: m.t || undefined, a: m.a || undefined, fw: 1 }); b.textContent = 'Sent ✓'; }
+    catch (e2) { b.disabled = false; b.textContent = 'Send'; toast(e2.message, true); }
+  };
+}
+async function adminRemove(c, m) {
+  if (!confirm('Remove this message for everyone in the group?')) return;
+  try { await sendRecord(c, { k: 'hide', to: m.id }); } catch (e) { toast(e.message, true); }
+}
+
+/* ============================ GROUP UI: photo, info panel, edit, invite links ============================ */
+function groupPhotoUrl(c) {
+  const g = gOf(c); if (!g?.ph) return '';
+  if (S.gph.has(c.id)) return S.gph.get(c.id) || '';
+  S.gph.set(c.id, '');
+  loadMedia(g.ph).then(u => { S.gph.set(c.id, u); const i = $('#info'); if (i) i.dataset.sig = ''; scheduleRender(); }).catch(() => {});
+  return '';
+}
+const urlsafe = s => s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unurlsafe = s => { s = s.replace(/-/g, '+').replace(/_/g, '/'); return s + '==='.slice((s.length + 3) % 4); };
+function groupLink(c) { const g = normGroup(gOf(c)); return `${appBase()}#join=${c.id}.${S.outbox}.${g.kv}.${urlsafe(g.keys[g.kv])}`; }
+async function ensureLinkMeta(c, sys) {
+  const g = normGroup(gOf(c));
+  S.lastShare = Date.now(); pendingLoop.wake?.();
+  if (g.link && g.myLinkV === g.kv && !sys) return;
+  await updateGroup(c, { ...groupMeta(g), link: true }, sys || (g.link ? undefined : 'created a group invite link'));
+  g.myLinkV = g.kv; saveState(true);
+}
+function parseJoin(s) {
+  const m = String(s || '').match(/join=(g[\w]{10,})\.([\w-]{10,})\.(\d+)\.([\w-]{20,})/);
+  return m ? { gid: m[1], o: m[2], v: +m[3], key: unurlsafe(m[4]) } : null;
+}
+async function readGroupMetaFrom(o, gid, v, keyRaw) {
+  const key = await Crypto.importRaw(keyRaw);
+  const r = await listIn(o, `'${qv(o)}' in parents and name='${qv(gid)}' and trashed=false`, { orderBy: 'createdTime desc', pageSize: 60 });
+  const meta = {};
+  for (const f of r.files || []) {
+    let raw = await readSealed(f, o); const mm = /^g(\d+)\./.exec(raw); const fv = mm ? +mm[1] : 0; if (mm) raw = raw.slice(mm[0].length);
+    if (fv !== v) continue;
+    try {
+      const p = await Crypto.open(key, raw); if (p.k !== 'gupd') continue;
+      for (const k of ['n', 'd', 'ph', 'adm', 'lock', 'link', 'm', 'by', 'created']) if (p[k] !== undefined && meta[k] === undefined) meta[k] = p[k];
+    } catch {}
+  }
+  return meta.m ? meta : null;
+}
+async function acceptGroupLink(link) {
+  const J = parseJoin(link); if (!J) return toast('That group link is not valid', true);
+  if (S.st.groups[J.gid]) return openConvo(J.gid);
+  showLoading('Opening group invite…', true);
+  let meta = null;
+  try { const prof = await fetchProfile(J.o); if (prof) upsertPerson(J.o, prof, true); meta = await readGroupMetaFrom(J.o, J.gid, J.v, J.key); } catch (e) { console.warn(e); }
+  hideLoading();
+  if (!meta) return toast('This group link was reset or turned off. Ask for a new one.', true, 6000);
+  if (!meta.link) return toast('Invites to this group are turned off.', true, 6000);
+  const photo = meta.ph ? await loadMedia(meta.ph).catch(() => '') : '';
+  const o = modal('Join group', `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 4px;text-align:center">
+      ${avatarHtml({ n: meta.n || 'Group', c: hashColor(J.gid), p: photo }, 84, false, true)}
+      <b style="font-size:19px">${esc(meta.n || 'Group')}</b>
+      <span class="small muted">Group · ${meta.m.length} members</span>
+      ${meta.d ? `<span class="small" style="max-width:320px">${esc(meta.d)}</span>` : ''}
+      <div style="display:flex;margin-top:4px">${meta.m.slice(0, 6).map((m, i) => `<div style="margin-left:${i ? -10 : 0}px">${avatarHtml(m, 34)}</div>`).join('')}</div>
+    </div><div class="note">${iconSm('lock', 18)}<span>Group messages and calls are end-to-end encrypted.</span></div>`,
+    `<button class="btn ghost" id="jg-c">Cancel</button><button class="btn" id="jg-ok">Join group</button>`);
+  $('#jg-c', o).onclick = closeModal;
+  $('#jg-ok', o).onclick = async () => {
+    closeModal(); showLoading('Joining…', true);
+    try {
+      const c = adoptGroup(J.gid, { ...meta, keys: { [J.v]: J.key }, kv: J.v, m: [...meta.m.filter(x => x.o !== S.outbox), memberCard(S.outbox)] }, iso(Date.now()));
+      await sendRecord(c, { k: 'gjoin', card: memberCard(S.outbox) });
+      await knock(J.gid, true);
+      hideLoading(); openConvo(J.gid); toast(`You joined ${meta.n || 'the group'} 🎉`);
+    } catch (e) { hideLoading(); toast('Could not join: ' + e.message, true); }
+  };
+}
+/* members pick up people who joined with the link */
+async function checkGroupJoins() {
+  const info = await relayInfo(); if (!info?.hs) return;
+  for (const [gid, g] of Object.entries(S.st.groups)) {
+    if (!g.link) continue;
+    let list = [];
+    try { const r = await fetch(relayBase() + '/hs?r=' + gid, { cache: 'no-store' }); if (r.ok) list = (await r.json()).o || []; } catch {}
+    const c = S.convos.get(gid); if (!c) continue;
+    for (const o of list) {
+      if (o === S.outbox || g.m.some(m => m.o === o) || (g.rejected || []).includes(o)) continue;
+      try {
+        const prof = await fetchProfile(o); if (!prof) continue;
+        upsertPerson(o, prof, true);
+        const key = await convoKey(c, g.kv);
+        const r = await listIn(o, `'${qv(o)}' in parents and name='${qv(gid)}' and trashed=false`, { orderBy: 'createdTime desc', pageSize: 20 });
+        let ok = false;
+        for (const f of r.files || []) { let raw = await readSealed(f, o); const mm = /^g(\d+)\./.exec(raw); const fv = mm ? +mm[1] : 0; if (fv !== g.kv) continue; if (mm) raw = raw.slice(mm[0].length); try { const p = await Crypto.open(key, raw); if (p.k === 'gjoin') { ok = true; break; } } catch {} }
+        if (!ok) continue;
+        g.m = [...g.m, { o, n: prof.n, e: prof.e, p: prof.p, c: prof.c, pub: prof.pub }]; c.members = g.m.map(m => m.o); saveState();
+        if (canEdit(g, S.outbox)) sendRecord(c, { k: 'gupd', m: g.m }).catch(() => {});   // tell everyone else right away
+        c.tokens[o] = undefined; loadHistory(c); wakePeer(o); scheduleRender();
+      } catch (e) { console.warn('join check', e.message); }
+    }
+  }
+}
+function groupInviteModal(c) {
+  const g = normGroup(gOf(c)); const edit = canEdit(g, S.outbox), admin = isAdmin(g, S.outbox);
+  const draw = () => {
+    const on = g.link && g.myLinkV === g.kv; const link = on ? groupLink(c) : '';
+    const o = modal('Group invite link', `
+      <p class="small muted" style="margin-top:0">Anyone with this link can join <b>${esc(convoTitle(c))}</b> and read new messages. Share it only with people you trust.</p>
+      ${on ? `<div class="linkcard"><div class="linkcard-ic">${I.link}</div><div class="linkcard-t"><b>Invite link</b><span>${esc(link.replace(/^https?:\/\//, ''))}</span></div><button class="btn" id="gl-copy">Copy</button></div>
+        <div class="stiles">${navigator.share ? `<button class="stile" data-k="share"><span class="stile-ic" style="background:linear-gradient(135deg,#6a55ee,#9a6cf5)">${I.share.replace('class="icon"', 'class="icon" style="color:#fff"')}</span><span>Share</span></button>` : ''}
+          <button class="stile" data-k="wa"><span class="stile-ic" style="background:#25D366;color:#fff;font-weight:800">W</span><span>WhatsApp</span></button>
+          <button class="stile" data-k="tg"><span class="stile-ic" style="background:#2AABEE;color:#fff;font-weight:800">T</span><span>Telegram</span></button></div>
+        ${edit ? `<div style="display:flex;gap:8px;margin-top:10px"><button class="btn ghost" id="gl-reset" style="flex:1">Reset link</button><button class="btn ghost" id="gl-off" style="flex:1;color:var(--danger)">Turn off</button></div><p class="tiny muted">Resetting makes old links stop working.</p>` : ''}`
+      : edit ? `<button class="btn block" id="gl-make">${iconSm('link', 16)} Create invite link</button>` : `<div class="note">Only admins can create an invite link for this group.</div>`}`);
+    const cp = $('#gl-copy', o); if (cp) cp.onclick = () => navigator.clipboard?.writeText(link).then(() => { cp.textContent = 'Copied ✓'; });
+    const tiles = $('.stiles', o); if (tiles) tiles.onclick = e => {
+      const k = e.target.closest('.stile')?.dataset.k; const text = `Join "${convoTitle(c)}" on DriveChat:`;
+      if (k === 'share') navigator.share({ title: convoTitle(c), text, url: link }).catch(() => {});
+      if (k === 'wa') window.open('https://wa.me/?text=' + encodeURIComponent(text + ' ' + link), '_blank', 'noopener');
+      if (k === 'tg') window.open('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text), '_blank', 'noopener');
+    };
+    const mk = $('#gl-make', o); if (mk) mk.onclick = async () => { mk.disabled = true; mk.textContent = 'Creating…'; try { await ensureLinkMeta(c); draw(); } catch (e) { toast(e.message, true); } };
+    const rs = $('#gl-reset', o); if (rs) rs.onclick = async () => { if (!confirm('Reset the link? The old link stops working.')) return; rs.disabled = true; try { await rotateGroupKey(c); await ensureLinkMeta(c, 'reset the group invite link'); draw(); toast('New link ready'); } catch (e) { toast(e.message, true); } };
+    const off = $('#gl-off', o); if (off) off.onclick = async () => { off.disabled = true; try { await updateGroup(c, { link: false }, 'turned off the group invite link'); await rotateGroupKey(c); g.myLinkV = -1; saveState(); closeModal(); toast('Invite link turned off'); } catch (e) { toast(e.message, true); } };
+  };
+  draw();
+}
+function editGroupModal(c) {
+  const g = normGroup(gOf(c)); let newPhoto = null;
+  const o = modal('Edit group', `
+    <div style="display:flex;justify-content:center;margin:4px 0 10px"><button id="eg-ph" style="position:relative;border-radius:50%">${avatarHtml({ n: convoTitle(c), c: hashColor(c.id), p: groupPhotoUrl(c) }, 96, false, true)}<span style="position:absolute;right:0;bottom:0;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;border:3px solid var(--bg)">${iconSm('edit', 15)}</span></button><input type="file" id="eg-file" accept="image/*" hidden></div>
+    <label class="lbl">Group name</label><input class="field" id="eg-n" maxlength="80" value="${esc(g.n || '')}" placeholder="Name this group">
+    <label class="lbl">Description</label><textarea class="field" id="eg-d" rows="3" maxlength="400" placeholder="What's this group about?">${esc(g.d || '')}</textarea>`,
+    `<button class="btn ghost" id="eg-c">Cancel</button><button class="btn" id="eg-ok">Save</button>`);
+  $('#eg-ph', o).onclick = () => $('#eg-file', o).click();
+  $('#eg-file', o).onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    newPhoto = await shrinkImage(f, 512);
+    $('#eg-ph', o).querySelector('.av').outerHTML = avatarHtml({ n: '', p: URL.createObjectURL(newPhoto) }, 96, false, true);
+  };
+  $('#eg-c', o).onclick = closeModal;
+  $('#eg-ok', o).onclick = async () => {
+    const n = $('#eg-n', o).value.trim(), d = $('#eg-d', o).value.trim(); const btn = $('#eg-ok', o); btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const patch = {}, what = [];
+      if (n !== (g.n || '')) { patch.n = n; what.push(n ? `renamed the group to "${n}"` : 'removed the group name'); }
+      if (d !== (g.d || '')) { patch.d = d; what.push('changed the description'); }
+      if (newPhoto) { patch.ph = await uploadEncrypted(newPhoto); what.push('changed the group photo'); }
+      if (what.length) await updateGroup(c, patch, what.join(' and '));
+      closeModal();
+    } catch (e) { toast(e.message, true); btn.disabled = false; btn.textContent = 'Save'; }
+  };
+}
+function memberMenu(anchor, c, o) {
+  const g = normGroup(gOf(c)); const meAdmin = isAdmin(g, S.outbox); const u = personOf(o);
+  const items = [];
+  const dm = [...S.convos.values()].find(x => x.kind === 'dm' && x.peer === o);
+  if (dm) items.push(['msg', I.reply, `Message ${esc(u.n.split(' ')[0])}`]);
+  if (meAdmin && o !== g.by) items.push(isAdmin(g, o) ? ['unadmin', I.shield, 'Remove as admin'] : ['admin', I.shield, 'Make admin']);
+  if (meAdmin && o !== g.by) items.push(['remove', I.out, 'Remove from group', 'red']);
+  if (!items.length) return;
+  const p = popover(anchor, items.map(([k, ic, l, cls]) => `<button class="pi ${cls || ''}" data-k="${k}">${ic}${l}</button>`).join(''));
+  p.onclick = async e => {
+    const k = e.target.closest('[data-k]')?.dataset.k; if (!k) return; closePop();
+    try {
+      if (k === 'msg') openConvo(dm.id);
+      if (k === 'admin') await setAdmin(c, o, true);
+      if (k === 'unadmin') await setAdmin(c, o, false);
+      if (k === 'remove') await removeFromGroup(c, o);
+    } catch (er) { toast(er.message, true); }
+  };
+}
+async function setGroupLock(c, lock) { await updateGroup(c, { lock }, lock ? 'allowed only admins to edit the group and add people' : 'allowed all members to edit the group and add people'); }
 
 /* ============================ MODALS ============================ */
 function modal(title, body, footer = '') {
@@ -2173,7 +2805,7 @@ async function addPeopleModal(note = '') {
     catch (e) { toast(e.message, true); btn.disabled = false; btn.textContent = 'Send'; }
   };
   $('#inv-send', o).onclick = send; $('#inv-email', o).onkeydown = e => { if (e.key === 'Enter') send(); };
-  $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); acceptLink(v); };
+  $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); parseJoin(v) ? acceptGroupLink(v) : acceptLink(v); };
 }
 function pickPeopleModal(title, exclude, onDone, { group = false } = {}) {
   const people = Object.keys(S.st.contacts).filter(o => !exclude.includes(o)).map(personOf).sort((a, b) => a.n.localeCompare(b.n));
@@ -2304,8 +2936,8 @@ window.visualViewport?.addEventListener('resize', fitViewport); addEventListener
 document.addEventListener('visibilitychange', () => { if (!S.running) return; if (!document.hidden) { S.nextPoll.clear(); markRead(); saveStatus(); pendingLoop.wake?.(); } else saveStatus(true); });
 addEventListener('focus', () => S.running && markRead());
 addEventListener('online', () => S.running && S.nextPoll.clear());
-addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '.' + L.r : '')); } });
-addEventListener('beforeunload', e => { if (call) { e.preventDefault(); e.returnValue = ''; } });
+addEventListener('hashchange', () => { if (parseJoin(location.hash) && S.running) { const h = location.hash; history.replaceState(null, '', location.pathname + location.search); acceptGroupLink(h); return; } const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '.' + L.r : '')); } });
+addEventListener('beforeunload', e => { if (call || gc?.state === 'joined') { e.preventDefault(); e.returnValue = ''; } });
 
 async function boot() {
   applyTheme();
@@ -2314,8 +2946,9 @@ async function boot() {
     navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'poll' && S.running) { S.nextPoll.clear(); pollLoop.wake?.(); } if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } });
   }
   const om = location.hash.match(/open=([\w-]+)/); if (om) { LS.set('lastConvo', om[1]); history.replaceState(null, '', location.pathname + location.search); }
-  const L = parseLink(location.hash);
-  if (L) { LS.set('pendingAdd', L.o + (L.r ? '.' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
+  const L = parseLink(location.hash), JL = parseJoin(location.hash);
+  if (JL) { LS.set('pendingJoin', location.hash); history.replaceState(null, '', location.pathname + location.search); }
+  else if (L) { LS.set('pendingAdd', L.o + (L.r ? '.' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
   if (location.protocol === 'file:') { root().innerHTML = `<div class="screen"><div class="card"><h1>Serve over http(s)</h1><p class="muted">Google sign-in doesn't work from <code>file://</code>. Run <code>python3 -m http.server 8080</code> here and open <code>http://localhost:8080</code>, or deploy to GitHub Pages / Netlify.</p></div></div>`; return; }
   if (!cfg().clientId || !cfg().apiKey) return showSetup();
   showLoading('Loading…');

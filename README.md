@@ -20,6 +20,7 @@ End-to-end encrypted messages, photos, voice notes and voice/video calls, with n
 |---|---|
 | 🔒 **End-to-end encrypted** | Messages, photos, files, voice notes, read receipts and typing are encrypted on your device. |
 | 📞 **Voice & video calls** | One-to-one calls that go straight between devices, also encrypted. |
+| 👥 **Groups like Messenger & Viber** | Group photo and description, admins, remove members, invite links, @mentions, polls, pinned messages, group voice & video calls (up to 8) |
 | 💬 **Everything you expect** | Groups, replies, reactions, edits, deletes, read receipts, typing indicators and online status. |
 | 📁 **Your data, your Drive** | Everything is stored in a `DriveChat` folder in your own Google Drive. Delete it any time. |
 | 🛡️ **Minimal permissions** | DriveChat can only see the files it creates, never the rest of your Drive. |
@@ -45,6 +46,24 @@ The installed app opens full-screen, shows notifications, and loads instantly.
 ## Notifications
 
 DriveChat notifies you about messages and calls, even when it's closed, like Messenger. For that, the owner deploys a tiny free relay once (about 3 minutes); see [`push-relay/README.md`](push-relay/README.md). Notifications stay end-to-end encrypted, so the relay can't read them. On iPhone, add DriveChat to your Home Screen first.
+
+## Groups
+
+<div align="center"><img src="docs/group.png" alt="Group chat with poll, pinned message and members" width="820"></div>
+
+| Feature | |
+|---|---|
+| **Group profile** | Photo, name and description (Edit group) |
+| **Admins** | The creator is an admin and can make others admins. Admins can remove members and remove anyone's message. They can also turn on *Only admins can edit*. |
+| **Safe removal** | Removing someone switches the group to a new encryption key, so they can't read anything sent afterwards. |
+| **Invite link** | Anyone with the link sees a preview and joins in one tap. **Reset link** cuts off old links. |
+| **@mentions** | Suggestions as you type. A mentioned person is highlighted and notified, even if they muted the group. |
+| **Polls** | Single or multiple choice, with live results and voter avatars |
+| **Pinned message** | Pinned to the top of the chat for everyone |
+| **Forward** | Send any message or file on to another chat |
+| **Group calls** | Voice or video for up to 8 people. Everyone's phone rings, and anyone can join a call that's already running. |
+
+<div align="center"><img src="docs/group-call.png" alt="Group video call" width="620"></div>
 
 ## How to use it
 
