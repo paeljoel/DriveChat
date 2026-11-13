@@ -996,7 +996,12 @@ async function checkHandshakes() {
   if (!pend.length) return;
   const found = new Set();
   const info = await relayInfo();
-  if (info?.hs) { try { const r = await fetch(relayBase() + '/hs?r=' + pend.map(p => p.r).slice(0, 10).join(',')); if (r.ok) ((await r.json()).o || []).forEach(o => found.add(o)); } catch {} }
+  if (info?.hs) {
+    const ids = [...new Set([...pend].sort((a, b) => b.t - a.t).map(p => p.r))];   // newest first, every code
+    for (let i = 0; i < ids.length && i < 100; i += 10) {
+      try { const r = await fetch(relayBase() + '/hs?r=' + ids.slice(i, i + 10).join(','), { cache: 'no-store' }); if (r.ok) ((await r.json()).o || []).forEach(o => found.add(o)); } catch {}
+    }
+  }
   for (const p of pend) {
     if (p.driveDone) continue;
     try { const f = await pub('/files/' + p.r, { fields: 'id,description' }); const d = parseJ(f.description); if (d.o) found.add(d.o); p.driveDone = true; saveState(); } catch {}
