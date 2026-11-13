@@ -423,6 +423,29 @@ html,body{overscroll-behavior:none}
 .gc-tile .gc-av{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
 .gc-tile.novideo video{visibility:hidden}.gc-tile.novideo .gc-av{display:flex}
 .gc-name{position:absolute;left:10px;bottom:8px;font-size:13px;font-weight:600;background:rgba(0,0,0,.45);padding:3px 10px;border-radius:10px}
+
+/* ---------- chat themes ---------- */
+.chat.themed .msgs{background:var(--chat-bg);background-attachment:local}
+.chat.grad .mrow.me .bubble:not(.big):not(.media):not(.deleted){background:var(--me);background-attachment:fixed;background-size:100% 100vh}
+.chat .mrow.me .bubble:not(.big):not(.media){color:var(--me-text)}
+.chat .mrow.me .bubble a{color:inherit}
+.chat.themed .mrow.them .bubble:not(.big):not(.media){background:var(--them,var(--them));color:var(--them-text,inherit);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.chat.themed .day,.chat.themed .sys,.chat.themed .calllog,.chat.themed .load-more{background:var(--chip,rgba(255,255,255,.8));backdrop-filter:blur(6px);border-radius:12px;padding:3px 10px}
+.chat.themed .sys{color:var(--text-2)}
+.chat.themed .sender{text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.qe{width:42px;height:42px;font-size:26px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%;transition:transform .15s}
+.qe:hover{transform:scale(1.12)}.qe.pop{animation:qpop .35s}
+@keyframes qpop{40%{transform:scale(1.45) rotate(-8deg)}}
+.thgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:420px){.thgrid{grid-template-columns:repeat(2,1fr)}}
+.thc{display:flex;flex-direction:column;gap:6px;border-radius:16px;padding:4px;border:2px solid transparent;transition:border-color .15s}
+.thc.on{border-color:var(--accent)}
+.thp{height:96px;border-radius:12px;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:8px;overflow:hidden;border:1px solid var(--line)}
+.thb{font-size:11px;padding:5px 9px;border-radius:12px;max-width:85%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thb.them{align-self:flex-start;background:var(--them);color:var(--them-text)}.thb.me{align-self:flex-end}
+.thn{font-size:13px;font-weight:600;text-align:center}
+.thsw{width:22px;height:22px;border-radius:50%;flex-shrink:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}
+.chat .send{color:var(--on-accent,#fff)}
 </style>
 </head>
 <body>
@@ -960,6 +983,7 @@ function ingestRecord(c, from, f, p, live) {
       if (p.op === 'start') c.msgs.set(f.id, { ...base, gcall: { id: p.id, video: !!p.video } }); else c.msgs.set(f.id, { ...base, hidden: true });
       onGroupCallRecord(c, from, p, f, live); break;
     }
+    case 'theme': { const okT = adoptTheme(c, p, from, f.createdTime) || (S.st.themes?.[c.id]?.ct === f.createdTime) || !gOf(c) || canEdit(gOf(c), from); c.msgs.set(f.id, okT && p.sys ? { ...base, sys: p.sys } : { ...base, hidden: true }); break; }
     case 'hide': { c.msgs.set(f.id, { ...base, hidden: true }); const g = gOf(c); if (g && isAdmin(g, from)) (c.adminHidden ||= new Set()).add(p.to); break; }
     case 'gjoin': c.msgs.set(f.id, { ...base, sys: 'joined using the group invite link' }); break;
     default: c.msgs.set(f.id, { ...base, hidden: true });
@@ -990,9 +1014,10 @@ async function ingestStatus(o, f) {
     const c = S.convos.get(cid); if (!c) continue;
     try {
       const v = await Crypto.open(await convoKey(c), sealed);
-      if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; continue; }
+      if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; if (v.th?.ct) adoptTheme(c, v.th, null, v.th.ct); continue; }
       if (v.rd) p.rd[cid] = v.rd;
       (p.mu ||= {})[cid] = !!v.mu;
+      if (v.th?.ct) adoptTheme(c, v.th, o, v.th.ct);
       if ('push' in v) p.push = v.push; if ('vis' in v) p.vis = !!v.vis;
       if (v.ty && (!p.ty || p.ty.t !== v.ty) && Math.abs(v.ty - p.mt) < 15000) { p.ty = { c: cid, t: v.ty }; p.tyAt = Date.now(); }
     } catch {}
@@ -1010,9 +1035,10 @@ function saveStatus(now = false) {
       const s = {};
       const ids = Object.keys(S.myRd).sort((a, b) => (S.myRd[b] > S.myRd[a] ? 1 : -1)).slice(0, 60);
       if (S.myTy && !ids.includes(S.myTy.c)) ids.push(S.myTy.c);
+      for (const cid of Object.keys(S.st.themes || {})) if (!ids.includes(cid) && ids.length < 90) ids.push(cid);
       for (const cid of ids) {
         const c = S.convos.get(cid); if (!c) continue;
-        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0, mu: S.muted.has(cid), push: S.myPush || null, vis: !document.hidden }); } catch {}
+        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0, mu: S.muted.has(cid), th: S.st.themes?.[cid] || null, push: S.myPush || null, vis: !document.hidden }); } catch {}
       }
       const desc = JSON.stringify({ ls: Date.now(), s });
       if (S.files.status) await patchMeta(S.files.status, { description: desc });
@@ -1882,7 +1908,7 @@ function updateTitle() { let n = 0; for (const c of S.convos.values()) if (!S.mu
 
 /* ============================ SCREENS ============================ */
 const root = () => $('#root');
-function applyTheme() { document.documentElement.dataset.theme = S.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : S.theme; }
+function applyTheme() { setTimeout(() => applyChatTheme(true), 0); document.documentElement.dataset.theme = S.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : S.theme; }
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
 const logoHtml = () => `<div class="logo">${I.chat}</div>`;
 function showLoading(text, overlay = false) {
@@ -2060,6 +2086,7 @@ function renderMain() {
   $$('.tab').forEach(t => t.onclick = () => { S.tab = t.dataset.tab; $$('.tab').forEach(x => x.classList.toggle('on', x === t)); renderSidebarList(); });
   if ($('#w-new')) { $('#w-new').onclick = () => newChatModal(); $('#w-inv').onclick = () => addPeopleModal(); }
   if (c) bindChat();
+  applyChatTheme(true);
   renderSidebarList(); renderHeader(); renderMessages(true); renderInfo(); renderBars(); renderUploads(); renderWaiting(); updateTitle();
 }
 function typingIn(c) { return convoMembers(c).filter(o => o !== S.outbox).map(o => S.people.get(o)).filter(p => p?.ty?.c === c.id && Date.now() - p.tyAt < 6500); }
@@ -2095,6 +2122,7 @@ function chatShell() {
       <button class="ibtn accent" id="att-btn" title="Attach files">${I.clip}</button>
       <input type="file" id="file-in" multiple hidden>
       <div class="inp"><textarea id="composer-input" rows="1" placeholder="Message" maxlength="20000"></textarea><button class="ibtn" id="emo-btn" title="Emoji">${I.smile}</button></div>
+      <button class="qe" id="qe-btn" title="Send quick emoji">👍</button>
       <button class="send" id="send-btn" title="Send">${I.mic}</button>
     </div>`;
 }
@@ -2272,7 +2300,7 @@ async function startRecording() {
 }
 function restoreComposer() { const comp = $('#composer'); if (!comp) return; const tmp = document.createElement('div'); tmp.innerHTML = chatShell(); comp.replaceWith(tmp.querySelector('#composer')); bindComposer(); }
 function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(160, ta.scrollHeight) + 'px'; }
-function updateSendBtn() { const b = $('#send-btn'), ta = $('#composer-input'); if (!b || !ta) return; const has = ta.value.trim().length > 0 || S.editing; b.innerHTML = has ? (S.editing ? I.check.replace('width:14px;height:14px', 'width:22px;height:22px') : I.send) : I.mic; b.title = has ? 'Send' : 'Record voice message'; }
+function updateSendBtn() { const q = $('#qe-btn'), t = $('#composer-input'); if (q && t) q.classList.toggle('hidden', t.value.trim().length > 0 || !!S.editing); const b = $('#send-btn'), ta = $('#composer-input'); if (!b || !ta) return; const has = ta.value.trim().length > 0 || S.editing; b.innerHTML = has ? (S.editing ? I.check.replace('width:14px;height:14px', 'width:22px;height:22px') : I.send) : I.mic; b.title = has ? 'Send' : 'Record voice message'; }
 function bindComposer() {
   const ta = $('#composer-input'); if (!ta) return;
   const dk = 'draft:' + S.active;
@@ -2286,6 +2314,7 @@ function bindComposer() {
     else if (e.key === 'ArrowUp' && !ta.value) { const c = S.convos.get(S.active); const m = sortedMsgs(c).filter(m => m.from === S.outbox && m.t && !m.del && !m.tmp).pop(); if (m) { e.preventDefault(); startEdit(m); } }
   };
   ta.onpaste = e => { const files = [...(e.clipboardData?.files || [])]; if (files.length) { e.preventDefault(); sendFiles(files); } };
+  $('#qe-btn').onclick = () => sendQuickEmoji();
   $('#send-btn').onclick = () => { if (ta.value.trim() || S.editing) { sessionStorage.removeItem(dk); sendText().then(updateSendBtn); } else startRecording(); };
   $('#att-btn').onclick = () => $('#file-in').click();
   $('#file-in').onchange = e => { sendFiles([...e.target.files]); e.target.value = ''; };
@@ -2391,7 +2420,7 @@ function lightbox(src, a) {
 async function renderInfo() {
   const el = $('#info'); const c = S.convos.get(S.active); if (!el || !c) return;
   const g = gOf(c); if (g) normGroup(g);
-  const sig = c.id + convoMembers(c).join() + c.name + c.msgs.size + convoMembers(c).map(o => isOnline(S.people.get(o)) ? 1 : 0).join('') + S.muted.has(c.id) + JSON.stringify(g ? [g.adm, g.lock, g.d, g.link, g.myLinkV, g.kv, !!S.gph.get(c.id)] : '') + (c.pin?.id || '');
+  const sig = c.id + JSON.stringify(S.st.themes?.[c.id] || '') + convoMembers(c).join() + c.name + c.msgs.size + convoMembers(c).map(o => isOnline(S.people.get(o)) ? 1 : 0).join('') + S.muted.has(c.id) + JSON.stringify(g ? [g.adm, g.lock, g.d, g.link, g.myLinkV, g.kv, !!S.gph.get(c.id)] : '') + (c.pin?.id || '');
   if (el.dataset.sig === sig) return; el.dataset.sig = sig;
   const all = sortedMsgs(c);
   const imgs = all.filter(m => !m.del && (m.a?.m || '').startsWith('image/')).reverse().slice(0, 12);
@@ -2413,8 +2442,9 @@ async function renderInfo() {
       ${edit ? `<button class="act" data-k="edit">${I.edit}Edit name, photo & description</button>` : ''}
       <button class="act" data-k="link">${I.link}Invite via link${g.link && g.myLinkV === g.kv ? '<span class="pill">On</span>' : ''}</button>
       <button class="act" data-k="poll">${iconSm('more', 20)}Create a poll</button>
+      ${canEdit(g, S.outbox) ? `<button class="act" data-k="theme"><span class="thsw" style="background:${chatTheme(c).t.sw || chatTheme(c).t.me}"></span>Theme<span class="pill" style="color:var(--text-2);background:var(--bg-2)">${chatTheme(c).t.name} ${chatTheme(c).em}</span></button>` : ''}
     </div>` : ''}
-    ${p ? `<div class="sect"><button class="act" data-k="poll">${iconSm('more', 20)}Create a poll</button></div><div class="sect"><h4>${iconSm('shield', 13)} Security code</h4><div class="code" id="sc">…</div><p class="tiny muted">Compare this code with ${esc(p.n.split(' ')[0])} (in person or on a call). If it matches, nobody is intercepting your chat.</p></div>` : ''}
+    ${p ? `<div class="sect"><button class="act" data-k="theme"><span class="thsw" style="background:${chatTheme(c).t.sw || chatTheme(c).t.me}"></span>Theme<span class="pill" style="color:var(--text-2);background:var(--bg-2)">${chatTheme(c).t.name} ${chatTheme(c).em}</span></button><button class="act" data-k="poll">${iconSm('more', 20)}Create a poll</button></div><div class="sect"><h4>${iconSm('shield', 13)} Security code</h4><div class="code" id="sc">…</div><p class="tiny muted">Compare this code with ${esc(p.n.split(' ')[0])} (in person or on a call). If it matches, nobody is intercepting your chat.</p></div>` : ''}
     ${g ? `<div class="sect"><h4>${c.members.length} members</h4>
       ${edit ? `<button class="act" data-k="add"><span class="addic">${I.userplus}</span>Add people</button>` : ''}
       ${members.map(o => { const u = personOf(o); const role = o === g.by ? 'Creator' : isAdmin(g, o) ? 'Admin' : ''; const menu = o !== S.outbox && (meAdmin || [...S.convos.values()].some(x => x.kind === 'dm' && x.peer === o));
@@ -2437,6 +2467,7 @@ async function renderInfo() {
     else if (k === 'edit') editGroupModal(c);
     else if (k === 'link') groupInviteModal(c);
     else if (k === 'poll') pollModal(c);
+    else if (k === 'theme') themeModal(c);
     else if (k === 'pin') jumpTo(c.pin.id);
     else if (k === 'add') pickPeopleModal('Add people', c.members, async sel => { closeModal(); showLoading('Adding…', true); try { await addToGroup(c, sel); } catch (er) { toast(er.message, true); } hideLoading(); });
     else if (k === 'mute') { muted ? S.muted.delete(c.id) : S.muted.add(c.id); LS.set('muted', [...S.muted]); el.dataset.sig = ''; renderInfo(); renderSidebarList(); saveStatus(); }
@@ -2553,6 +2584,78 @@ function forwardModal(m) {
 async function adminRemove(c, m) {
   if (!confirm('Remove this message for everyone in the group?')) return;
   try { await sendRecord(c, { k: 'hide', to: m.id }); } catch (e) { toast(e.message, true); }
+}
+
+/* ============================ CHAT THEMES (per chat, synced to everyone in it) ============================ */
+const COURT = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='LINE' stroke-width='3'%3E%3Crect x='14' y='14' width='212' height='212' rx='2'/%3E%3Cline x1='14' y1='120' x2='226' y2='120' stroke-dasharray='8 6'/%3E%3Cline x1='14' y1='84' x2='226' y2='84'/%3E%3Cline x1='14' y1='156' x2='226' y2='156'/%3E%3Cline x1='120' y1='14' x2='120' y2='84'/%3E%3Cline x1='120' y1='156' x2='120' y2='226'/%3E%3C/g%3E%3Cg transform='translate(178 46)'%3E%3Ccircle r='12' fill='%23d4f53c' fill-opacity='BALL'/%3E%3Cg fill='%23253a08' fill-opacity='.35'%3E%3Ccircle cx='-5' cy='-4' r='1.8'/%3E%3Ccircle cx='4' cy='-5' r='1.8'/%3E%3Ccircle cx='0' cy='2' r='1.8'/%3E%3Ccircle cx='-6' cy='6' r='1.5'/%3E%3Ccircle cx='6' cy='5' r='1.5'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(58 188) rotate(-30)'%3E%3Crect x='-9' y='-15' width='18' height='22' rx='8' fill='%23ffffff' fill-opacity='PAD'/%3E%3Crect x='-2.5' y='6' width='5' height='12' rx='2' fill='%23ffffff' fill-opacity='PAD'/%3E%3C/g%3E%3C/svg%3E\")";
+const court = (line, ball, pad) => COURT.replace('LINE', line).replace('BALL', ball).replace(/PAD/g, pad);
+const THEMES = [
+  { id: 'default', name: 'Classic', em: '👍', me: '#7360f2', acc: '#7360f2' },
+  { id: 'pickleball', name: 'Pickleball', em: '🏓', me: 'linear-gradient(180deg,#e3fa52 0%,#b4e51f 55%,#86c80f 100%)', meText: '#1d2c06', acc: '#4f8a10', accD: '#c9f03c', onAccD: '#1d2c06',
+    bg: `${court('.75', '.6', '.35')}, linear-gradient(180deg,#d9ecfb,#c9e3f7)`, bgD: `${court('.12', '.35', '.08')}, linear-gradient(180deg,#0f2a44,#0b1f33)`,
+    them: '#ffffff', themText: '#16202b', themD: '#1e3a57', themTextD: '#eef6ff', chip: 'rgba(255,255,255,.85)', chipD: 'rgba(8,24,40,.75)', sw: 'linear-gradient(135deg,#d4f53c 50%,#2f6db5 50%)' },
+  { id: 'ocean', name: 'Ocean', em: '🌊', me: 'linear-gradient(180deg,#00c6ff,#0072ff)', acc: '#0a7cff', bg: 'linear-gradient(180deg,#eef8ff,#e3f1ff)', bgD: 'linear-gradient(180deg,#0b1a2a,#0a1522)' },
+  { id: 'sunset', name: 'Sunset', em: '🌅', me: 'linear-gradient(180deg,#ffb347,#ff7a59 50%,#ff5277)', acc: '#ff6a3d', bg: 'linear-gradient(180deg,#fff6ee,#fff0ea)', bgD: 'linear-gradient(180deg,#24150f,#1d1012)' },
+  { id: 'berry', name: 'Berry', em: '🍇', me: 'linear-gradient(180deg,#ff5fae,#a646f5)', acc: '#b544e6', bg: 'linear-gradient(180deg,#fdf1fb,#f4ecff)', bgD: 'linear-gradient(180deg,#1f1027,#170d24)' },
+  { id: 'love', name: 'Love', em: '❤️', me: 'linear-gradient(180deg,#ff8aa8,#ff3d6e)', acc: '#ff3d6e', bg: 'linear-gradient(180deg,#fff1f4,#ffe8ee)', bgD: 'linear-gradient(180deg,#2a1218,#220f14)' },
+  { id: 'tropical', name: 'Tropical', em: '🌴', me: 'linear-gradient(180deg,#38ef7d,#11998e)', acc: '#0f9b7a', bg: 'linear-gradient(180deg,#eefcf6,#e6f8f6)', bgD: 'linear-gradient(180deg,#0c211c,#0a1b18)' },
+  { id: 'forest', name: 'Forest', em: '🌲', me: 'linear-gradient(180deg,#5cb85c,#2e7d32)', acc: '#2e7d32', bg: 'linear-gradient(180deg,#f1f8ef,#e9f3e7)', bgD: 'linear-gradient(180deg,#102012,#0d1a0f)' },
+  { id: 'citrus', name: 'Citrus', em: '🍋', me: 'linear-gradient(180deg,#ffd200,#f7971e)', meText: '#3a2500', acc: '#e08600', bg: 'linear-gradient(180deg,#fffbea,#fff6dc)', bgD: 'linear-gradient(180deg,#221c0a,#1c1608)' },
+  { id: 'mono', name: 'Mono', em: '🖤', me: '#1f1f24', acc: '#1f1f24', accD: '#e6e6ea', meD: '#e6e6ea', meTextD: '#111114', onAccD: '#111114' }
+];
+const themeById = id => THEMES.find(t => t.id === id) || THEMES[0];
+function chatTheme(c) { const t = S.st.themes?.[c.id]; return { t: themeById(t?.id), em: t?.em || themeById(t?.id).em }; }
+function adoptTheme(c, th, from, ctIso) {
+  if (!th?.id) return false;
+  const g = gOf(c); if (g && from && !canEdit(g, from)) return false;
+  const cur = S.st.themes?.[c.id];
+  if (cur && (cur.ct || '') >= ctIso) return false;
+  (S.st.themes ||= {})[c.id] = { id: th.id, em: th.em || null, ct: ctIso }; saveState(); applyChatTheme(true); return true;
+}
+function applyChatTheme(force) {
+  const el = $('#chat'); const c = S.convos.get(S.active); if (!el) return;
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const { t, em } = c ? chatTheme(c) : { t: THEMES[0], em: '👍' };
+  const sig = t.id + dark + em; if (!force && el.dataset.th === sig) return; el.dataset.th = sig;
+  const v = {
+    '--accent': dark && t.accD ? t.accD : t.acc, '--accent-2': dark && t.accD ? t.accD : t.acc, '--on-accent': dark && t.onAccD ? t.onAccD : '#fff',
+    '--me': dark && t.meD ? t.meD : t.me, '--me-text': dark && t.meTextD ? t.meTextD : (t.meText || '#fff')
+  };
+  if (t.acc !== THEMES[0].acc) v['--accent-soft'] = `color-mix(in srgb, ${v['--accent']} ${dark ? 22 : 14}%, transparent)`;
+  if (t.bg) v['--chat-bg'] = dark ? t.bgD : t.bg;
+  if (t.them) { v['--them'] = dark ? t.themD : t.them; v['--them-text'] = dark ? t.themTextD : t.themText; }
+  if (t.chip) v['--chip'] = dark ? t.chipD : t.chip;
+  el.removeAttribute('style'); for (const [k, val] of Object.entries(v)) el.style.setProperty(k, val);
+  el.classList.toggle('themed', !!t.bg); el.classList.toggle('grad', /gradient/.test(v['--me']));
+  const q = $('#qe-btn'); if (q) q.textContent = em;
+}
+async function setChatTheme(c, id, em) {
+  const t = themeById(id); const now = iso(Date.now());
+  (S.st.themes ||= {})[c.id] = { id, em: em || null, ct: now }; saveState(true); applyChatTheme(true); saveStatus(true);
+  try { await sendRecord(c, { k: 'theme', id, em: em || null, sys: em && em !== t.em ? `set the quick emoji to ${em}` : `changed the theme to ${t.name} ${t.em}` }); }
+  catch (e) { toast(e.message, true); }
+}
+function themeModal(c) {
+  const cur = chatTheme(c); let pick = cur.t.id, em = S.st.themes?.[c.id]?.em || null;
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const card = t => `<button class="thc${t.id === pick ? ' on' : ''}" data-id="${t.id}">
+      <div class="thp" style="background:${(dark ? t.bgD : t.bg) || 'var(--bg-2)'}">
+        <span class="thb them" style="${t.them ? `background:${dark ? t.themD : t.them};color:${dark ? t.themTextD : t.themText}` : ''}">Hey!</span>
+        <span class="thb me" style="background:${dark && t.meD ? t.meD : t.me};color:${dark && t.meTextD ? t.meTextD : (t.meText || '#fff')}">Let's play ${t.em}</span>
+      </div><span class="thn">${t.name}</span></button>`;
+  const o = modal('Chat theme', `<p class="small muted" style="margin-top:0">Everyone in this chat will see the new theme.</p>
+    <div class="thgrid">${THEMES.map(card).join('')}</div>
+    <div class="toggle-row" style="margin-top:12px"><span><b>Quick emoji</b><small>Tap it next to the message box to send it instantly</small></span><button class="btn ghost" id="th-em" style="font-size:22px;padding:4px 12px">${em || themeById(pick).em}</button></div>`,
+    `<button class="btn ghost" id="th-c">Cancel</button><button class="btn" id="th-ok">Apply</button>`);
+  $('.thgrid', o).onclick = e => { const b = e.target.closest('.thc'); if (!b) return; pick = b.dataset.id; $$('.thc', o).forEach(x => x.classList.toggle('on', x === b)); if (!em) $('#th-em', o).textContent = themeById(pick).em; };
+  $('#th-em', o).onclick = e => emojiPicker(e.currentTarget, x => { em = x; $('#th-em', o).textContent = x; });
+  $('#th-c', o).onclick = closeModal;
+  $('#th-ok', o).onclick = () => { closeModal(); if (pick !== cur.t.id || (em || null) !== (S.st.themes?.[c.id]?.em || null)) setChatTheme(c, pick, em); };
+}
+async function sendQuickEmoji() {
+  const c = S.convos.get(S.active); if (!c) return;
+  const btn = $('#qe-btn'); btn?.classList.remove('pop'); void btn?.offsetWidth; btn?.classList.add('pop');
+  await postMessage(c, { t: chatTheme(c).em });
 }
 
 /* ============================ GROUP UI: photo, info panel, edit, invite links ============================ */

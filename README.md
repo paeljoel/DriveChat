@@ -21,6 +21,7 @@ End-to-end encrypted messages, photos, voice notes and voice/video calls, with n
 | 🔒 **End-to-end encrypted** | Messages, photos, files, voice notes, read receipts and typing are encrypted on your device. |
 | 📞 **Voice & video calls** | One-to-one calls that go straight between devices, also encrypted. |
 | 👥 **Groups like Messenger & Viber** | Group photo and description, admins, remove members, invite links, @mentions, polls, pinned messages, group voice & video calls (up to 8) |
+| 🎨 **Chat themes** | 10 Messenger-style themes per chat or group, including **Pickleball** 🏓, synced for everyone in the chat, plus a one-tap quick emoji |
 | 💬 **Everything you expect** | Groups, replies, reactions, edits, deletes, read receipts, typing indicators and online status. |
 | 📁 **Your data, your Drive** | Everything is stored in a `DriveChat` folder in your own Google Drive. Delete it any time. |
 | 🛡️ **Minimal permissions** | DriveChat can only see the files it creates, never the rest of your Drive. |
@@ -64,6 +65,14 @@ DriveChat notifies you about messages and calls, even when it's closed, like Mes
 | **Group calls** | Voice or video for up to 8 people. Everyone's phone rings, and anyone can join a call that's already running. |
 
 <div align="center"><img src="docs/group-call.png" alt="Group video call" width="620"></div>
+
+## Chat themes
+
+Tap **ⓘ → Theme** in any chat or group. The theme changes the bubbles (gradient bubbles that shift as you scroll, like Messenger), the background and the buttons, for everyone in the chat. Each theme comes with a **quick emoji** button you tap to send instantly, and you can change that emoji.
+
+Themes: Classic · **Pickleball** (lime ball bubbles on a court background, with a dark night-court version) · Ocean · Sunset · Berry · Love · Tropical · Forest · Citrus · Mono
+
+<div align="center"><img src="docs/theme-pickleball.png" width="440" alt="Pickleball theme"> <img src="docs/theme-pickleball-dark.png" width="440" alt="Pickleball theme, dark mode"></div>
 
 ## How to use it
 
