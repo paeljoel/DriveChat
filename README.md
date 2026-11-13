@@ -42,6 +42,10 @@ DriveChat installs straight from the website. No app store is needed, and it get
 
 The installed app opens full-screen, shows notifications, and loads instantly.
 
+## Notifications
+
+DriveChat notifies you about messages and calls, even when it's closed, like Messenger. For that, the owner deploys a tiny free relay once (about 3 minutes); see [`push-relay/README.md`](push-relay/README.md). Notifications stay end-to-end encrypted, so the relay can't read them. On iPhone, add DriveChat to your Home Screen first.
+
 ## How to use it
 
 1. Open the app and **sign in with Google**.

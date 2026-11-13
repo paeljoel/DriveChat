@@ -356,6 +356,12 @@ html,body{overscroll-behavior:none}
 .note>svg,.note>.icon,.waiting>svg,.trust>svg{flex-shrink:0}
 .note .icon{margin-top:2px}
 @media (pointer:coarse){.bubble{-webkit-user-select:none;user-select:none}}
+.nudge{display:flex;gap:12px;align-items:flex-start;margin:0 14px 10px;padding:12px 8px 12px 12px;border-radius:16px;background:var(--accent-soft)}
+.nudge-ic{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nudge-ic .icon{width:19px;height:19px}
+.nudge-t{flex:1;min-width:0;font-size:13px;color:var(--text-2);line-height:1.4}.nudge-t b{display:block;color:var(--text);font-size:14px;margin-bottom:2px}
+.nudge-t .btn{display:inline-block;margin-top:8px;padding:7px 14px;font-size:13.5px}
+.nudge .ibtn{width:30px;height:30px;margin:-4px -2px 0 0}.nudge .ibtn .icon{width:16px;height:16px}
 </style>
 </head>
 <body>
@@ -376,7 +382,10 @@ const CONFIG = {
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
   // STUN finds a direct path for calls. Optionally add a TURN server for strict networks:
   // { urls: 'turn:turn.example.com:3478', username: 'user', credential: 'pass' }
-  iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }]
+  iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }],
+  // Push notifications (messages + calls while DriveChat is closed). See push-relay/README.md.
+  pushRelay: '',                       // your Cloudflare Worker URL, e.g. https://drivechat-push.yourname.workers.dev
+  vapidPublicKey: 'BFyKoVTTrxmlKIAT671MUsz2gJc3-gyd5gKmEtG_NPK67fG9_0VkoamrD6YfVvU6KyZ1F2rNd6ffwa3TQ_GyYWs'
 };
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
@@ -549,7 +558,7 @@ async function initAuth() {
       if (r.error) return p?.rej(new Error(r.error_description || r.error));
       if (!google.accounts.oauth2.hasGrantedAllScopes(r, SCOPES)) return p?.rej(new Error('Please tick the Google Drive box — DriveChat only touches files it creates itself.'));
       accessToken = r.access_token; tokenExp = Date.now() + (+r.expires_in || 3600) * 1000;
-      try { sessionStorage.setItem('dc_tok', JSON.stringify({ t: accessToken, e: tokenExp })); } catch {}
+      try { localStorage.setItem('dc_tok', JSON.stringify({ t: accessToken, e: tokenExp })); } catch {}
       p?.res(accessToken);
     },
     error_callback: e => {
@@ -557,7 +566,7 @@ async function initAuth() {
       p?.rej(new Error(e?.type === 'popup_closed' ? 'Sign-in window was closed.' : e?.type === 'popup_failed_to_open' ? 'Pop-up blocked. Allow pop-ups for this site.' : (e?.message || 'Sign-in failed')));
     }
   });
-  const s = parseJ(sessionStorage.getItem('dc_tok'), null);
+  const s = parseJ(localStorage.getItem('dc_tok'), null);
   if (s && s.e > Date.now() + 120000) { accessToken = s.t; tokenExp = s.e; }
 }
 function requestToken(prompt = '') {
@@ -885,6 +894,7 @@ async function ingestStatus(o, f) {
       const v = await Crypto.open(await convoKey(c), sealed);
       if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; continue; }
       if (v.rd) p.rd[cid] = v.rd;
+      if ('push' in v) p.push = v.push; if ('vis' in v) p.vis = !!v.vis;
       if (v.ty && (!p.ty || p.ty.t !== v.ty) && Math.abs(v.ty - p.mt) < 15000) { p.ty = { c: cid, t: v.ty }; p.tyAt = Date.now(); }
     } catch {}
   }
@@ -903,7 +913,7 @@ function saveStatus(now = false) {
       if (S.myTy && !ids.includes(S.myTy.c)) ids.push(S.myTy.c);
       for (const cid of ids) {
         const c = S.convos.get(cid); if (!c) continue;
-        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0 }); } catch {}
+        try { s[cid] = await Crypto.seal(await convoKey(c), { rd: S.myRd[cid] || '', ty: S.myTy?.c === cid ? S.myTy.t : 0, push: S.myPush || null, vis: !document.hidden }); } catch {}
       }
       const desc = JSON.stringify({ ls: Date.now(), s });
       if (S.files.status) await patchMeta(S.files.status, { description: desc });
@@ -1144,6 +1154,7 @@ async function postMessage(c, data) {
   try {
     const f = await sendRecord(c, { k: 'm', ...data, cl });
     S.myRd[c.id] = f.createdTime; saveStatus();
+    notifyPeers(c, { t: 'msg', body: preview({ ...data, from: S.outbox }) });
   } catch (e) { tmp.failed = true; scheduleRender(); toast('Message not sent: ' + e.message, true); }
 }
 async function sendText() {
@@ -1283,6 +1294,7 @@ async function startCall(c, video) {
     await pc.setLocalDescription(await pc.createOffer());
     await iceComplete(pc); if (!call) return;
     await signal(call, 'offer', { sdp: pc.localDescription.sdp, video: call.video });
+    notifyPeers(c, { t: 'call', body: call.video ? '📹 Incoming video call' : '📞 Incoming voice call', video: call.video });
     wakePeer(c.peer);
     call.noAnswer = setTimeout(() => { if (call && call.state === 'calling') { toast('No answer'); endCall(true, true); } }, 45000);
   } catch (e) { toast('Could not start call: ' + e.message, true); endCall(false); }
@@ -1291,7 +1303,7 @@ function onCallSignal(c, from, p, f) {
   if (from === S.outbox || c.kind !== 'dm') return;
   if (Date.parse(f.createdTime) < S.startedAt - 5000 && Date.now() - Date.parse(f.createdTime) > 60000) return;
   if (p.op === 'offer') {
-    if (Date.now() - Date.parse(f.createdTime) > 50000) return;
+    if (Date.now() - Date.parse(f.createdTime) > 60000) return;
     if (call) { if (call.id !== p.id) { const busy = { id: p.id, cid: c.id, files: [] }; signal(busy, 'busy').catch(() => {}); setTimeout(() => busy.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 20000); } return; }
     call = { id: p.id, cid: c.id, peer: from, video: !!p.video, dir: 'in', state: 'ringing', offer: p.sdp, files: [], muted: false, camOff: false };
     ringtone(true, false); renderCall();
@@ -1329,6 +1341,7 @@ async function endCall(notify = true, missed = false) {
   $('#callui')?.remove();
   const c = S.convos.get(k.cid);
   if (c && notify) { try { await signal(k, 'end'); } catch {} }
+  if (c && k.dir === 'out' && !k.t0) notifyPeers(c, { t: 'missed', body: `📞 Missed ${k.video ? 'video' : 'voice'} call` });
   if (c && k.dir === 'out') { try { await sendRecord(c, { k: 'log', video: k.video, dur: k.t0 ? Math.round((Date.now() - k.t0) / 1000) : 0, missed: !k.t0 && (missed || k.state === 'calling') }); } catch {} }
   setTimeout(() => k.files.forEach(id => api('/files/' + id, { method: 'DELETE' }).catch(() => {})), 15000);
 }
@@ -1363,6 +1376,95 @@ function renderCall() {
     ? btn('decline', 'phoneoff', 'Decline', 'red') + btn('accept-a', 'phone', 'Voice', 'green') + (call.video ? btn('accept-v', 'video', 'Video', 'green') : '')
     : btn('mute', call.muted ? 'micoff' : 'mic', call.muted ? 'Unmute' : 'Mute', call.muted ? 'off' : '') + (call.local?.getVideoTracks().length ? btn('cam', call.camOff ? 'videooff' : 'video', call.camOff ? 'Camera on' : 'Camera off', call.camOff ? 'off' : '') : '') + btn('end', 'phoneoff', 'End', 'red');
   if (call.state === 'active' && !call.tick) call.tick = setInterval(() => { const s = $('#cstat'); if (s && call?.t0) s.textContent = fmtDur((Date.now() - call.t0) / 1000); }, 1000);
+}
+
+/* ============================ PUSH NOTIFICATIONS ============================ */
+const b64uDec = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+const pushReady = () => !!(CONFIG.pushRelay && CONFIG.vapidPublicKey && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window);
+async function hkdf(salt, ikm, info, len) {
+  const k = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, k, len * 8));
+}
+const concat = (...arrs) => { const out = new Uint8Array(arrs.reduce((n, a) => n + a.length, 0)); let o = 0; for (const a of arrs) { out.set(a, o); o += a.length; } return out; };
+/* RFC 8291 web-push encryption, done here so the relay never sees the notification */
+async function encryptPush(sub, plain) {
+  const uaPub = b64uDec(sub.p), auth = b64uDec(sub.a);
+  const as = await crypto.subtle.generateKey(ECDH, true, ['deriveBits']);
+  const asPub = new Uint8Array(await crypto.subtle.exportKey('raw', as.publicKey));
+  const uaKey = await crypto.subtle.importKey('raw', uaPub, ECDH, false, []);
+  const ecdh = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: uaKey }, as.privateKey, 256));
+  const ikm = await hkdf(auth, ecdh, concat(tenc.encode('WebPush: info\0'), uaPub, asPub), 32);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const cek = await hkdf(salt, ikm, tenc.encode('Content-Encoding: aes128gcm\0'), 16);
+  const nonce = await hkdf(salt, ikm, tenc.encode('Content-Encoding: nonce\0'), 12);
+  const key = await crypto.subtle.importKey('raw', cek, 'AES-GCM', false, ['encrypt']);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, key, concat(plain, new Uint8Array([2]))));
+  const header = new Uint8Array(21 + asPub.length); header.set(salt); new DataView(header.buffer).setUint32(16, 4096); header[20] = asPub.length; header.set(asPub, 21);
+  return concat(header, ct);
+}
+async function sendPush(p, msg) {
+  const body = await encryptPush(p.push, tenc.encode(JSON.stringify(msg)));
+  const call = msg.t === 'call';
+  const r = await fetch(CONFIG.pushRelay.replace(/\/$/, '') + '/push', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint: p.push.e, body: b64(body), ttl: call ? 60 : msg.t === 'missed' ? 3600 : 86400, urgency: call || msg.t === 'missed' ? 'high' : 'normal', topic: call ? 'call' : msg.cid.slice(0, 32) }) });
+  if (r.status === 410) p.push = null;
+}
+function notifyPeers(c, data) {
+  if (!pushReady()) return;
+  const me = S.prof.n || S.me?.name || 'DriveChat';
+  const msg = { ...data, cid: c.id, title: c.kind === 'group' ? `${me} · ${convoTitle(c)}` : me, icon: S.me?.photo || '' };
+  if (msg.body) msg.body = String(msg.body).slice(0, 180);
+  for (const o of convoMembers(c)) {
+    if (o === S.outbox || S.muted.has(c.id)) continue;
+    const p = S.people.get(o); if (!p?.push) continue;
+    const away = !p.vis || Date.now() - (p.mt || 0) > 70000;
+    if (data.t === 'msg' && !away) continue;          // they're looking at the app right now
+    sendPush(p, msg).catch(e => console.warn('push', e.message));
+  }
+}
+async function ensurePushSub() {
+  if (!pushReady() || Notification.permission !== 'granted') return null;
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && LS.get('vapid') !== CONFIG.vapidPublicKey) { await sub.unsubscribe().catch(() => {}); sub = null; }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uDec(CONFIG.vapidPublicKey) });
+  LS.set('vapid', CONFIG.vapidPublicKey);
+  const j = sub.toJSON(); const mine = { e: j.endpoint, p: j.keys.p256dh, a: j.keys.auth };
+  if (JSON.stringify(mine) !== JSON.stringify(S.myPush)) { S.myPush = mine; saveStatus(true); }
+  return mine;
+}
+async function enableNotifications() {
+  unlockAudio();
+  if (isIOS() && !isStandalone()) { installApp(true); return; }
+  if (!('Notification' in window)) return toast('This browser can\'t show notifications', true);
+  let perm = Notification.permission;
+  if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = Notification.permission; } }
+  if (perm !== 'granted') { toast('Notifications are blocked. Allow them in your browser\'s site settings (🔒 next to the address).', true, 7000); renderNudge(); return; }
+  S.notify = true; LS.set('notify', true);
+  if (pushReady()) { try { await ensurePushSub(); toast('Notifications on 🔔 You\'ll get messages and calls even when DriveChat is closed.', false, 5000); } catch (e) { toast('Notifications on, but only while DriveChat is open (' + e.message + ')', true, 7000); } }
+  else toast('Notifications on 🔔', false);
+  renderNudge();
+}
+function nudgeState() {
+  if (LS.get('nudgeHide', 0) > Date.now()) return null;
+  if (isIOS() && !isStandalone()) return { t: 'Get notifications on iPhone', d: 'Add DriveChat to your Home Screen to get messages and calls when it\'s closed.', b: 'Show me how' };
+  if (!('Notification' in window)) return null;
+  if (Notification.permission === 'denied') return { t: 'Notifications are blocked', d: 'Allow notifications in your browser\'s site settings to hear messages and calls.', b: null };
+  if (Notification.permission === 'default') return { t: 'Turn on notifications', d: 'Get messages and calls even when DriveChat is in the background.', b: 'Turn on' };
+  return null;
+}
+function renderNudge() {
+  const el = $('#nudge'); if (!el) return;
+  const n = nudgeState();
+  el.innerHTML = n ? `<div class="nudge"><div class="nudge-ic">${I.bell}</div><div class="nudge-t"><b>${n.t}</b><span>${n.d}</span>${n.b ? `<button class="btn" id="nudge-go">${n.b}</button>` : ''}</div><button class="ibtn" id="nudge-x" title="Not now">${I.x}</button></div>` : '';
+  if (!n) return;
+  const go = $('#nudge-go'); if (go) go.onclick = () => enableNotifications();
+  $('#nudge-x').onclick = () => { LS.set('nudgeHide', Date.now() + 3 * 86400000); renderNudge(); };
+}
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); const b = audioCtx.createBuffer(1, 1, 22050), src = audioCtx.createBufferSource(); src.buffer = b; src.connect(audioCtx.destination); src.start(0); audioUnlocked = true; } catch {}
 }
 
 /* ============================ NOTIFICATIONS ============================ */
@@ -1401,9 +1503,9 @@ async function showNote(title, opts, cid) {
   try { const n = new Notification(title, opts); n.onclick = () => { window.focus(); if (cid && S.convos.has(cid)) openConvo(cid); n.close(); }; } catch {}
 }
 function askNotifyOnGesture() {
-  if (!('Notification' in window) || Notification.permission !== 'default' || !S.notify) return;
-  const once = () => { removeEventListener('pointerdown', once, true); try { Notification.requestPermission(); } catch {} };
+  const once = () => { removeEventListener('pointerdown', once, true); unlockAudio(); };
   addEventListener('pointerdown', once, true);
+  if ('Notification' in window && Notification.permission === 'granted') ensurePushSub().catch(e => console.warn('push sub', e.message));
 }
 function updateTitle() { let n = 0; for (const c of S.convos.values()) if (!S.muted.has(c.id)) n += unreadCount(c); document.title = n ? `(${n}) DriveChat` : 'DriveChat'; }
 
@@ -1468,7 +1570,7 @@ function showSignIn(err) {
   </div></div>`;
   $('#signin').onclick = async () => { try { await requestToken(LS.get('lastEmail') ? '' : 'select_account'); await afterSignIn(); } catch (e) { showSignIn(e.message); } };
   const r = $('#reset-cid'); if (r) r.onclick = () => showSetup();
-  $('#land-install').onclick = installApp; refreshInstallUI();
+  $('#land-install').onclick = () => installApp(); refreshInstallUI();
   if (invite) fetchProfile(invite.o).then(p => {
     const el = $('#invite-slot'); if (!el) return;
     el.innerHTML = p ? `<div class="invite">${avatarHtml({ ...p, c: p.c || hashColor(invite.o) }, 52)}<div><b>${esc(p.n)}</b><span>invited you to chat on DriveChat</span></div></div>` : '';
@@ -1516,7 +1618,7 @@ function showPassword(mode, err) {
 }
 function signOut() {
   try { if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {}); } catch {}
-  accessToken = null; tokenExp = 0; sessionStorage.removeItem('dc_tok'); LS.del('lastEmail');
+  accessToken = null; tokenExp = 0; localStorage.removeItem('dc_tok'); LS.del('lastEmail');
   stopApp(); showSignIn();
 }
 function stopApp() { S.running = false; S.gen++; if (call) endCall(true); }
@@ -1572,6 +1674,7 @@ function renderMain() {
       </div>
       <div class="search">${I.search}<input id="filter" placeholder="Search" value="${esc(S.filter)}"></div>
       <div class="tabs"><button class="tab${S.tab === 'chats' ? ' on' : ''}" data-tab="chats">Chats</button><button class="tab${S.tab === 'people' ? ' on' : ''}" data-tab="people">Contacts</button></div>
+      <div id="nudge"></div>
       <div class="list" id="list"></div>
     </aside>
     <section class="chat" id="chat">${c ? chatShell() : `<div class="welcome">${logoHtml()}<h2 style="color:var(--text)">Hi, ${esc(S.prof.n.split(' ')[0])}</h2><p>Share your invite link with friends to start chatting.<br>Messages and calls are end-to-end encrypted.</p><div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="w-inv">Add people</button><button class="btn ghost" id="w-new">New chat</button></div></div>`}</section>
@@ -1579,7 +1682,7 @@ function renderMain() {
   </div>`;
   $('#new-btn').onclick = () => newChatModal();
   $('#add-btn').onclick = () => addPeopleModal();
-  $('#inst-btn').onclick = installApp; refreshInstallUI();
+  $('#inst-btn').onclick = () => installApp(); refreshInstallUI(); renderNudge();
   $('#me-btn').onclick = () => settingsModal();
   $('#filter').oninput = e => { S.filter = e.target.value; renderSidebarList(); };
   $$('.tab').forEach(t => t.onclick = () => { S.tab = t.dataset.tab; $$('.tab').forEach(x => x.classList.toggle('on', x === t)); renderSidebarList(); });
@@ -2016,7 +2119,8 @@ function settingsModal() {
     <label class="lbl">Color</label><div class="swatches" id="s-col">${COLORS.map(c => `<button class="sw${c === S.prof.c ? ' on' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div>
     <label class="lbl">Theme</label><div class="seg" id="s-theme">${['system', 'light', 'dark'].map(t => `<button data-t="${t}" class="${S.theme === t ? 'on' : ''}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
     <label class="lbl">Notifications</label>
-    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-notif" ${S.notify ? 'checked' : ''}> Desktop notifications</label>
+    <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-notif" ${S.notify ? 'checked' : ''}> Show notifications</label>
+    <div class="small muted" style="margin:2px 0 8px">${'Notification' in window && Notification.permission === 'granted' ? (S.myPush ? '🔔 On, including when DriveChat is closed.' : pushReady() ? '🔔 On while DriveChat is open.' : '🔔 On while DriveChat is open.') : `<button class="btn ghost" id="s-enable" style="padding:6px 12px">${iconSm('bell', 15)} Turn on notifications</button>`}</div>
     <label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" id="s-sound" ${S.sound ? 'checked' : ''}> Sounds</label>
     <div class="divider">PRIVACY</div>
     <div class="note">${iconSm('lock', 18)}<span>Messages, files, calls, read receipts and typing are end-to-end encrypted. Your data is in the <b>DriveChat</b> folder of your Google Drive.</span></div>
@@ -2029,7 +2133,8 @@ function settingsModal() {
   $('#s-theme', o).onclick = e => { const b = e.target.closest('button'); if (!b) return; theme = b.dataset.t; $$('#s-theme button', o).forEach(x => x.classList.toggle('on', x === b)); S.theme = theme; applyTheme(); };
   $('#s-c', o).onclick = () => { S.theme = LS.get('theme', 'system'); applyTheme(); closeModal(); };
   $('#s-inv', o).onclick = () => addPeopleModal();
-  $('#s-install', o).onclick = installApp; refreshInstallUI();
+  $('#s-install', o).onclick = () => installApp(); refreshInstallUI();
+  const se = $('#s-enable', o); if (se) se.onclick = () => { closeModal(); enableNotifications(); };
   $('#s-out', o).onclick = () => { closeModal(); signOut(); };
   $('#s-lock', o).onclick = async () => { if (!confirm('Remove your decryption key from this browser? You\'ll need your backup password next time.')) return; await IDB.del('id:' + S.me.email); closeModal(); signOut(); };
   $('#s-save', o).onclick = async () => {
@@ -2037,7 +2142,7 @@ function settingsModal() {
     S.st.me = { ...S.prof }; saveState();
     S.theme = theme; LS.set('theme', theme); applyTheme();
     S.notify = $('#s-notif', o).checked; LS.set('notify', S.notify); S.sound = $('#s-sound', o).checked; LS.set('sound', S.sound);
-    if (S.notify && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    if (S.notify && 'Notification' in window && Notification.permission === 'default') enableNotifications();
     closeModal(); renderMain(); toast('Saved');
     try { await publishProfile(); } catch (e) { toast(e.message, true); }
   };
@@ -2051,13 +2156,13 @@ const canInstall = () => !isStandalone() && (!!installPrompt || isIOS() || match
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; refreshInstallUI(); });
 addEventListener('appinstalled', () => { installPrompt = null; refreshInstallUI(); toast('DriveChat installed 🎉'); });
 function refreshInstallUI() { $$('[data-install]').forEach(el => el.classList.toggle('hidden', !canInstall())); }
-async function installApp() {
+async function installApp(forNotifications = false) {
   if (installPrompt) { installPrompt.prompt(); try { await installPrompt.userChoice; } catch {} installPrompt = null; refreshInstallUI(); return; }
   const step = (n, html) => `<div class="istep"><span class="inum">${n}</span><div>${html}</div></div>`;
   let body;
   if (isIOS()) {
     const safari = /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios/i.test(navigator.userAgent);
-    body = (safari ? '' : `<div class="note warn">On iPhone and iPad, apps can only be installed from <b>Safari</b>. Open this page in Safari first.</div>`)
+    body = (forNotifications ? `<div class="note">${iconSm('bell', 18)}<span>On iPhone, notifications only work after DriveChat is added to your Home Screen. Add it, open it from the Home Screen, then tap <b>Turn on notifications</b>.</span></div>` : '') + (safari ? '' : `<div class="note warn">On iPhone and iPad, apps can only be installed from <b>Safari</b>. Open this page in Safari first.</div>`)
       + step(1, `Tap the <b>Share</b> button <span class="kbd">${iconSm('iosShare', 16)}</span> at the bottom of Safari (top on iPad).`)
       + step(2, `Scroll down and tap <b>Add to Home Screen</b> <span class="kbd">${iconSm('plus', 16)}</span>.`)
       + step(3, `Tap <b>Add</b>. DriveChat now appears on your Home Screen like any other app.`);
@@ -2093,7 +2198,7 @@ function fitViewport() {
 window.visualViewport?.addEventListener('resize', fitViewport); addEventListener('resize', fitViewport); fitViewport();
 
 /* ============================ BOOT ============================ */
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.running) { S.nextPoll.clear(); markRead(); saveStatus(); } });
+document.addEventListener('visibilitychange', () => { if (!S.running) return; if (!document.hidden) { S.nextPoll.clear(); markRead(); saveStatus(); } else saveStatus(true); });
 addEventListener('focus', () => S.running && markRead());
 addEventListener('online', () => S.running && S.nextPoll.clear());
 addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '.' + L.r : '')); } });
@@ -2103,7 +2208,7 @@ async function boot() {
   applyTheme();
   if ('serviceWorker' in navigator && location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     navigator.serviceWorker?.register('sw.js').catch(e => console.warn('sw', e));
-    navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } });
+    navigator.serviceWorker?.addEventListener('message', e => { if (e.data?.type === 'poll' && S.running) { S.nextPoll.clear(); pollLoop.wake?.(); } if (e.data?.type === 'open' && S.convos.has(e.data.cid)) { window.focus(); openConvo(e.data.cid); } });
   }
   const om = location.hash.match(/open=([\w-]+)/); if (om) { LS.set('lastConvo', om[1]); history.replaceState(null, '', location.pathname + location.search); }
   const L = parseLink(location.hash);

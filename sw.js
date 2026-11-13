@@ -1,6 +1,6 @@
 /* DriveChat service worker: makes the app installable, loads it instantly,
    shows a friendly offline page, and delivers notifications on Android. */
-const VERSION = 'dc-v3';
+const VERSION = 'dc-v5';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'privacy.html', 'terms.html'];
 
 self.addEventListener('install', e => {
@@ -23,12 +23,35 @@ self.addEventListener('fetch', e => {
     return hit || net;
   }));
 });
+/* Push: the payload was end-to-end encrypted by the sender's browser; the browser
+   decrypts it for us. Shows Messenger-style notifications even when DriveChat is closed. */
+self.addEventListener('push', e => {
+  let d = {}; try { d = e.data ? e.data.json() : {}; } catch {}
+  e.waitUntil((async () => {
+    const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    wins.forEach(w => w.postMessage({ type: 'poll' }));              // open app fetches right away
+    if (d.t === 'missed') (await self.registration.getNotifications({ tag: 'call' })).forEach(n => n.close());
+    const isApp = w => !/\/(privacy|terms)\.html$/.test(new URL(w.url).pathname);
+    const onScreen = wins.some(w => isApp(w) && w.visibilityState === 'visible' && w.focused);
+    if (onScreen) return;                                             // the app shows its own UI / ringtone
+    const call = d.t === 'call';
+    await self.registration.showNotification(d.title || 'DriveChat', {
+      body: d.body || 'New message', icon: d.icon || 'icon-192.png', badge: 'icon-maskable-192.png',
+      tag: call ? 'call' : (d.cid || 'drivechat'), renotify: true, requireInteraction: call,
+      vibrate: call ? [600, 300, 600, 300, 600, 300, 600, 300, 600] : [120, 60, 120],
+      timestamp: Date.now(), data: { cid: d.cid, call },
+      actions: call ? [{ action: 'answer', title: d.video ? '📹 Answer' : '📞 Answer' }, { action: 'decline', title: 'Decline' }] : [{ action: 'open', title: 'Reply' }]
+    });
+  })());
+});
 self.addEventListener('notificationclick', e => {
   e.notification.close();
+  if (e.action === 'decline') return;
   const cid = e.notification.data?.cid;
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-    const c = list[0];
-    if (c) { c.postMessage({ type: 'open', cid }); return c.focus(); }
+    const apps = list.filter(w => !/\/(privacy|terms)\.html$/.test(new URL(w.url).pathname));
+    const c = apps.find(w => w.visibilityState === 'visible') || apps[0];
+    if (c) { c.postMessage({ type: 'open', cid }); c.postMessage({ type: 'poll' }); return c.focus(); }
     return self.clients.openWindow('./' + (cid ? '#open=' + cid : ''));
   }));
 });
