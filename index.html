@@ -924,7 +924,7 @@ async function loadHistory(c) {
 
 /* ============================ CONTACTS / INVITES ============================ */
 function appBase() { const u = new URL(location.href); u.search = ''; u.hash = ''; return u.toString(); }
-function linkFor(reply) { return `${appBase()}#add=${S.outbox}${reply ? '~' + reply : ''}`; }
+function linkFor(reply) { return `${appBase()}#add=${S.outbox}${reply ? '.' + reply : ''}`; }
 async function freshInviteLink() {
   let r = null;
   try { r = (await api('/files/generateIds', { query: { count: 1, space: 'drive', type: 'files' } })).ids[0]; S.st.pending.push({ r, t: Date.now() }); saveState(); } catch {}
@@ -932,7 +932,7 @@ async function freshInviteLink() {
 }
 function parseLink(s) {
   s = String(s || '').trim();
-  const m = s.match(/add=([\w-]{10,})(?:~([\w-]{10,}))?/) || s.match(/^([\w-]{20,})(?:~([\w-]{10,}))?$/);
+  const m = s.match(/add=([\w-]{10,})(?:(?:~|\.|%7E)([\w-]{10,}))?/i) || s.match(/^([\w-]{20,})(?:[~.]([\w-]{10,}))?$/);
   return m ? { o: m[1], r: m[2] || null } : null;
 }
 async function fetchProfile(o) {
@@ -1914,13 +1914,13 @@ function settingsModal() {
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.running) { S.nextPoll.clear(); markRead(); saveStatus(); } });
 addEventListener('focus', () => S.running && markRead());
 addEventListener('online', () => S.running && S.nextPoll.clear());
-addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '~' + L.r : '')); } });
+addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '.' + L.r : '')); } });
 addEventListener('beforeunload', e => { if (call) { e.preventDefault(); e.returnValue = ''; } });
 
 async function boot() {
   applyTheme();
   const L = parseLink(location.hash);
-  if (L) { LS.set('pendingAdd', L.o + (L.r ? '~' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
+  if (L) { LS.set('pendingAdd', L.o + (L.r ? '.' + L.r : '')); history.replaceState(null, '', location.pathname + location.search); }
   if (location.protocol === 'file:') { root().innerHTML = `<div class="screen"><div class="card"><h1>Serve over http(s)</h1><p class="muted">Google sign-in doesn't work from <code>file://</code>. Run <code>python3 -m http.server 8080</code> here and open <code>http://localhost:8080</code>, or deploy to GitHub Pages / Netlify.</p></div></div>`; return; }
   if (!cfg().clientId || !cfg().apiKey) return showSetup();
   showLoading('Loading…');
