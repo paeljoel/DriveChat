@@ -2076,10 +2076,15 @@ function modal(title, body, footer = '') {
 }
 function closeModal(fromPop) { const had = !!$('#overlay'); $('#overlay')?.remove(); if (had && !fromPop && history.state?.dc === 'modal') popBack(); }
 addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); closeModal(); } });
-let relayInfoP = null;
+let relayInfoP = null, relayInfoAt = 0;
 function relayInfo() {
   if (!CONFIG.pushRelay) return Promise.resolve(null);
-  return relayInfoP ||= fetch(CONFIG.pushRelay.replace(/\/$/, '') + '/').then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!relayInfoP || Date.now() - relayInfoAt > 5 * 60000) {   // re-check: the owner may have just finished setup
+    relayInfoAt = Date.now();
+    relayInfoP = fetch(CONFIG.pushRelay.replace(/\/$/, '') + '/', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+    relayInfoP.then(i => { if (!i) relayInfoAt = 0; });
+  }
+  return relayInfoP;
 }
 function inviteText(link) {
   const me = (S.prof.n || S.me.name).split(' ')[0];
@@ -2276,7 +2281,7 @@ function fitViewport() {
 window.visualViewport?.addEventListener('resize', fitViewport); addEventListener('resize', fitViewport); fitViewport();
 
 /* ============================ BOOT ============================ */
-document.addEventListener('visibilitychange', () => { if (!S.running) return; if (!document.hidden) { S.nextPoll.clear(); markRead(); saveStatus(); } else saveStatus(true); });
+document.addEventListener('visibilitychange', () => { if (!S.running) return; if (!document.hidden) { S.nextPoll.clear(); markRead(); saveStatus(); pendingLoop.wake?.(); } else saveStatus(true); });
 addEventListener('focus', () => S.running && markRead());
 addEventListener('online', () => S.running && S.nextPoll.clear());
 addEventListener('hashchange', () => { const L = parseLink(location.hash); if (L && S.running) { history.replaceState(null, '', location.pathname + location.search); acceptLink(L.o + (L.r ? '.' + L.r : '')); } });
