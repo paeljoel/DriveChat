@@ -989,21 +989,29 @@ async function pollLoop(gen) {
   }
 }
 function wakePeer(o) { S.nextPoll.set(o, 0); pollLoop.wake?.(); }
+const relayBase = () => CONFIG.pushRelay.replace(/\/$/, '');
+async function checkHandshakes() {
+  const pend = (S.st.pending || []).filter(p => p.keep || Date.now() - p.t < 14 * 86400000);
+  if (pend.length !== (S.st.pending || []).length) { S.st.pending = pend; saveState(); }
+  if (!pend.length) return;
+  const found = new Set();
+  const info = await relayInfo();
+  if (info?.hs) { try { const r = await fetch(relayBase() + '/hs?r=' + pend.map(p => p.r).slice(0, 10).join(',')); if (r.ok) ((await r.json()).o || []).forEach(o => found.add(o)); } catch {} }
+  for (const p of pend) {
+    if (p.driveDone) continue;
+    try { const f = await pub('/files/' + p.r, { fields: 'id,description' }); const d = parseJ(f.description); if (d.o) found.add(d.o); p.driveDone = true; saveState(); } catch {}
+  }
+  for (const o of found) {
+    if (o === S.outbox || S.st.contacts[o] || (S.st.removed || []).includes(o)) continue;
+    const prof = await fetchProfile(o).catch(() => null);
+    if (prof) { await addContact(o, prof); toast(`${prof.n} accepted your invite 🎉 Say hi!`, false, 5000); ping(); }
+  }
+}
 async function pendingLoop(gen) {
   while (S.running && gen === S.gen) {
-    const pend = (S.st.pending || []).filter(p => Date.now() - p.t < 14 * 86400000);
-    if (pend.length !== (S.st.pending || []).length) { S.st.pending = pend; saveState(); }
-    for (const p of pend) {
-      try {
-        const f = await pub('/files/' + p.r, { fields: 'id,description' });
-        const d = parseJ(f.description); S.st.pending = S.st.pending.filter(x => x.r !== p.r); saveState();
-        if (d.o && !S.st.contacts[d.o] && d.o !== S.outbox) {
-          const prof = await fetchProfile(d.o);
-          if (prof) { await addContact(d.o, prof); toast(`${prof.n} accepted your invite 🎉`); ping(); }
-        }
-      } catch {}
-    }
-    await sleep(document.hidden ? 60000 : 12000);
+    await checkHandshakes().catch(e => console.warn('handshake', e.message));
+    const recent = Date.now() - (S.lastShare || 0) < 15 * 60000;
+    await new Promise(r => { pendingLoop.wake = r; setTimeout(r, document.hidden ? 300000 : recent ? 6000 : 45000); });
   }
 }
 async function heartbeatLoop(gen) { while (S.running && gen === S.gen) { await sleep(HEARTBEAT_MS); if (S.running && gen === S.gen && !document.hidden) saveStatus(true); } }
@@ -1031,9 +1039,14 @@ async function loadHistory(c) {
 function appBase() { const u = new URL(location.href); u.search = ''; u.hash = ''; return u.toString(); }
 function linkFor(reply) { return `${appBase()}#add=${S.outbox}${reply ? '.' + reply : ''}`; }
 async function freshInviteLink() {
-  let r = null;
-  try { r = (await api('/files/generateIds', { query: { count: 1, space: 'drive', type: 'files' } })).ids[0]; S.st.pending.push({ r, t: Date.now() }); saveState(); } catch {}
-  return linkFor(r);
+  if (!S.st.myR) {
+    let r = null;
+    try { r = (await api('/files/generateIds', { query: { count: 1, space: 'drive', type: 'files' } })).ids[0]; } catch {}
+    r ||= b64(crypto.getRandomValues(new Uint8Array(18))).replace(/\+/g, '-').replace(/\//g, '_');
+    S.st.myR = r; S.st.pending = [...(S.st.pending || []), { r, t: Date.now(), keep: true }]; saveState(true);
+  }
+  S.lastShare = Date.now(); pendingLoop.wake?.();
+  return linkFor(S.st.myR);
 }
 function parseLink(s) {
   s = String(s || '').trim();
@@ -1047,6 +1060,7 @@ async function fetchProfile(o) {
 }
 async function addContact(o, prof) {
   const cid = await dmId(o);
+  if (S.st.removed?.includes(o)) S.st.removed = S.st.removed.filter(x => x !== o);
   S.st.contacts[o] = { n: prof.n, e: prof.e, p: prof.p, c: prof.c, st: prof.st, pub: Crypto.pubOnly(prof.pub), cid, added: Date.now(), connected: !!S.st.contacts[o]?.connected };
   upsertPerson(o, S.st.contacts[o]);
   const c = ensureConvo(cid, { kind: 'dm', peer: o, created: iso(Date.now()) });
@@ -1074,16 +1088,20 @@ async function acceptLink(link) {
     try {
       const c = await addContact(L.o, prof);
       let ok = false;
-      if (L.r) { try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); } }
-      if (!ok && prof.e) { try { await emailInvite(prof.e, linkFor(null)).then(h => h === 'compose' && toast(`Send that email so ${prof.n.split(' ')[0]} can connect back to you`, false, 6000)); } catch {} }
+      if (L.r) {
+        const info = await relayInfo();
+        if (info?.hs) { try { ok = (await fetch(relayBase() + '/hs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ r: L.r, o: S.outbox }) })).ok; } catch {} }
+        try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); }
+      }
       hideLoading(); openConvo(c.id);
+      if (!ok) { addPeopleModal(`<b>One more step:</b> send your link back to ${esc(prof.n.split(' ')[0])} so your messages show up on their side.`); }
     } catch (e) { hideLoading(); toast('Could not add contact: ' + e.message, true); }
   };
 }
 async function removeContact(o) {
   const ct = S.st.contacts[o]; if (!ct) return;
   if (!confirm(`Remove ${ct.n} from your contacts? Your chat history stays in your Drive but you'll stop receiving their messages.`)) return;
-  delete S.st.contacts[o]; saveState(true);
+  delete S.st.contacts[o]; S.st.removed = [...new Set([...(S.st.removed || []), o])]; saveState(true);
   S.convos.delete(ct.cid); S.active = null; S.showInfo = false; renderMain();
 }
 
@@ -2083,13 +2101,13 @@ async function emailInvite(to, link) {
   else location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(t.subject)}&body=${encodeURIComponent(t.body)}`;
   return 'compose';
 }
-async function addPeopleModal() {
+async function addPeopleModal(note = '') {
   const mobile = matchMedia('(pointer:coarse)').matches;
   const tile = (k, bg, icon, label) => `<button class="stile" data-k="${k}"><span class="stile-ic" style="background:${bg}">${icon}</span><span>${label}</span></button>`;
   const WA = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 2.4 1 2.9.8 3.4.7.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg>';
   const TG = '<svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13.2l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>';
   const VB = '<svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M11.4 2C9.3 2 5 2.4 3.3 4c-1.3 1.2-1.7 3.1-1.8 5.4-.1 2.3-.1 6.6 4.1 7.8v1.8s0 .7.5.9c.6.2.9-.4 1.5-1l1.1-1.3c3 .3 5.3-.3 5.6-.4.6-.2 4.1-.6 4.7-5.3.6-4.9-.3-8-1.9-9.4C16.6 2.2 14.5 2 11.4 2zm.4 2.4c3.3 0 4.9.5 5.6 1.1 1.2 1.1 1.8 3.6 1.4 7.6-.5 3.9-3.3 4.1-3.8 4.3-.2.1-2.2.6-4.8.4l-2.3 2.6v-2.8c-3.4-.9-3.3-4.4-3.2-6.3.1-1.9.4-3.4 1.4-4.4 1.2-1.1 4-1.5 5.7-1.5zm.2 2c-.2 0-.2.3 0 .3 1.1 0 2 .4 2.7 1.1.7.7 1 1.7 1 2.9 0 .2.3.2.3 0 0-1.3-.4-2.4-1.2-3.2-.8-.7-1.8-1.1-2.8-1.1zm-2.5.5c-.3 0-.5.1-.8.4-.4.4-.8.9-.6 1.6.4 1 1 2 1.9 3 .9.9 2 1.6 3.2 2 .7.2 1.2-.2 1.6-.6.4-.4.4-.8 0-1.1l-1.3-.9c-.4-.3-.8-.1-1 .1l-.4.5c-.2.2-.5.2-.5.2-1.6-.4-2.2-2-2.2-2s0-.3.2-.5l.5-.4c.2-.2.4-.6.1-1l-.9-1.2a.7.7 0 0 0-.8-.1zm2.7.6c-.2 0-.2.3 0 .3.8.1 1.3.6 1.4 1.4 0 .2.3.2.3 0-.1-1-.7-1.6-1.7-1.7zm.2 1c-.2 0-.2.3 0 .3.3 0 .5.2.5.5 0 .2.3.2.3 0 0-.5-.4-.8-.8-.8z"/></svg>';
-  const o = modal('Invite friends', `
+  const o = modal('Invite friends', `${note ? `<div class="note warn">${iconSm('link', 18)}<span>${note}</span></div>` : ''}
     <p class="small muted" style="margin-top:0">Send your personal link. When a friend opens it and signs in with Google, you're connected.</p>
     <div class="linkcard"><div class="linkcard-ic">${I.link}</div><div class="linkcard-t"><b>Your invite link</b><span id="my-link-t">Creating your link…</span></div><button class="btn" id="cp-link" disabled>Copy</button></div>
     <input type="hidden" id="my-link">

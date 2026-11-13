@@ -17,6 +17,16 @@ DriveChat has no server, so on its own it can only notify you while the app is o
    Commit the change; Render redeploys automatically.
 6. Each person taps **Turn on notifications** in DriveChat.
 
+## Automatic contacts (strongly recommended)
+When a friend opens your invite link, this lets YOUR app add them automatically. Without it, they'd have to send their link back to you.
+
+1. In Cloudflare, go to **Storage & databases → KV → Create**, name it `drivechat-contacts`, and click **Add**.
+2. Open the `drivechat-push` Worker → **Bindings → Add binding → KV namespace**.
+3. Set **Variable name** to `HS` (capital letters) and **KV namespace** to `drivechat-contacts`, then click **Add binding** / **Deploy**.
+4. Open the Worker URL. It should now show `"hs": true`.
+
+The relay only stores "someone accepted invite X; their DriveChat folder ID is Y" (no names, no messages), and each entry deletes itself after 30 days. This fits easily in Cloudflare's free tier.
+
 ## Keep the private key secret
 `worker-ready.js` contains your VAPID **private** key. Paste it only into Cloudflare, and never commit it to GitHub. The `worker.js` in this repo has no keys in it.
 

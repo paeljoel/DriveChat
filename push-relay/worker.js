@@ -11,6 +11,9 @@
  * EMAIL_FROM (e.g. "DriveChat <invite@yourdomain.com>"). Without them the app opens the
  * sender's own mail app instead.
  *
+ * Contacts: when a friend opens your invite link, their app leaves a note here so YOUR app adds
+ * them automatically. Needs a KV namespace bound to this Worker as HS (see README).
+ *
  * Setup: paste this whole file into a new Worker (Workers & Pages → Create → Hello World
  * → Edit code), fill the 3 constants below (or set them as Worker secrets/vars with
  * the same names), Deploy, then put the Worker URL in CONFIG.pushRelay in index.html.
@@ -104,9 +107,11 @@ export default {
     const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM);
-    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn });
+    if (req.method === 'GET' && new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
+    if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, hs: !!env.HS });
     if (req.method !== 'POST') return json({ error: 'method' }, 405);
     if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
+    if (new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
     if (new URL(req.url).pathname === '/invite') return sendInvite(req, env, cfg, json, emailOn);
     if (!cfg.pub || !cfg.priv) return json({ error: 'relay not configured' }, 500);
     let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
@@ -141,4 +146,22 @@ async function sendInvite(req, env, cfg, json, emailOn) {
   const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: env.EMAIL_FROM, to: [to], subject: m.subject, html: m.html, text: m.text, ...(p.replyTo && /^[^@\s]+@[^@\s]+$/.test(p.replyTo) ? { reply_to: p.replyTo } : {}) }) });
   return r.ok ? json({ ok: true }) : json({ error: 'email service error ' + r.status }, 502);
+}
+
+/* Invite handshake: "someone accepted invite r, their DriveChat outbox is o". Only folder IDs, kept 30 days. */
+async function handshake(req, env, json, okOrigin) {
+  if (!env.HS) return json({ error: 'kv not configured' }, 501);
+  if (!okOrigin) return json({ error: 'origin not allowed' }, 403);
+  const ID = /^[\w-]{16,64}$/;
+  if (req.method === 'GET') {
+    const rs = (new URL(req.url).searchParams.get('r') || '').split(',').filter(r => ID.test(r)).slice(0, 10);
+    const out = new Set();
+    for (const r of rs) { const l = await env.HS.list({ prefix: `hs:${r}:`, limit: 100 }); for (const k of l.keys) out.add(k.name.split(':')[2]); }
+    return json({ o: [...out] });
+  }
+  if (limited('hs:' + (req.headers.get('CF-Connecting-IP') || 'x'), 60)) return json({ error: 'slow down' }, 429);
+  let p; try { p = await req.json(); } catch { return json({ error: 'bad json' }, 400); }
+  if (!ID.test(p.r || '') || !/^[\w-]{10,64}$/.test(p.o || '')) return json({ error: 'bad ids' }, 400);
+  await env.HS.put(`hs:${p.r}:${p.o}`, '1', { expirationTtl: 30 * 86400 });
+  return json({ ok: true });
 }
