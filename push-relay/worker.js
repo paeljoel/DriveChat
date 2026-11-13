@@ -24,7 +24,8 @@
  */
 const VAPID_PUBLIC_KEY = '';      // base64url public key  (same value as CONFIG.vapidPublicKey)
 const VAPID_PRIVATE_JWK = '';     // JSON string of the private key JWK — keep this secret
-const ALLOWED_ORIGIN = '';        // your site, e.g. https://drivechat-7nzd.onrender.com
+const ALLOWED_ORIGIN = '';
+const TEXTBEE_API_KEY = '';      // optional: textbee.dev key (or set it as a Worker secret instead)        // your site, e.g. https://drivechat-7nzd.onrender.com
 
 const CONTACT = 'mailto:noreply@drivechat.app';
 const PUSH_HOSTS = [/(^|\.)googleapis\.com$/, /(^|\.)push\.apple\.com$/, /(^|\.)mozilla\.com$/, /(^|\.)mozaws\.net$/, /(^|\.)notify\.windows\.com$/];
@@ -110,7 +111,7 @@ export default {
     const cors = { 'Access-Control-Allow-Origin': cfg.origin || '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400', 'Vary': 'Origin' };
     const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM), smsOn = !!env.TEXTBEE_API_KEY;
+    const emailOn = !!(env.RESEND_API_KEY && env.EMAIL_FROM), smsOn = !!(env.TEXTBEE_API_KEY || TEXTBEE_API_KEY);
     if (req.method === 'GET' && new URL(req.url).pathname === '/hs') return handshake(req, env, json, okOrigin);
     if (req.method === 'GET') return json({ ok: !!(cfg.pub && cfg.priv), service: 'DriveChat push relay', vapidPublicKey: cfg.pub, email: emailOn, sms: smsOn, hs: !!env.HS });
     if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -153,7 +154,7 @@ async function sendSms(req, env, cfg, json, smsOn) {
     await env.HS.put(day, String(n + 1), { expirationTtl: 2 * 86400 });
   }
   const dev = env.TEXTBEE_DEVICE_ID ? `devices/${encodeURIComponent(env.TEXTBEE_DEVICE_ID)}/` : '';
-  const r = await fetch(`https://api.textbee.dev/api/v1/gateway/${dev}send-sms`, { method: 'POST', headers: { 'x-api-key': env.TEXTBEE_API_KEY, 'Content-Type': 'application/json' },
+  const r = await fetch(`https://api.textbee.dev/api/v1/gateway/${dev}send-sms`, { method: 'POST', headers: { 'x-api-key': env.TEXTBEE_API_KEY || TEXTBEE_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ recipients: [to], message: `${name} invited you to DriveChat, a private encrypted messenger. Tap to chat: ${link}` }) });
   return r.ok ? json({ ok: true }) : json({ error: 'sms failed', status: r.status }, 502);
 }
