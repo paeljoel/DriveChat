@@ -970,7 +970,7 @@ async function acceptLink(link) {
       const c = await addContact(L.o, prof);
       let ok = false;
       if (L.r) { try { await createMeta({ id: L.r, name: 'hs', parents: [S.outbox], mimeType: 'text/plain', description: JSON.stringify({ o: S.outbox }) }, 'id'); ok = true; } catch (e) { console.warn('handshake id', e.message); } }
-      if (!ok && prof.e) { try { await shareWith(S.outbox, prof.e, `${S.prof.n} accepted your DriveChat invite. Open this link to finish connecting: ${linkFor(null)}`); } catch (e) { console.warn(e); } }
+      if (!ok && prof.e) { try { await shareWith(S.outbox, prof.e, `${S.prof.n} accepted your DriveChat invite.\n\n👉 TAP THIS LINK to finish connecting:\n${linkFor(null)}\n\n(Ignore the folder and the Open button below — that's just encrypted storage.)`); } catch (e) { console.warn(e); } }
       hideLoading(); openConvo(c.id);
     } catch (e) { hideLoading(); toast('Could not add contact: ' + e.message, true); }
   };
@@ -1821,7 +1821,7 @@ async function addPeopleModal() {
     <div class="row-inline"><input class="field" readonly id="my-link" value="Generating…"><button class="btn ghost" id="cp-link" title="Copy">${I.copy}</button>${navigator.share ? `<button class="btn ghost" id="sh-link" title="Share">${I.share}</button>` : ''}</div>
     <label class="lbl">Or invite by email</label>
     <div class="row-inline"><input class="field" id="inv-email" type="email" placeholder="friend@gmail.com"><button class="btn" id="inv-send">Send</button></div>
-    <p class="tiny muted">Google sends them an email from your account with your link.</p>
+    <p class="tiny muted">Google sends them a "shared a folder" email with your link inside. Tell them to tap the link, not the Open button.</p>
     <label class="lbl">Got a friend's link? Paste it here</label>
     <div class="row-inline"><input class="field" id="paste-link" placeholder="https://…#add=…"><button class="btn ghost" id="paste-go">Add</button></div>`);
   const link = await freshInviteLink();
@@ -1832,7 +1832,7 @@ async function addPeopleModal() {
     const em = $('#inv-email', o).value.trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return toast('Enter a valid email', true);
     $('#inv-send', o).disabled = true;
-    try { await shareWith(S.outbox, em, `${S.prof.n} invited you to chat privately on DriveChat (end-to-end encrypted). Open this link to connect: ${link}`); toast('Invite sent to ' + em); closeModal(); }
+    try { await shareWith(S.outbox, em, `${S.prof.n} invited you to chat on DriveChat.\n\n👉 TAP THIS LINK to start chatting:\n${link}\n\n(Ignore the folder and the Open button below — that's just encrypted storage.)`); toast('Invite sent to ' + em); closeModal(); }
     catch (e) { toast('Could not send: ' + e.message, true); $('#inv-send', o).disabled = false; }
   };
   $('#paste-go', o).onclick = () => { const v = $('#paste-link', o).value; closeModal(); acceptLink(v); };
