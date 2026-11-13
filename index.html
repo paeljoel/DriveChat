@@ -1355,6 +1355,7 @@ function showSignIn(err) {
       Sign in with Google</button>
     ${err ? `<p class="small" style="color:var(--danger)">${esc(err)}</p>` : ''}
     <p class="tiny muted" style="margin-top:18px">DriveChat can only see the files it creates — never the rest of your Drive.</p>
+    <p class="tiny muted"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></p>
     ${CONFIG.clientId ? '' : `<button class="tiny muted" id="reset-cid" style="text-decoration:underline">Owner setup</button>`}
   </div></div>`;
   $('#signin').onclick = async () => { try { await requestToken(LS.get('lastEmail') ? '' : 'select_account'); await afterSignIn(); } catch (e) { showSignIn(e.message); } };
