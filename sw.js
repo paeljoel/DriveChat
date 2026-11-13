@@ -1,6 +1,6 @@
 /* DriveChat service worker: makes the app installable, loads it instantly,
    shows a friendly offline page, and delivers notifications on Android. */
-const VERSION = 'dc-v10';
+const VERSION = 'dc-v11';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'privacy.html', 'terms.html'];
 
 self.addEventListener('install', e => {
@@ -14,7 +14,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET' || url.origin !== location.origin) return;   // never touch Google APIs
   if (req.mode === 'navigate') {
     // network first so updates show up immediately; cached copy when offline
-    e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put('index.html', copy)); return r; })
+    e.respondWith(fetch(req.url, { cache: 'no-store', credentials: 'same-origin' }).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put('index.html', copy)); return r; })
       .catch(() => caches.match('index.html')));
     return;
   }

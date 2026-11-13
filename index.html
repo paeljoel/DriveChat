@@ -474,6 +474,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
+const APP_VERSION = '11';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -957,6 +958,7 @@ async function processFile(f, o, live, known) {
   } catch (e) { console.warn('process', f.name, e); S.seen.delete(f.id); }
 }
 function ingestRecord(c, from, f, p, live) {
+  if (c.kind === 'dm' && from === c.peer) markConnected(c, from);
   const base = { id: f.id, cid: c.id, from, ct: f.createdTime, mt: f.modifiedTime };
   switch (p.k) {
     case 'm': {
@@ -1005,7 +1007,7 @@ function ingestRecord(c, from, f, p, live) {
 }
 function markConnected(c, from) {
   if (c.kind !== 'dm' || from !== c.peer) return;
-  const ct = S.st.contacts[c.peer]; if (ct && !ct.connected) { ct.connected = true; saveState(); }
+  const ct = S.st.contacts[c.peer]; if (ct && !ct.connected) { ct.connected = true; saveState(); const w = $('#waiting'); if (w && S.active === c.id) { w.innerHTML = ''; w.dataset.peer = ''; } }
 }
 function ingestProfile(o, f) {
   const d = parseJ(f.description, null); if (!d || !d.pub) return;
@@ -1029,6 +1031,7 @@ async function ingestStatus(o, f) {
       const v = await Crypto.open(await convoKey(c), sealed);
       if (o === S.outbox) { if (v.rd && (!S.myRd[cid] || v.rd > S.myRd[cid])) S.myRd[cid] = v.rd; if (v.th?.ct) adoptTheme(c, v.th, null, v.th.ct); continue; }
       if (v.rd) p.rd[cid] = v.rd;
+      if (c.kind === 'dm' && c.peer === o) markConnected(c, o);
       (p.mu ||= {})[cid] = !!v.mu;
       if (v.th?.ct) adoptTheme(c, v.th, o, v.th.ct);
       if ('push' in v) p.push = v.push; if ('vis' in v) p.vis = !!v.vis;
@@ -2977,6 +2980,7 @@ function settingsModal() {
     <div class="note">${iconSm('lock', 18)}<span>Messages, files, calls, read receipts and typing are end-to-end encrypted. Your data is in the <b>DriveChat</b> folder of your Google Drive.</span></div>
     <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost hidden" data-install id="s-install">${I.install} Install app</button><button class="btn ghost" id="s-inv">${I.userplus} Add people</button><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/${esc(S.root)}">Open in Drive</a></div>
     <div class="divider">ACCOUNT</div>
+    <p class="tiny muted" style="margin:-4px 0 10px">DriveChat version ${APP_VERSION}</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn ghost" id="s-lock">${I.lock} Forget keys on this device</button><button class="btn ghost" id="s-out">${I.out} Sign out</button></div>`,
     `<button class="btn ghost" id="s-c">Cancel</button><button class="btn" id="s-save">Save</button>`);
   let color = S.prof.c, theme = S.theme;
