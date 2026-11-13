@@ -133,7 +133,7 @@ label.lbl{display:block;font-size:13px;color:var(--text-2);margin:14px 0 6px;fon
 .bubble.deleted{font-style:italic;opacity:.65}
 .bubble.media{padding:4px;overflow:hidden}
 .bubble a{color:inherit;text-decoration:underline}
-.mrow.me .bubble.pending{opacity:.6}
+.mrow.me .bubble.pending{opacity:1}
 .mrow.me .bubble.failed{background:var(--danger)}
 .mtime{font-size:11px;opacity:.7;margin-left:8px;float:right;margin-top:6px;white-space:nowrap}
 .bubble.media .mtime{position:absolute;right:10px;bottom:8px;background:rgba(0,0,0,.45);color:#fff;padding:1px 7px;border-radius:9px;opacity:1}
@@ -459,6 +459,32 @@ html,body{overscroll-behavior:none}
   .composer .send{width:40px;height:40px}
 }
 @media (max-width:360px){ .composer #emo-btn{display:none} }
+
+/* ---------- smooth, iPhone-like messaging ---------- */
+.msgs{scroll-behavior:auto;-webkit-overflow-scrolling:touch}
+.mrow.pop{animation:popin .32s cubic-bezier(.2,.9,.25,1.15)}
+.mrow.me.pop{transform-origin:100% 100%}.mrow.them.pop{transform-origin:0 100%}
+.sys.pop{animation:fadein .3s ease-out}
+@keyframes popin{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}}
+.clock{display:inline-flex;vertical-align:middle;opacity:.7;animation:spinslow 1.4s linear infinite}
+@keyframes spinslow{to{transform:rotate(360deg)}}
+.bubble{transition:transform .12s ease}
+.bubble:active{transform:scale(.97)}
+.send,.qe,.ibtn,.btn,.item,.pick{transition:transform .12s ease,background .15s}
+.send:active,.qe:active,.ibtn:active,.btn:active{transform:scale(.9)}
+.item:active,.pick:active{transform:scale(.985)}
+.mrow{will-change:transform}
+.mrow.swipe-ready::before{content:"";position:absolute;left:-34px;top:50%;width:26px;height:26px;margin-top:-13px;border-radius:50%;background:var(--accent-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237360f2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 17 4 12l5-5'/%3E%3Cpath d='M20 18v-2a4 4 0 0 0-4-4H4'/%3E%3C/svg%3E") center/16px no-repeat}
+/* iMessage-style tails on the last bubble of a group */
+.mrow.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted){position:relative}
+.mrow.me.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted)::after,
+.mrow.them.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted)::after{content:"";position:absolute;bottom:0;width:12px;height:16px;background:inherit;background-attachment:inherit}
+.mrow.me.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted)::after{right:-5px;clip-path:path('M0 0 C0 9 3 14 12 16 C6 16.5 2 15 0 13.5 Z')}
+.mrow.them.last .bubble:not(.big):not(.media):not(.pollb):not(.deleted)::after{left:-5px;clip-path:path('M12 0 C12 9 9 14 0 16 C6 16.5 10 15 12 13.5 Z')}
+.mrow.me.last .bubble{border-bottom-right-radius:var(--radius)}
+.mrow.them.last .bubble{border-bottom-left-radius:var(--radius)}
+@media (prefers-reduced-motion: reduce){.mrow.pop,.sys.pop,.clock{animation:none}.bubble:active,.send:active{transform:none}}
 </style>
 </head>
 <body>
@@ -474,7 +500,7 @@ html,body{overscroll-behavior:none}
      apiKey   : API key restricted to the Google Drive API (used to read friends' encrypted outboxes)
    After that, ANYONE with a Google account can sign in. No test-user lists, nothing per-user.
    ============================================================================= */
-const APP_VERSION = '11';
+const APP_VERSION = '12';
 const CONFIG = {
   clientId: '815863942138-knsjis57uffc42gb9unb49hheuo9vca8.apps.googleusercontent.com',
   apiKey: 'AIzaSyDVizULXI0T_MLZ1CUlmWf5V4hOFYKNe08',
@@ -1482,7 +1508,7 @@ async function sendFiles(files, extra = {}) {
       const rp = S.replyTo; S.replyTo = null; renderBars();
       const mime = file.type || 'application/octet-stream';
       const att = { id: f.id, n: file.name, m: mime, z: file.size, k: raw, o: S.outbox, ...extra };
-      mediaCache.set(f.id, Promise.resolve(URL.createObjectURL(file)));
+      { const url = URL.createObjectURL(file); const pr = Promise.resolve(url); pr.done = true; pr.url = url; mediaCache.set(f.id, pr); }
       await postMessage(c, { a: att, rp });
     } catch (e) { uploads.delete(key); renderUploads(); toast(e.message, true); }
   }
@@ -1495,7 +1521,7 @@ function loadMedia(a) {
       const plain = await Crypto.openBytes(await Crypto.importRaw(a.k), bytes);
       return URL.createObjectURL(new Blob([plain], { type: a.m || 'application/octet-stream' }));
     })();
-    p.catch(() => mediaCache.delete(a.id)); mediaCache.set(a.id, p);
+    p.then(u => { p.done = true; p.url = u; }, () => mediaCache.delete(a.id)); mediaCache.set(a.id, p);
   }
   return mediaCache.get(a.id);
 }
@@ -2207,10 +2233,10 @@ function renderMessages(force = false) {
   msgs.forEach((m, i) => {
     const d = new Date(m.ct);
     if (!prev || !sameDay(new Date(prev.ct), d)) html += `<div class="day">${esc(fmtDay(m.ct))}</div>`;
-    if (m.sys) { html += `<div class="sys">${m.icon ? iconSm(m.icon, 12) + ' ' : ''}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n)}</b> ${esc(m.sys)}</div>`; prev = m; return; }
+    if (m.sys) { html += `<div class="sys" data-k="${esc(m.id)}">${m.icon ? iconSm(m.icon, 12) + ' ' : ''}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n)}</b> ${esc(m.sys)}</div>`; prev = m; return; }
     if (m.gcall) { const x = c.gcalls?.get(m.gcall.id); const live = x && [...x.parts].filter(o => !x.left.has(o)); const on = live?.length && Date.now() - x.last < 150000; const inIt = gc?.id === m.gcall.id && gc.state === 'joined';
-      html += `<div class="calllog">${I[m.gcall.video ? 'video' : 'phone']}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n.split(' ')[0])}</b>&nbsp;started a group ${m.gcall.video ? 'video ' : ''}call · ${esc(fmtTime(m.ct))}${on && !inIt ? `<button class="small" style="color:var(--accent);font-weight:700;margin-left:6px" data-gjoin="${esc(m.gcall.id)}" data-v="${m.gcall.video ? 1 : 0}">Join (${live.length})</button>` : on ? ' · <span style="color:var(--ok)">in call</span>' : ''}</div>`; prev = m; return; }
-    if (m.log) { const out = m.log.by === S.outbox; html += `<div class="calllog${m.log.missed ? ' missed' : ''}">${I[m.log.video ? 'video' : 'phone']}${m.log.missed ? (out ? `${personOf(c.peer).n.split(' ')[0]} missed your call` : `Missed ${m.log.video ? 'video' : 'voice'} call`) : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`} · ${esc(fmtTime(m.ct))}${c.kind === 'dm' ? `<button class="small" style="color:var(--accent);font-weight:600;margin-left:6px" data-callback="${m.log.video ? 'v' : 'a'}">Call back</button>` : ''}</div>`; prev = m; return; }
+      html += `<div class="calllog" data-k="${esc(m.id)}">${I[m.gcall.video ? 'video' : 'phone']}<b>${esc(m.from === S.outbox ? 'You' : personOf(m.from).n.split(' ')[0])}</b>&nbsp;started a group ${m.gcall.video ? 'video ' : ''}call · ${esc(fmtTime(m.ct))}${on && !inIt ? `<button class="small" style="color:var(--accent);font-weight:700;margin-left:6px" data-gjoin="${esc(m.gcall.id)}" data-v="${m.gcall.video ? 1 : 0}">Join (${live.length})</button>` : on ? ' · <span style="color:var(--ok)">in call</span>' : ''}</div>`; prev = m; return; }
+    if (m.log) { const out = m.log.by === S.outbox; html += `<div data-k="${esc(m.id)}" class="calllog${m.log.missed ? ' missed' : ''}">${I[m.log.video ? 'video' : 'phone']}${m.log.missed ? (out ? `${personOf(c.peer).n.split(' ')[0]} missed your call` : `Missed ${m.log.video ? 'video' : 'voice'} call`) : `${m.log.video ? 'Video' : 'Voice'} call · ${fmtDur(m.log.dur)}`} · ${esc(fmtTime(m.ct))}${c.kind === 'dm' ? `<button class="small" style="color:var(--accent);font-weight:600;margin-left:6px" data-callback="${m.log.video ? 'v' : 'a'}">Call back</button>` : ''}</div>`; prev = m; return; }
     const next = msgs[i + 1];
     const plain = x => x && !x.sys && !x.log;
     const grpWithPrev = plain(prev) && prev.from === m.from && sameDay(new Date(prev.ct), d) && d - new Date(prev.ct) < 300000;
@@ -2229,7 +2255,7 @@ function renderMessages(force = false) {
       if (m.t) { if (isEmojiOnly(m.t) && !m.a && !m.rp) bcls += ' big'; inner += (m.a ? '<div style="padding:4px 6px 0">' : '') + highlightMentions(linkify(m.t), c) + (m.a ? '</div>' : ''); if ((m.mn || []).includes(S.outbox)) bcls += ' mentions-me'; }
     }
     if (m.tmp) bcls += m.failed ? ' failed' : ' pending';
-    const status = m.tmp ? (m.failed ? ' · Failed — tap to retry' : ' · Sending…') : '';
+    const status = m.tmp ? (m.failed ? ' · Not sent — tap to retry' : ` <span class="clock">${iconSm('more', 11)}</span>`) : '';
     const timeHtml = bcls.includes('big') ? '' : `<span class="mtime">${m.ed && !m.del ? 'edited · ' : ''}${esc(fmtTime(m.ct))}${status}</span>`;
     const rmap = c.reacts.get(m.id); let reactsHtml = '';
     if (rmap) {
@@ -2241,7 +2267,7 @@ function renderMessages(force = false) {
       const seers = convoMembers(c).filter(o => o !== S.outbox && (personOf(o).rd[c.id] || '') >= m.ct);
       seenHtml = `<div class="seen">${seers.length ? (c.kind === 'dm' ? 'Seen' : 'Seen by ' + esc(seers.map(o => personOf(o).n.split(' ')[0]).join(', '))) : 'Sent'}</div>`;
     }
-    html += `<div class="${cls}" data-id="${esc(m.id)}">
+    html += `<div class="${cls}" data-id="${esc(m.id)}" data-k="${esc(m.cl || m.id)}">
       ${minee ? '' : `<div class="avs">${grpWithNext ? '' : avatarHtml(u, 30)}</div>`}
       <div class="mwrap">${!minee && c.kind === 'group' && !grpWithPrev ? `<div class="sender" style="color:${esc(u.c)}">${esc(u.n)}</div>` : ''}
         <div class="${bcls}" data-act="${m.failed ? 'retry' : 'bubble'}">${inner}${timeHtml}</div>${reactsHtml}${seenHtml}</div>
@@ -2249,13 +2275,39 @@ function renderMessages(force = false) {
     </div>`;
     prev = m;
   });
-  box.innerHTML = html; box.dataset.first = msgs[0]?.id || '';
+  const firstPaint = box.dataset.painted !== c.id; box.dataset.painted = c.id;
+  const added = reconcile(box, html);
+  if (!firstPaint) for (const n of added) if (n.classList.contains('mrow') || n.classList.contains('sys')) { n.classList.add('pop'); n.addEventListener('animationend', () => n.classList.remove('pop'), { once: true }); }
+  box.dataset.first = msgs[0]?.id || '';
   const lm = $('#load-more'); if (lm) lm.onclick = () => loadHistory(c);
   hydrateMedia(box); renderTyping();
-  if (nearBottom) { box.scrollTop = box.scrollHeight; stickBottom = false; }
+  if (nearBottom) { if (firstPaint) box.scrollTop = box.scrollHeight; else box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' }); stickBottom = false; }
   else if (firstBefore && firstBefore !== box.dataset.first) box.scrollTop = prevTop + (box.scrollHeight - prevH);
   else box.scrollTop = prevTop;
   markRead();
+}
+/* keyed DOM update: keep unchanged bubbles (no flicker, photos don't reload), replace changed ones, insert new ones */
+function reconcile(box, html) {
+  const tpl = document.createElement('template'); tpl.innerHTML = html;
+  const keyOf = n => n.dataset.k || n.id || (n.className + '|' + n.textContent.slice(0, 80));
+  const old = new Map(); for (const n of box.children) if (n.__k) old.set(n.__k, n);
+  const used = new Set(), added = []; let prev = null;
+  for (const n of [...tpl.content.children]) {
+    const k = keyOf(n), h = n.outerHTML; let node = old.get(k);
+    if (!(node && node.__h === h && !used.has(node))) {
+      n.__k = k; n.__h = h;
+      if (node && !used.has(node)) { if (node.classList.contains('touch')) n.classList.add('touch'); node.replaceWith(n); }
+      else added.push(n);
+      node = n;
+    }
+    used.add(node);
+    const want = prev ? prev.nextSibling : box.firstChild;
+    if (want !== node) box.insertBefore(node, want);
+    prev = node;
+  }
+  for (const n of [...box.children]) if (!used.has(n) && n.id !== 'typing-row') n.remove();
+  const ty = $('#typing-row', box); if (ty && ty !== box.lastElementChild) box.appendChild(ty);
+  return added;
 }
 let mediaObserver = null;
 function attOf(fid) { const c = S.convos.get(S.active); for (const m of c?.msgs.values() || []) if (m.a?.id === fid) return m.a; return null; }
@@ -2270,7 +2322,11 @@ function hydrateMedia(box) {
       el.addEventListener(el.tagName === 'VIDEO' ? 'loadedmetadata' : 'load', () => { if (keep) box.scrollTop = box.scrollHeight; }, { once: true });
     }).catch(() => { el.alt = 'Could not load'; });
   }), { root: box, rootMargin: '300px' });
-  $$('.lazy', box).forEach(el => mediaObserver.observe(el));
+  $$('.lazy', box).forEach(el => {
+    const a = attOf(el.dataset.fid); const hit = a && mediaCache.get(a.id);
+    if (hit?.done) { el.src = hit.url; el.classList.remove('lazy'); return; }
+    mediaObserver.observe(el);
+  });
 }
 let curAudio = null;
 async function playAudio(wrap) {
@@ -2331,7 +2387,9 @@ function bindComposer() {
   };
   ta.onpaste = e => { const files = [...(e.clipboardData?.files || [])]; if (files.length) { e.preventDefault(); sendFiles(files); } };
   $('#qe-btn').onclick = () => sendQuickEmoji();
-  $('#send-btn').onclick = () => { if (ta.value.trim() || S.editing) { sessionStorage.removeItem(dk); sendText().then(updateSendBtn); } else startRecording(); };
+  const keepFocus = e => { if (ta.value.trim() || S.editing || e.currentTarget.id === 'qe-btn') e.preventDefault(); };
+  for (const id of ['#send-btn', '#qe-btn']) { $(id).addEventListener('mousedown', keepFocus); $(id).addEventListener('pointerdown', keepFocus); }
+  $('#send-btn').onclick = () => { if (ta.value.trim() || S.editing) { ta.focus(); navigator.vibrate?.(8); sessionStorage.removeItem(dk); stickBottom = true; sendText().then(updateSendBtn); } else startRecording(); };
   $('#att-btn').onclick = () => $('#file-in').click();
   $('#file-in').onchange = e => { sendFiles([...e.target.files]); e.target.value = ''; };
   $('#emo-btn').onclick = e => emojiPicker(e.currentTarget, em => { const s = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, s) + em + ta.value.slice(ta.selectionEnd ?? s); ta.focus(); ta.selectionStart = ta.selectionEnd = s + em.length; ta.oninput(); }, false);
@@ -2346,9 +2404,36 @@ function openConvo(id) {
   renderMain(); stickBottom = true; renderMessages(true);
   setTimeout(() => $('#composer-input')?.focus(), 50); markRead();
 }
+function bindSwipes(chat, box) {
+  let sx = 0, sy = 0, row = null, edge = false, dx = 0, locked = null;
+  chat.addEventListener('touchstart', e => {
+    const t = e.touches[0]; sx = t.clientX; sy = t.clientY; dx = 0; locked = null;
+    edge = isNarrow() && sx < 28; row = edge ? null : e.target.closest('.mrow');
+    if (row && (row.querySelector('.deleted') || !row.querySelector('.mact'))) row = null;
+  }, { passive: true });
+  chat.addEventListener('touchmove', e => {
+    const t = e.touches[0]; dx = t.clientX - sx; const dy = t.clientY - sy;
+    if (locked === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) locked = Math.abs(dx) > Math.abs(dy) * 1.3 ? 'x' : 'y';
+    if (locked !== 'x') return;
+    if (edge && dx > 0) { chat.style.transition = 'none'; chat.style.transform = `translateX(${Math.min(dx, innerWidth)}px)`; }
+    else if (row && dx > 0) { const d = Math.min(dx, 90); row.style.transition = 'none'; row.style.transform = `translateX(${d}px)`; row.classList.toggle('swipe-ready', d > 60); }
+  }, { passive: true });
+  chat.addEventListener('touchend', () => {
+    if (edge && locked === 'x') {
+      if (dx > innerWidth * 0.33) { chat.style.transition = 'transform .2s ease-out'; chat.style.transform = `translateX(${innerWidth}px)`; setTimeout(() => { chat.style.transform = ''; chat.style.transition = ''; history.state?.dc === 'chat' ? history.back() : ($('#back-btn')?.click()); }, 190); }
+      else { chat.style.transition = 'transform .2s ease-out'; chat.style.transform = ''; }
+    }
+    if (row) {
+      const r = row; r.style.transition = 'transform .25s cubic-bezier(.2,.8,.2,1.2)'; r.style.transform = ''; r.classList.remove('swipe-ready');
+      if (locked === 'x' && dx > 60) { S.replyTo = r.dataset.id; S.editing = null; renderBars(); navigator.vibrate?.(10); $('#composer-input')?.focus(); }
+    }
+    row = null; edge = false;
+  }, { passive: true });
+}
 function bindChat() {
   bindComposer();
   const box = $('#msgs'), chat = $('#chat');
+  if (!chat.dataset.sw) { chat.dataset.sw = 1; bindSwipes(chat, box); }
   box.onscroll = () => { if (box.scrollTop < 60) { const c = S.convos.get(S.active); if (c?.hasMore && c.loaded && !c.loading) loadHistory(c); } };
   box.onclick = e => {
     const gj = e.target.closest('[data-gjoin]'); if (gj) { const c = S.convos.get(S.active); if (gc || call) return toast('You are already in a call'); return joinGroupCall(c, gj.dataset.gjoin, gj.dataset.v === '1'); }
